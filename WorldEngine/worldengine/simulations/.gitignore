@@ -1,0 +1,11 @@
+/__init__.pyc
+/basic.pyc
+/biome.pyc
+/erosion.pyc
+/humidity.pyc
+/hydrology.pyc
+/icecap.pyc
+/irrigation.pyc
+/permeability.pyc
+/precipitation.pyc
+/temperature.pyc

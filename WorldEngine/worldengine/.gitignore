@@ -1,0 +1,13 @@
+/worldengine.pyc
+/worldengine_rc.pyc
+/astar.pyc
+/biome.pyc
+/common.pyc
+/draw.pyc
+/drawing_functions.pyc
+/generation.pyc
+/hdf5_serialization.pyc
+/image_io.pyc
+/plates.pyc
+/step.pyc
+/version.pyc

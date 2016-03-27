@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Images/error.png</file>
+        <file>Images/info.png</file>
+        <file>Images/question.png</file>
+        <file>Images/seed_48791_biome.png</file>
+        <file>Images/warning.png</file>
+        <file>Images/seed_48791_biome_2.png</file>
+        <file>Images/ancient_map_seed_48791.png</file>
+        <file>Images/seed_48791_elevation.png</file>
+        <file>Images/seed_57829_biome.png</file>
+        <file>Images/seed_57829_elevation.png</file>
+        <file>Images/seed_57829_grayscale.png</file>
+        <file>Images/seed_57829_ocean.png</file>
+        <file>Images/seed_57829_precipitation.png</file>
+        <file>Images/seed_57829_rivers.png</file>
+        <file>Images/seed_57829_satellite.png</file>
+        <file>Images/seed_57829_scatter.png</file>
+        <file>Images/seed_57829_temperature.png</file>
+    </qresource>
+</RCC>
