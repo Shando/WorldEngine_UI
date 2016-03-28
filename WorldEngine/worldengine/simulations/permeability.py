@@ -1,5 +1,5 @@
-from simulations.basic import find_threshold_f
-from noise import snoise2
+import simulations.basic as basic
+import noise
 import numpy
 
 
@@ -13,8 +13,8 @@ class PermeabilitySimulation(object):
         perm = self._calculate(seed, world.width, world.height)
         ocean = world.layers['ocean'].data
         perm_th = [
-            ('low', find_threshold_f(perm, 0.75, ocean)),
-            ('med', find_threshold_f(perm, 0.25, ocean)),
+            ('low', basic.find_threshold_f(perm, 0.75, ocean)),
+            ('med', basic.find_threshold_f(perm, 0.25, ocean)),
             ('hig', None)
         ]
         world.set_permeability(perm, perm_th)
@@ -32,7 +32,7 @@ class PermeabilitySimulation(object):
         for y in range(0, height):#TODO: numpy optimization?
             # yscaled = float(y) / height  # TODO: what is this?
             for x in range(0, width):
-                n = snoise2(x / freq, y / freq, octaves, base=base)
+                n = noise.snoise2(x / freq, y / freq, octaves, base=base)
                 perm[y, x] = n
 
         return perm

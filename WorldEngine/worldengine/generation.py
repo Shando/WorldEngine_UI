@@ -1,22 +1,19 @@
 import numpy
-import main as m
 
-from noise import snoise2
+import noise
 
 from model.world import Step
-from simulations.basic import find_threshold_f
-from simulations.hydrology import WatermapSimulation
-from simulations.irrigation import IrrigationSimulation
-from simulations.humidity import HumiditySimulation
-from simulations.temperature import TemperatureSimulation
-from simulations.permeability import PermeabilitySimulation
-from simulations.erosion import ErosionSimulation
-from simulations.precipitation import PrecipitationSimulation
-from simulations.biome import BiomeSimulation
-from simulations.icecap import IcecapSimulation
+import simulations.basic as basic
+import simulations.hydrology as hydro
+import simulations.irrigation as irri
+import simulations.humidity as humid
+import simulations.temperature as temp
+import simulations.permeability as perm
+import simulations.erosion as erosion
+import simulations.precipitation as precip
+import simulations.biome as biome
+import simulations.icecap as icecap
 from common import anti_alias, get_verbose
-from PyQt4.Qt import QString
-from PyQt4 import QtCore
 
 
 
@@ -25,28 +22,27 @@ from PyQt4 import QtCore
 # ------------------
 
 def center_land(world):
-    genMsg2 = QtCore.pyqtSignal(QString)
-    # Connect the trigger signal to a slot.
-    genMsg2.connect(m.pyqtSlot.updatePopup)
+    myMsg = ""
     """Translate the map horizontally and vertically to put as much ocean as
        possible at the borders. It operates on elevation and plates map"""
 
     y_sums = world.layers['elevation'].data.sum(1)  # 1 == sum along x-axis
     y_with_min_sum = y_sums.argmin()
     if get_verbose():
-        genMsg2.emit("geo.center_land: height complete")
+        myMsg = "geo.center_land: height complete"
 
     x_sums = world.layers['elevation'].data.sum(0)  # 0 == sum along y-axis
     x_with_min_sum = x_sums.argmin()
     if get_verbose():
-        genMsg2.emit("geo.center_land: width complete")
+        myMsg = myMsg + "\ngeo.center_land: width complete"
 
     latshift = 0
     world.layers['elevation'].data = numpy.roll(numpy.roll(world.layers['elevation'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     world.layers['plates'].data = numpy.roll(numpy.roll(world.layers['plates'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     if get_verbose():
-        genMsg2.emit("geo.center_land: width complete")
+        myMsg = myMsg + "\ngeo.center_land: width complete"
 
+    return myMsg
 
 def place_oceans_at_map_borders(world):
     """
@@ -75,7 +71,7 @@ def add_noise_to_elevation(world, seed):
     freq = 16.0 * octaves
     for y in range(world.height):
         for x in range(world.width):
-            n = snoise2(x / freq * 2, y / freq * 2, octaves, base=seed)
+            n = noise.snoise2(x / freq * 2, y / freq * 2, octaves, base=seed)
             world.layers['elevation'].data[y, x] += n
 
 
@@ -114,8 +110,8 @@ def initialize_ocean_and_thresholds(world, ocean_level=1.0):
     """
     e = world.layers['elevation'].data
     ocean = fill_ocean(e, ocean_level)
-    hl = find_threshold_f(e, 0.10)  # the highest 10% of all (!) land are declared hills
-    ml = find_threshold_f(e, 0.03)  # the highest 3% are declared mountains
+    hl = basic.find_threshold_f(e, 0.10)  # the highest 10% of all (!) land are declared hills
+    ml = basic.find_threshold_f(e, 0.03)  # the highest 3% are declared mountains
     e_th = [('sea', ocean_level),
             ('plain', hl),
             ('hill', ml),
@@ -182,14 +178,13 @@ def _around(x, y, width, height):
 
 
 def generate_world(w, step):
-    genMsg1 = QtCore.pyqtSignal(QString)
-    # Connect the trigger signal to a slot.
-    genMsg1.connect(m.pyqtSlot.updatePopup)
+    myMsg = ""
+
     if isinstance(step, str):
-        step = Step.get_by_name(step)
+        step = step.Step.get_by_name(step)
 
     if not step.include_precipitations:
-        return w
+        return w, myMsg
 
     # Prepare sufficient seeds for the different steps of the generation
     rng = numpy.random.RandomState(w.seed)  # create a fresh RNG in case the global RNG is compromised (i.e. has been queried an indefinite amount of times before generate_world() was called)
@@ -207,39 +202,41 @@ def generate_world(w, step):
                  '':                        sub_seeds[99]
     }
 
-    TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'])
+    temp().execute(w, seed_dict['TemperatureSimulation'])
     # Precipitation with thresholds
-    PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'])
+    precip().execute(w, seed_dict['PrecipitationSimulation'])
 
     if not step.include_erosion:
-        return w
-    ErosionSimulation().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
+        return w, myMsg
+    
+    erosion().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
+    
     if get_verbose():
-        genMsg1.emit("...erosion calculated")
+        myMsg = "...erosion calculated"
 
-    WatermapSimulation().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
+    hydro().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
 
     # FIXME: create setters
-    IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'])  # seed not currently used
-    HumiditySimulation().execute(w, seed_dict['HumiditySimulation'])  # seed not currently used
+    irri().execute(w, seed_dict['IrrigationSimulation'])  # seed not currently used
+    humid().execute(w, seed_dict['HumiditySimulation'])  # seed not currently used
 
-    PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'])
+    perm().execute(w, seed_dict['PermeabilitySimulation'])
 
-    cm, biome_cm = BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
+    cm, biome_cm = biome().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
     for cl in cm.keys():
         count = cm[cl]
         if get_verbose():
-            genMsg1.emit("%s = %i" % (str(cl), count))
+            myMsg = myMsg + "\n%s = %i" % (str(cl), count)
 
     if get_verbose():
-        genMsg1.emit('')  # empty line
-        genMsg1.emit('Biome obtained:')
+        myMsg = myMsg + ('\n')  # empty line
+        myMsg = myMsg + '\nBiome obtained:'
 
     for cl in biome_cm.keys():
         count = biome_cm[cl]
         if get_verbose():
-            genMsg1.emit(" %30s = %7i" % (str(cl), count))
+            myMsg = myMsg + "\n %30s = %7i" % (str(cl), count)
 
-    IcecapSimulation().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
+    icecap().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
 
-    return w
+    return w, myMsg

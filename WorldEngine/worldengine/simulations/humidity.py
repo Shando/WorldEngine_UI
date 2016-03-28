@@ -1,4 +1,4 @@
-from simulations.basic import find_threshold_f
+import simulations.basic as basic
 import numpy
 
 
@@ -26,11 +26,11 @@ class HumiditySimulation(object):
         # to a bell curve produced better results
         ocean = world.layers['ocean'].data
         quantiles = {}
-        quantiles['12'] = find_threshold_f(data, humids[6], ocean)
-        quantiles['25'] = find_threshold_f(data, humids[5], ocean)
-        quantiles['37'] = find_threshold_f(data, humids[4], ocean)
-        quantiles['50'] = find_threshold_f(data, humids[3], ocean)
-        quantiles['62'] = find_threshold_f(data, humids[2], ocean)
-        quantiles['75'] = find_threshold_f(data, humids[1], ocean)
-        quantiles['87'] = find_threshold_f(data, humids[0], ocean)
+        quantiles['12'] = basic.find_threshold_f(data, humids[6], ocean)
+        quantiles['25'] = basic.find_threshold_f(data, humids[5], ocean)
+        quantiles['37'] = basic.find_threshold_f(data, humids[4], ocean)
+        quantiles['50'] = basic.find_threshold_f(data, humids[3], ocean)
+        quantiles['62'] = basic.find_threshold_f(data, humids[2], ocean)
+        quantiles['75'] = basic.find_threshold_f(data, humids[1], ocean)
+        quantiles['87'] = basic.find_threshold_f(data, humids[0], ocean)
         return data, quantiles

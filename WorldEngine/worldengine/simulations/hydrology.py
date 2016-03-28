@@ -1,4 +1,4 @@
-from simulations.basic import find_threshold_f
+import simulations.basic as basic
 import numpy
 
 
@@ -63,7 +63,7 @@ class WatermapSimulation(object):
                 droplet(world, (x, y), world.precipitations_at((x, y)), _watermap_data)
         ocean = world.layers['ocean'].data
         thresholds = dict()
-        thresholds['creek'] = find_threshold_f(_watermap_data, 0.05, ocean=ocean)
-        thresholds['river'] = find_threshold_f(_watermap_data, 0.02, ocean=ocean)
-        thresholds['main river'] = find_threshold_f(_watermap_data, 0.007, ocean=ocean)
+        thresholds['creek'] = basic.find_threshold_f(_watermap_data, 0.05, ocean=ocean)
+        thresholds['river'] = basic.find_threshold_f(_watermap_data, 0.02, ocean=ocean)
+        thresholds['main river'] = basic.find_threshold_f(_watermap_data, 0.007, ocean=ocean)
         return _watermap_data, thresholds

@@ -542,10 +542,20 @@ class MyApp(FORM_1, BASE_1):
         self.cli_main('version')
 
     def generateWorld(self, step):
-        w = world_gen(sWorld, iWidth, iHeight, iSeed, [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6],
+        w, myMsg, myMsg1 = world_gen(sWorld, iWidth, iHeight, iSeed, [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6],
         [dPrecip1, dPrecip2, dPrecip3, dPrecip4, dPrecip5, dPrecip6, dPrecip7], iPlates, dSea,
         step, dGammaVal, dGammaOff, bFB, bVM)
         
+        if myMsg:
+            if myMsg1:
+                myMsg = myMsg + "\n" + myMsg1
+                self.updatePopup(myMsg)
+            else:
+                self.updatePopup(myMsg)
+        else:
+            if myMsg1:
+                self.updatePopup(myMsg1)
+
         filename = "%s/%s.world" % (sOutputDirectory, sWorld)
         
         if bPB:
@@ -607,8 +617,11 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup("+ icecap map generated in '%s'" % filename)
     
     def generate_plates(self):
-        elevation, plates = generate_plates_simulation(iSeed, iWidth, iHeight, iPlates)
+        elevation, plates, myMsg = generate_plates_simulation(iSeed, iWidth, iHeight, iPlates)
     
+        if myMsg:
+            self.updatePopup(myMsg)
+            
         world = World(sWorld, Size(iWidth, iHeight), iSeed, GenerationParameters(iPlates, -1.0, "plates"))
         world.set_elevation(numpy.array(elevation).reshape(iHeight, iWidth), None)
         world.set_plates(numpy.array(plates, dtype=numpy.uint16).reshape(iHeight, iWidth))
@@ -619,7 +632,11 @@ class MyApp(FORM_1, BASE_1):
         
         self.updatePopup("+ plates image generated in '%s'" % filename)
         
-        geo.center_land(world)
+        myMsg = geo.center_land(world)
+        
+        if myMsg:
+            self.updatePopup(myMsg)
+            
         filename = '%s/centered_plates_%s.png' % (sOutputDirectory, sWorld)
         draw_simple_elevation_on_file(world, filename, None)
         
@@ -639,9 +656,12 @@ class MyApp(FORM_1, BASE_1):
         else:
             sea_colour = "brown"
             
-        draw_ancientmap_on_file(world, sAncFile, dAncResize, sea_colour,
+        myMsg = draw_ancientmap_on_file(world, sAncFile, dAncResize, sea_colour,
         bAncBiomes, bAncRivers, bAncMountains, bAncBorders)
         
+        if myMsg:
+            self.updatePopup(myMsg)
+            
         self.updatePopup("+ ancient map generated in '%s'" % sAncFile)
     
     def __get_last_byte__(self, filename):

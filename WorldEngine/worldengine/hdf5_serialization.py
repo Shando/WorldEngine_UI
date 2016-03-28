@@ -3,9 +3,8 @@ import numpy
 import h5py
 
 from version import __version__
-from biome import biome_name_to_index, biome_index_to_name
-from model.world import World, Step, Size, GenerationParameters
-
+import biome
+import model.world as modWorld
 
 def save_world_to_hdf5(world, filename):
     f = h5py.File(filename, libver='latest', mode='w')
@@ -37,7 +36,7 @@ def save_world_to_hdf5(world, filename):
         biome_data = f.create_dataset("biome", (world.height, world.width), dtype=numpy.uint16)
         for y in range(world.height):
             for x in range(world.width):
-                biome_data[y, x] = biome_name_to_index(world.layers['biome'].data[y][x])
+                biome_data[y, x] = biome.biome_name_to_index(world.layers['biome'].data[y][x])
 
     if world.has_humidity():
         humidity_grp = f.create_group("humidity")
@@ -124,12 +123,12 @@ def _from_hdf5_matrix_with_quantiles(p_matrix):
 def load_world_to_hdf5(filename):
     f = h5py.File(filename, libver='latest', mode='r')
 
-    w = World(f['general/name'].value,
-              Size(f['general/width'].value, f['general/height'].value),
+    w = modWorld.World(f['general/name'].value,
+              modWorld.Size(f['general/width'].value, f['general/height'].value),
               f['generation_params/seed'].value,
-              GenerationParameters(f['generation_params/n_plates'].value,
+              modWorld.GenerationParameters(f['generation_params/n_plates'].value,
                                    f['generation_params/ocean_level'].value,
-                                   Step.get_by_name(f['generation_params/step'].value)))
+                                   modWorld.step.Step.get_by_name(f['generation_params/step'].value)))
 
     # Elevation
     e = numpy.array(f['elevation/data'])
@@ -153,7 +152,7 @@ def load_world_to_hdf5(filename):
             row = []
             for x in range(w.width):
                 value = f['biome'][y, x]
-                row.append(biome_index_to_name(value))
+                row.append(biome.biome_index_to_name(value))
             biome_data.append(row)
         biome = numpy.array(biome_data, dtype=object)
         w.set_biome(biome)

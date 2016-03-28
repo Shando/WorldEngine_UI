@@ -1,6 +1,6 @@
 import numpy
 
-from biome import *
+import biome
 import protobuf.World_pb2 as Protobuf
 from step import Step
 from common import _equal
@@ -245,7 +245,7 @@ class World(object):
         self._to_protobuf_matrix(self.layers['sea_depth'].data, p_world.sea_depth)
 
         if self.has_biome():
-            self._to_protobuf_matrix(self.layers['biome'].data, p_world.biome, biome_name_to_index)
+            self._to_protobuf_matrix(self.layers['biome'].data, p_world.biome, biome.biome_name_to_index)
 
         if self.has_humidity():
             self._to_protobuf_matrix_with_quantiles(self.layers['humidity'], p_world.humidity)
@@ -315,7 +315,7 @@ class World(object):
 
         # Biome
         if len(p_world.biome.rows) > 0:
-            w.set_biome(numpy.array(World._from_protobuf_matrix(p_world.biome, biome_index_to_name), dtype=object))
+            w.set_biome(numpy.array(World._from_protobuf_matrix(p_world.biome, biome.biome_index_to_name), dtype=object))
 
         # Humidity
         # FIXME: use setters
@@ -708,129 +708,129 @@ class World(object):
 
     def biome_at(self, pos):
         x, y = pos
-        b = Biome.by_name(self.layers['biome'].data[y, x])
+        b = biome.Biome.by_name(self.layers['biome'].data[y, x])
         if b is None:
             raise Exception('Not found')
         return b
 
     def is_boreal_forest(self, pos):
-        if isinstance(self.biome_at(pos), BorealMoistForest):
+        if isinstance(self.biome_at(pos), biome.BorealMoistForest):
             return True
-        elif isinstance(self.biome_at(pos), BorealWetForest):
+        elif isinstance(self.biome_at(pos), biome.BorealWetForest):
             return True
-        elif isinstance(self.biome_at(pos), BorealRainForest):
+        elif isinstance(self.biome_at(pos), biome.BorealRainForest):
             return True
         else:
             return False
 
     def is_temperate_forest(self, pos):
-        if isinstance(self.biome_at(pos), CoolTemperateMoistForest):
+        if isinstance(self.biome_at(pos), biome.CoolTemperateMoistForest):
             return True
-        elif isinstance(self.biome_at(pos), CoolTemperateWetForest):
+        elif isinstance(self.biome_at(pos), biome.CoolTemperateWetForest):
             return True
-        elif isinstance(self.biome_at(pos), CoolTemperateRainForest):
+        elif isinstance(self.biome_at(pos), biome.CoolTemperateRainForest):
             return True
         else:
             return False
 
     def is_warm_temperate_forest(self, pos):
-        if isinstance(self.biome_at(pos), WarmTemperateMoistForest):
+        if isinstance(self.biome_at(pos), biome.WarmTemperateMoistForest):
             return True
-        elif isinstance(self.biome_at(pos), WarmTemperateWetForest):
+        elif isinstance(self.biome_at(pos), biome.WarmTemperateWetForest):
             return True
-        elif isinstance(self.biome_at(pos), WarmTemperateRainForest):
+        elif isinstance(self.biome_at(pos), biome.WarmTemperateRainForest):
             return True
         else:
             return False
 
     def is_tropical_dry_forest(self, pos):
-        if isinstance(self.biome_at(pos), SubtropicalDryForest):
+        if isinstance(self.biome_at(pos), biome.SubtropicalDryForest):
             return True
-        elif isinstance(self.biome_at(pos), TropicalDryForest):
+        elif isinstance(self.biome_at(pos), biome.TropicalDryForest):
             return True
         else:
             return False
 
     def is_tundra(self, pos):
-        if isinstance(self.biome_at(pos), SubpolarMoistTundra):
+        if isinstance(self.biome_at(pos), biome.SubpolarMoistTundra):
             return True
-        elif isinstance(self.biome_at(pos), SubpolarWetTundra):
+        elif isinstance(self.biome_at(pos), biome.SubpolarWetTundra):
             return True
-        elif isinstance(self.biome_at(pos), SubpolarRainTundra):
+        elif isinstance(self.biome_at(pos), biome.SubpolarRainTundra):
             return True
         else:
             return False
 
     def is_iceland(self, pos):
-        if isinstance(self.biome_at(pos), Ice):
+        if isinstance(self.biome_at(pos), biome.Ice):
             return True
-        elif isinstance(self.biome_at(pos), PolarDesert):
+        elif isinstance(self.biome_at(pos), biome.PolarDesert):
             return True
         else:
             return False
 
     def is_jungle(self, pos):
-        if isinstance(self.biome_at(pos), SubtropicalMoistForest):
+        if isinstance(self.biome_at(pos), biome.SubtropicalMoistForest):
             return True
-        elif isinstance(self.biome_at(pos), SubtropicalWetForest):
+        elif isinstance(self.biome_at(pos), biome.SubtropicalWetForest):
             return True
-        elif isinstance(self.biome_at(pos), SubtropicalRainForest):
+        elif isinstance(self.biome_at(pos), biome.SubtropicalRainForest):
             return True
-        elif isinstance(self.biome_at(pos), TropicalMoistForest):
+        elif isinstance(self.biome_at(pos), biome.TropicalMoistForest):
             return True
-        elif isinstance(self.biome_at(pos), TropicalWetForest):
+        elif isinstance(self.biome_at(pos), biome.TropicalWetForest):
             return True
-        elif isinstance(self.biome_at(pos), TropicalRainForest):
+        elif isinstance(self.biome_at(pos), biome.TropicalRainForest):
             return True
         else:
             return False
 
     def is_savanna(self, pos):
-        if isinstance(self.biome_at(pos), SubtropicalThornWoodland):
+        if isinstance(self.biome_at(pos), biome.SubtropicalThornWoodland):
             return True
-        elif isinstance(self.biome_at(pos), TropicalThornWoodland):
+        elif isinstance(self.biome_at(pos), biome.TropicalThornWoodland):
             return True
-        elif isinstance(self.biome_at(pos), TropicalVeryDryForest):
+        elif isinstance(self.biome_at(pos), biome.TropicalVeryDryForest):
             return True
         else:
             return False
 
     def is_hot_desert(self, pos):
-        if isinstance(self.biome_at(pos), WarmTemperateDesert):
+        if isinstance(self.biome_at(pos), biome.WarmTemperateDesert):
             return True
-        elif isinstance(self.biome_at(pos), WarmTemperateDesertScrub):
+        elif isinstance(self.biome_at(pos), biome.WarmTemperateDesertScrub):
             return True
-        elif isinstance(self.biome_at(pos), SubtropicalDesert):
+        elif isinstance(self.biome_at(pos), biome.SubtropicalDesert):
             return True
-        elif isinstance(self.biome_at(pos), SubtropicalDesertScrub):
+        elif isinstance(self.biome_at(pos), biome.SubtropicalDesertScrub):
             return True
-        elif isinstance(self.biome_at(pos), TropicalDesert):
+        elif isinstance(self.biome_at(pos), biome.TropicalDesert):
             return True
-        elif isinstance(self.biome_at(pos), TropicalDesertScrub):
+        elif isinstance(self.biome_at(pos), biome.TropicalDesertScrub):
             return True
         else:
             return False
 
     def is_cold_parklands(self, pos):
-        if isinstance(self.biome_at(pos), SubpolarDryTundra):
+        if isinstance(self.biome_at(pos), biome.SubpolarDryTundra):
             return True
-        elif isinstance(self.biome_at(pos), BorealDesert):
+        elif isinstance(self.biome_at(pos), biome.BorealDesert):
             return True
-        elif isinstance(self.biome_at(pos), BorealDryScrub):
+        elif isinstance(self.biome_at(pos), biome.BorealDryScrub):
             return True
         else:
             return False
 
     def is_steppe(self, pos):
-        if isinstance(self.biome_at(pos), CoolTemperateSteppe):
+        if isinstance(self.biome_at(pos), biome.CoolTemperateSteppe):
             return True
         else:
             return False
 
     def is_cool_desert(self, pos):
-        if isinstance(self.biome_at(pos), CoolTemperateDesert):
+        if isinstance(self.biome_at(pos), biome.CoolTemperateDesert):
             return True
-        elif isinstance(self.biome_at(pos), CoolTemperateDesertScrub):
+        elif isinstance(self.biome_at(pos), biome.CoolTemperateDesertScrub):
             return True
         else:
             return False
@@ -840,9 +840,9 @@ class World(object):
 
         For details see http://en.wikipedia.org/wiki/Chaparral.
         """
-        if isinstance(self.biome_at(pos), WarmTemperateThornScrub):
+        if isinstance(self.biome_at(pos), biome.WarmTemperateThornScrub):
             return True
-        elif isinstance(self.biome_at(pos), WarmTemperateDryForest):
+        elif isinstance(self.biome_at(pos), biome.WarmTemperateDryForest):
             return True
         else:
             return False

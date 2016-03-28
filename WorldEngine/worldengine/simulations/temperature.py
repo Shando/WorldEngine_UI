@@ -1,5 +1,5 @@
-from simulations.basic import find_threshold_f
-from noise import snoise2  # http://nullege.com/codes/search/noise.snoise2
+import simulations.basic as basic
+import noise  # http://nullege.com/codes/search/noise.snoise2
 import numpy
 
 
@@ -16,12 +16,12 @@ class TemperatureSimulation(object):
 
         t = self._calculate(world, seed, e, ml)
         t_th = [
-            ('polar', find_threshold_f(t, world.temps[0], ocean)),
-            ('alpine', find_threshold_f(t, world.temps[1], ocean)),
-            ('boreal', find_threshold_f(t, world.temps[2], ocean)),
-            ('cool', find_threshold_f(t, world.temps[3], ocean)),
-            ('warm', find_threshold_f(t, world.temps[4], ocean)),
-            ('subtropical', find_threshold_f(t, world.temps[5], ocean)),
+            ('polar', basic.find_threshold_f(t, world.temps[0], ocean)),
+            ('alpine', basic.find_threshold_f(t, world.temps[1], ocean)),
+            ('boreal', basic.find_threshold_f(t, world.temps[2], ocean)),
+            ('cool', basic.find_threshold_f(t, world.temps[3], ocean)),
+            ('warm', basic.find_threshold_f(t, world.temps[4], ocean)),
+            ('subtropical', basic.find_threshold_f(t, world.temps[5], ocean)),
             ('tropical', None)
         ]
         world.set_temperature(t, t_th)
@@ -79,13 +79,13 @@ class TemperatureSimulation(object):
             latitude_factor = numpy.interp(y_scaled, [axial_tilt - 0.5, axial_tilt, axial_tilt + 0.5],
                                            [0.0, 1.0, 0.0], left=0.0, right=0.0)
             for x in range(0, width):
-                n = snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves, base=base)
+                n = noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves, base=base)
 
                 # Added to allow noise pattern to wrap around right and left.
                 if x <= border:
-                    n = (snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves,
+                    n = (noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves,
                                  base=base) * x / border) \
-                        + (snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, octaves,
+                        + (noise.snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, octaves,
                                    base=base) * (border - x) / border)
 
                 t = (latitude_factor * 12 + n * 1) / 13.0 / distance_to_sun
