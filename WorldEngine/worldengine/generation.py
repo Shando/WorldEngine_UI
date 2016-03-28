@@ -1,4 +1,5 @@
 import numpy
+import main as m
 
 from noise import snoise2
 
@@ -14,6 +15,9 @@ from simulations.precipitation import PrecipitationSimulation
 from simulations.biome import BiomeSimulation
 from simulations.icecap import IcecapSimulation
 from common import anti_alias, get_verbose
+from PyQt4.Qt import QString
+from PyQt4 import QtCore
+
 
 
 # ------------------
@@ -21,24 +25,27 @@ from common import anti_alias, get_verbose
 # ------------------
 
 def center_land(world):
+    genMsg2 = QtCore.pyqtSignal(QString)
+    # Connect the trigger signal to a slot.
+    genMsg2.connect(m.pyqtSlot.updatePopup)
     """Translate the map horizontally and vertically to put as much ocean as
        possible at the borders. It operates on elevation and plates map"""
 
     y_sums = world.layers['elevation'].data.sum(1)  # 1 == sum along x-axis
     y_with_min_sum = y_sums.argmin()
     if get_verbose():
-        print("geo.center_land: height complete")
+        genMsg2.emit("geo.center_land: height complete")
 
     x_sums = world.layers['elevation'].data.sum(0)  # 0 == sum along y-axis
     x_with_min_sum = x_sums.argmin()
     if get_verbose():
-        print("geo.center_land: width complete")
+        genMsg2.emit("geo.center_land: width complete")
 
     latshift = 0
     world.layers['elevation'].data = numpy.roll(numpy.roll(world.layers['elevation'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     world.layers['plates'].data = numpy.roll(numpy.roll(world.layers['plates'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     if get_verbose():
-        print("geo.center_land: width complete")
+        genMsg2.emit("geo.center_land: width complete")
 
 
 def place_oceans_at_map_borders(world):
@@ -175,6 +182,9 @@ def _around(x, y, width, height):
 
 
 def generate_world(w, step):
+    genMsg1 = QtCore.pyqtSignal(QString)
+    # Connect the trigger signal to a slot.
+    genMsg1.connect(m.pyqtSlot.updatePopup)
     if isinstance(step, str):
         step = Step.get_by_name(step)
 
@@ -205,7 +215,7 @@ def generate_world(w, step):
         return w
     ErosionSimulation().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
     if get_verbose():
-        print("...erosion calculated")
+        genMsg1.emit("...erosion calculated")
 
     WatermapSimulation().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
 
@@ -219,16 +229,16 @@ def generate_world(w, step):
     for cl in cm.keys():
         count = cm[cl]
         if get_verbose():
-            print("%s = %i" % (str(cl), count))
+            genMsg1.emit("%s = %i" % (str(cl), count))
 
     if get_verbose():
-        print('')  # empty line
-        print('Biome obtained:')
+        genMsg1.emit('')  # empty line
+        genMsg1.emit('Biome obtained:')
 
     for cl in biome_cm.keys():
         count = biome_cm[cl]
         if get_verbose():
-            print(" %30s = %7i" % (str(cl), count))
+            genMsg1.emit(" %30s = %7i" % (str(cl), count))
 
     IcecapSimulation().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
 

@@ -8,6 +8,10 @@ import numpy
 import sys
 import time
 from common import get_verbose
+import main as m
+from PyQt4.Qt import QString
+from PyQt4 import QtCore
+
 
 
 # -------------------
@@ -559,6 +563,9 @@ def draw_ancientmap(world, target, resize_factor=1,
                     draw_outer_land_border = False, verbose=get_verbose()):
     rng = numpy.random.RandomState(world.seed)  # create our own random generator
 
+    drawMsg1 = QtCore.pyqtSignal(QString)
+    # Connect the trigger signal to a slot.
+    drawMsg1.connect(m.pyqtSlot.updatePopup)
     if verbose:
         start_time = time.time()
 
@@ -654,10 +661,8 @@ def draw_ancientmap(world, target, resize_factor=1,
 
     if verbose:
         elapsed_time = time.time() - start_time
-        print(
-            "...drawing_functions.draw_oldmap_on_pixel: init Elapsed time " +
+        drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: init Elapsed time " +
             str(elapsed_time) + " seconds.")
-        sys.stdout.flush()
 
     if verbose:
         start_time = time.time()
@@ -677,8 +682,7 @@ def draw_ancientmap(world, target, resize_factor=1,
                 target.set_pixel(x, y, land_color)
     if verbose:
         elapsed_time = time.time() - start_time
-        print(
-            "...drawing_functions.draw_oldmap_on_pixel: color ocean " +
+        drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: color ocean " +
             "Elapsed time " + str(elapsed_time) + " seconds.")
 
     if verbose:
@@ -717,8 +721,7 @@ def draw_ancientmap(world, target, resize_factor=1,
     anti_alias(1)
     if verbose:
         elapsed_time = time.time() - start_time
-        print(
-            "...drawing_functions.draw_oldmap_on_pixel: anti alias " +
+        drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: anti alias " +
             "Elapsed time " + str(elapsed_time) + " seconds.")
 
     # Draw glacier
@@ -732,8 +735,7 @@ def draw_ancientmap(world, target, resize_factor=1,
                     _draw_glacier(target, x, y)
         if verbose:
             elapsed_time = time.time() - start_time
-            print(
-                "...drawing_functions.draw_oldmap_on_pixel: draw glacier " +
+            drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: draw glacier " +
                 "Elapsed time " + str(elapsed_time) + " seconds.")
 
         # Draw tundra
@@ -745,8 +747,7 @@ def draw_ancientmap(world, target, resize_factor=1,
                     _draw_tundra(target, x, y)
         if verbose:
             elapsed_time = time.time() - start_time
-            print(
-                "...drawing_functions.draw_oldmap_on_pixel: draw tundra " +
+            drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: draw tundra " +
                 "Elapsed time " + str(elapsed_time) + " seconds.")
 
         # Draw cold parklands
@@ -907,6 +908,5 @@ def draw_ancientmap(world, target, resize_factor=1,
                                                      radius=r, action=unset_mask)
         if verbose:
             elapsed_time = time.time() - start_time
-            print(
-                "...drawing_functions.draw_oldmap_on_pixel: draw mountains " +
+            drawMsg1.emit("...drawing_functions.draw_oldmap_on_pixel: draw mountains " +
                 "Elapsed time " + str(elapsed_time) + " seconds.")

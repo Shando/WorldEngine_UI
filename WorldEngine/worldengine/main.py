@@ -12,6 +12,7 @@ from step import Step
 from model.world import World, Size, GenerationParameters
 from version import __version__
 import world
+from PyQt4.QtCore import pyqtSlot
 
 try:
     from hdf5_serialization import save_world_to_hdf5
@@ -70,9 +71,9 @@ class MyApp(FORM_1, BASE_1):
 
         self.cli_main(sStep)
         
-        self.popup.textBrowser.append('World Generated')
+        self.updatePopup('World Generated')
         
-        if (sFormat == "png" or sFormat == ""):
+        if (sFormat == "png" or sFormat == "bmp"):
             self.tabWidget.setTabEnabled(2, True)
 
             tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
@@ -142,7 +143,7 @@ class MyApp(FORM_1, BASE_1):
         
         self.cli_main('ancient_map')
 
-        self.popup.textBrowser.append("Ancient Map Generated")
+        self.updatePopup("Ancient Map Generated")
     
     def btnBiome_Clicked(self):
         tPix = QtGui.QPixmap(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
@@ -553,57 +554,57 @@ class MyApp(FORM_1, BASE_1):
         else:
             save_world_to_hdf5(w, filename)
 
-        self.popup.textBrowser.append("* world data saved in '%s'" % filename)
+        self.updatePopup("* world data saved in '%s'" % filename)
     
         # Generate images
         filename = '%s/%s_ocean.png' % (sOutputDirectory, sWorld)
         draw_ocean_on_file(w.layers['ocean'].data, filename)
         
-        self.popup.textBrowser.append("* ocean map generated in '%s'" % filename)
+        self.updatePopup("* ocean map generated in '%s'" % filename)
     
         if step.include_precipitations:
             filename = '%s/%s_precipitation.png' % (sOutputDirectory, sWorld)
             draw_precipitation_on_file(w, filename, bBW)
             
-            self.popup.textBrowser.append("* precipitation map generated in '%s'" % filename)
+            self.updatePopup("* precipitation map generated in '%s'" % filename)
             
             filename = '%s/%s_temperature.png' % (sOutputDirectory, sWorld)
             draw_temperature_levels_on_file(w, filename, bBW)
             
-            self.popup.textBrowser.append("* temperature image generated in '%s'" % filename)
+            self.updatePopup("* temperature image generated in '%s'" % filename)
     
         if step.include_biome:
             filename = '%s/%s_biome.png' % (sOutputDirectory, sWorld)
             draw_biome_on_file(w, filename)
         
-        self.popup.textBrowser.append("* biome image generated in '%s'" % filename)
+        self.updatePopup("* biome image generated in '%s'" % filename)
     
         filename = '%s/%s_elevation.png' % (sOutputDirectory, sWorld)
         draw_simple_elevation_on_file(w, filename, sea_level=dSea)
         
-        self.popup.textBrowser.append("* elevation image generated in '%s'" % filename)
+        self.updatePopup("* elevation image generated in '%s'" % filename)
         
         return w
     
     def generate_grayscale_heightmap(self, world, filename):
         draw_grayscale_heightmap_on_file(world, filename)
-        self.popup.textBrowser.append("+ grayscale heightmap generated in '%s'" % filename)
+        self.updatePopup("+ grayscale heightmap generated in '%s'" % filename)
     
     def generate_rivers_map(self, world, filename):
         draw_riversmap_on_file(world, filename)
-        self.popup.textBrowser.append("+ rivers map generated in '%s'" % filename)
+        self.updatePopup("+ rivers map generated in '%s'" % filename)
     
     def draw_scatter_plot(self, world, filename):
         draw_scatter_plot_on_file(world, filename)
-        self.popup.textBrowser.append("+ scatter plot generated in '%s'" % filename)
+        self.updatePopup("+ scatter plot generated in '%s'" % filename)
     
     def draw_satellite_map(self, world, filename):
         draw_satellite_on_file(world, filename)
-        self.popup.textBrowser.append("+ satellite map generated in '%s'" % filename)
+        self.updatePopup("+ satellite map generated in '%s'" % filename)
     
     def draw_icecaps_map(self, world, filename):
         draw_icecaps_on_file(world, filename)
-        self.popup.textBrowser.append("+ icecap map generated in '%s'" % filename)
+        self.updatePopup("+ icecap map generated in '%s'" % filename)
     
     def generate_plates(self):
         elevation, plates = generate_plates_simulation(iSeed, iWidth, iHeight, iPlates)
@@ -616,13 +617,13 @@ class MyApp(FORM_1, BASE_1):
         filename = '%s/plates_%s.png' % (sOutputDirectory, sWorld)
         draw_simple_elevation_on_file(world, filename, None)
         
-        self.popup.textBrowser.append("+ plates image generated in '%s'" % filename)
+        self.updatePopup("+ plates image generated in '%s'" % filename)
         
         geo.center_land(world)
         filename = '%s/centered_plates_%s.png' % (sOutputDirectory, sWorld)
         draw_simple_elevation_on_file(world, filename, None)
         
-        self.popup.textBrowser.append("+ centered plates image generated in '%s'" % filename)
+        self.updatePopup("+ centered plates image generated in '%s'" % filename)
         
     def check_step(self, step_name):
         step = Step.get_by_name(step_name)
@@ -641,7 +642,7 @@ class MyApp(FORM_1, BASE_1):
         draw_ancientmap_on_file(world, sAncFile, dAncResize, sea_colour,
         bAncBiomes, bAncRivers, bAncMountains, bAncBorders)
         
-        self.popup.textBrowser.append("+ ancient map generated in '%s'" % sAncFile)
+        self.updatePopup("+ ancient map generated in '%s'" % sAncFile)
     
     def __get_last_byte__(self, filename):
         with open(filename, 'rb') as input_file:
@@ -697,20 +698,20 @@ class MyApp(FORM_1, BASE_1):
             raise Exception("The given worldfile does not seem to be a protobuf file")
     
     def print_world_info(self, world):
-        self.popup.textBrowser.append(" name               : %s" % world.name)
-        self.popup.textBrowser.append(" width              : %i" % world.width)
-        self.popup.textBrowser.append(" height             : %i" % world.height)
-        self.popup.textBrowser.append(" seed               : %i" % world.seed)
-        self.popup.textBrowser.append(" no plates          : %i" % world.n_plates)
-        self.popup.textBrowser.append(" ocean level        : %f" % world.ocean_level)
-        self.popup.textBrowser.append(" step               : %s" % world.step.name)
-        self.popup.textBrowser.append(" has biome          : %s" % world.has_biome())
-        self.popup.textBrowser.append(" has humidity       : %s" % world.has_humidity())
-        self.popup.textBrowser.append(" has irrigation     : %s" % world.has_irrigation())
-        self.popup.textBrowser.append(" has permeability   : %s" % world.has_permeability())
-        self.popup.textBrowser.append(" has watermap       : %s" % world.has_watermap())
-        self.popup.textBrowser.append(" has precipitations : %s" % world.has_precipitations())
-        self.popup.textBrowser.append(" has temperature    : %s" % world.has_temperature())
+        self.updatePopup(" name               : %s" % world.name)
+        self.updatePopup(" width              : %i" % world.width)
+        self.updatePopup(" height             : %i" % world.height)
+        self.updatePopup(" seed               : %i" % world.seed)
+        self.updatePopup(" no plates          : %i" % world.n_plates)
+        self.updatePopup(" ocean level        : %f" % world.ocean_level)
+        self.updatePopup(" step               : %s" % world.step.name)
+        self.updatePopup(" has biome          : %s" % world.has_biome())
+        self.updatePopup(" has humidity       : %s" % world.has_humidity())
+        self.updatePopup(" has irrigation     : %s" % world.has_irrigation())
+        self.updatePopup(" has permeability   : %s" % world.has_permeability())
+        self.updatePopup(" has watermap       : %s" % world.has_watermap())
+        self.updatePopup(" has precipitations : %s" % world.has_precipitations())
+        self.updatePopup(" has temperature    : %s" % world.has_temperature())
     
     def cli_main(self, operation):
         sys.setrecursionlimit(iRecursion)
@@ -722,56 +723,56 @@ class MyApp(FORM_1, BASE_1):
         self.popup.show()
         self.popup.textBrowser.setText("")
 
-        self.popup.textBrowser.append('Worldengine - a world generator (v. %s)' % VERSION)
-        self.popup.textBrowser.append('-----------------------')
+        self.updatePopup('Worldengine - a world generator (v. %s)' % VERSION)
+        self.updatePopup('-----------------------')
         APP.processEvents()
 
         if (operation == 'full' or operation == 'precipitations' or operation == 'plates'):
-            self.popup.textBrowser.append(' operation            : %s generation' % sStep)
-            self.popup.textBrowser.append(' seed                 : %i' % iSeed)
-            self.popup.textBrowser.append(' name                 : %s' % sWorld)
-            self.popup.textBrowser.append(' width                : %i' % iWidth)
-            self.popup.textBrowser.append(' height               : %i' % iHeight)
-            self.popup.textBrowser.append(' number of plates     : %i' % iPlates)
-            self.popup.textBrowser.append(' world format         : %s' % sFormat)
-            self.popup.textBrowser.append(' black and white maps : %s' % bBW)
-            self.popup.textBrowser.append(' step                 : %s' % sStep)
-            self.popup.textBrowser.append(' greyscale heightmap  : %s' % bGH)
-            self.popup.textBrowser.append(' icecaps heightmap    : %s' % bICM)
-            self.popup.textBrowser.append(' rivers map           : %s' % bRM)
-            self.popup.textBrowser.append(' scatter plot         : %s' % bSP)
-            self.popup.textBrowser.append(' satellite map        : %s' % bSM)
-            self.popup.textBrowser.append(' fade borders         : %s' % bFB)
-            self.popup.textBrowser.append(' temperature ranges   : %s' % [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6])
-            self.popup.textBrowser.append(' humidity ranges      : %s' % [dPrecip1, dPrecip2, dPrecip3, dPrecip4, dPrecip5, dPrecip6, dPrecip7])
-            self.popup.textBrowser.append(' gamma value          : %s' % dGammaVal)
-            self.popup.textBrowser.append(' gamma offset         : %s' % dGammaOff)
+            self.updatePopup(' operation            : %s generation' % sStep)
+            self.updatePopup(' seed                 : %i' % iSeed)
+            self.updatePopup(' name                 : %s' % sWorld)
+            self.updatePopup(' width                : %i' % iWidth)
+            self.updatePopup(' height               : %i' % iHeight)
+            self.updatePopup(' number of plates     : %i' % iPlates)
+            self.updatePopup(' world format         : %s' % sFormat)
+            self.updatePopup(' black and white maps : %s' % bBW)
+            self.updatePopup(' step                 : %s' % sStep)
+            self.updatePopup(' greyscale heightmap  : %s' % bGH)
+            self.updatePopup(' icecaps heightmap    : %s' % bICM)
+            self.updatePopup(' rivers map           : %s' % bRM)
+            self.updatePopup(' scatter plot         : %s' % bSP)
+            self.updatePopup(' satellite map        : %s' % bSM)
+            self.updatePopup(' fade borders         : %s' % bFB)
+            self.updatePopup(' temperature ranges   : %s' % [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6])
+            self.updatePopup(' humidity ranges      : %s' % [dPrecip1, dPrecip2, dPrecip3, dPrecip4, dPrecip5, dPrecip6, dPrecip7])
+            self.updatePopup(' gamma value          : %s' % dGammaVal)
+            self.updatePopup(' gamma offset         : %s' % dGammaOff)
             APP.processEvents()
 
         if operation == 'ancient_map':
-            self.popup.textBrowser.append(' operation              : %s generation' % operation)
-            self.popup.textBrowser.append(' resize factor          : %i' % dAncResize)
-            self.popup.textBrowser.append(' world file             : %s' % sAncFile)
+            self.updatePopup(' operation              : %s generation' % operation)
+            self.updatePopup(' resize factor          : %i' % dAncResize)
+            self.updatePopup(' world file             : %s' % sAncFile)
             
             if (bAncSeaColour):
-                self.popup.textBrowser.append(' sea color              : blue')
+                self.updatePopup(' sea color              : blue')
             else:
-                self.popup.textBrowser.append(' sea color              : brown')
+                self.updatePopup(' sea color              : brown')
 
-            self.popup.textBrowser.append(' draw biome             : %s' % bAncBiomes)
-            self.popup.textBrowser.append(' draw rivers            : %s' % bAncRivers)
-            self.popup.textBrowser.append(' draw mountains         : %s' % bAncMountains)
-            self.popup.textBrowser.append(' draw land outer border : %s' % bAncBorders)
+            self.updatePopup(' draw biome             : %s' % bAncBiomes)
+            self.updatePopup(' draw rivers            : %s' % bAncRivers)
+            self.updatePopup(' draw mountains         : %s' % bAncMountains)
+            self.updatePopup(' draw land outer border : %s' % bAncBorders)
             APP.processEvents()
 
         if operation == 'full':
-            self.popup.textBrowser.append('')  # empty line
-            self.popup.textBrowser.append('starting (this will take a few minutes and the UI will become unresponsive) ...')
+            self.updatePopup('')  # empty line
+            self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
     
             APP.processEvents()
             world = self.generateWorld(step)
             
-            self.popup.textBrowser.append("Producing Output:")
+            self.updatePopup("Producing Output:")
             APP.processEvents()
             
             if bGH:
@@ -790,15 +791,15 @@ class MyApp(FORM_1, BASE_1):
                 self.draw_icecaps_map(world, '%s/%s_icecaps.png' % (sOutputDirectory, sWorld))
     
         elif operation == 'plates':
-            self.popup.textBrowser.append('')  # empty line
-            self.popup.textBrowser.append('starting (this will take a few minutes and the UI will become unresponsive) ...')
+            self.updatePopup('')  # empty line
+            self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
             APP.processEvents()
 
             self.generate_plates()
     
         elif operation == 'ancient_map':
-            self.popup.textBrowser.append('')  # empty line
-            self.popup.textBrowser.append('starting (this will take a few minutes and the UI will become unresponsive) ...')
+            self.updatePopup('')  # empty line
+            self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
 
             # First, some error checking
             if bAncSeaColour:
@@ -808,14 +809,14 @@ class MyApp(FORM_1, BASE_1):
 
             world = self.load_world(sAncWorld)
     
-            self.popup.textBrowser.append(" * world loaded")
+            self.updatePopup(" * world loaded")
     
             generated_file = "ancient_map_%s.png" % world.name
             APP.processEvents()
             
             self.operation_ancient_map()
 
-            self.popup.textBrowser.append("ancient map generated")
+            self.updatePopup("ancient map generated")
         elif operation == 'info':
             world = self.load_world(sOutputDirectory + '/' + sWorld + '.world')
             self.print_world_info(world)
@@ -828,51 +829,51 @@ class MyApp(FORM_1, BASE_1):
         else:
             self.print_help()
 
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append('...all done!')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append('Please close this Window to return to the main UI.')
+        self.updatePopup(' ')
+        self.updatePopup('...all done!')
+        self.updatePopup(' ')
+        self.updatePopup('Please close this Window to return to the main UI.')
     
     def print_help(self):
-        self.popup.textBrowser.append(' ---------------------------------------------------------------------')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' The GUI for WorldEngine should be fairly easy to understand, but')
-        self.popup.textBrowser.append(' there are a few things to be wary of:')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' 1. The GUI will ONLY display Images (in the Generated Maps tab) that')
-        self.popup.textBrowser.append('    are saved in either BMP or PNG format.')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' 2. When you select PLATES for the STEP option, the rest of the')
-        self.popup.textBrowser.append('    options below the line will have no effect.')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' 3. The values in TEMPERATURE RANGE and PRECIPITATION RANGE MUST be')
-        self.popup.textBrowser.append('    in ASCENDING order.')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' 4. The value in RECURSION LIMIT should only be changed if you are')
-        self.popup.textBrowser.append('    creating a large map.')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' 5. Selecting NO for the USE PROTOCOL BUFFER OPTION will use the HDF5')
-        self.popup.textBrowser.append('    encoding which will result in a smaller World File being generated')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' Thats about it, but please read the Manual for a full description')
-        self.popup.textBrowser.append(' of all the options available.')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' Please close this Window to return to the main UI')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' ---------------------------------------------------------------------')
+        self.updatePopup(' ---------------------------------------------------------------------')
+        self.updatePopup(' ')
+        self.updatePopup(' The GUI for WorldEngine should be fairly easy to understand, but')
+        self.updatePopup(' there are a few things to be wary of:')
+        self.updatePopup(' ')
+        self.updatePopup(' 1. The GUI will ONLY display Images (in the Generated Maps tab) that')
+        self.updatePopup('    are saved in either BMP or PNG format.')
+        self.updatePopup(' ')
+        self.updatePopup(' 2. When you select PLATES for the STEP option, the rest of the')
+        self.updatePopup('    options below the line will have no effect.')
+        self.updatePopup(' ')
+        self.updatePopup(' 3. The values in TEMPERATURE RANGE and PRECIPITATION RANGE MUST be')
+        self.updatePopup('    in ASCENDING order.')
+        self.updatePopup(' ')
+        self.updatePopup(' 4. The value in RECURSION LIMIT should only be changed if you are')
+        self.updatePopup('    creating a large map.')
+        self.updatePopup(' ')
+        self.updatePopup(' 5. Selecting NO for the USE PROTOCOL BUFFER OPTION will use the HDF5')
+        self.updatePopup('    encoding which will result in a smaller World File being generated')
+        self.updatePopup(' ')
+        self.updatePopup(' Thats about it, but please read the Manual for a full description')
+        self.updatePopup(' of all the options available.')
+        self.updatePopup(' ')
+        self.updatePopup(' ')
+        self.updatePopup(' Please close this Window to return to the main UI')
+        self.updatePopup(' ')
+        self.updatePopup(' ---------------------------------------------------------------------')
 
     def print_version(self):
-        self.popup.textBrowser.append(' -------------------------------------------------------------------')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' Federico Tomassetti and Bret Curtis, 2011-2016')
-        self.popup.textBrowser.append(' Worldengine - a world generator (v. %s)' % VERSION)
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' Please close this Window to return to the main UI')
-        self.popup.textBrowser.append(' ')
-        self.popup.textBrowser.append(' -------------------------------------------------------------------')
+        self.updatePopup(' -------------------------------------------------------------------')
+        self.updatePopup(' ')
+        self.updatePopup(' ')
+        self.updatePopup(' Federico Tomassetti and Bret Curtis, 2011-2016')
+        self.updatePopup(' Worldengine - a world generator (v. %s)' % VERSION)
+        self.updatePopup(' ')
+        self.updatePopup(' ')
+        self.updatePopup(' Please close this Window to return to the main UI')
+        self.updatePopup(' ')
+        self.updatePopup(' -------------------------------------------------------------------')
     
     def btnCentre_Clicked(self):
         global iMsg
@@ -886,6 +887,10 @@ class MyApp(FORM_1, BASE_1):
         global iMsg
         
         iMsg = 0
+        
+    @pyqtSlot('QString')
+    def updatePopup(self, sText):
+        self.popup.textBrowser.append(sText)
         
 class FORM2(BASE_2, FORM_2):
     def __init__(self, parent=None):

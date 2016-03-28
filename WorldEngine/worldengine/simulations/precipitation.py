@@ -1,12 +1,18 @@
 import time
 import numpy
 from noise import snoise2
+from PyQt4 import QtCore
+import main as m
 
 from simulations.basic import find_threshold_f
 from common import get_verbose
+from PyQt4.Qt import QString
 
 
 class PrecipitationSimulation(object):
+    precipMsg = QtCore.pyqtSignal(QString)
+    # Connect the trigger signal to a slot.
+    precipMsg.connect(m.pyqtSlot.updatePopup)
 
     @staticmethod
     def is_applicable(world):
@@ -25,9 +31,8 @@ class PrecipitationSimulation(object):
         world.set_precipitation(pre_calculated, ths)
         if get_verbose():
             elapsed_time = time.time() - start_time
-            print(
-                "...precipitations calculated. Elapsed time %f  seconds."
-                % elapsed_time)
+                    # Emit the signal.
+        self.precipMsg.emit("...precipitations calculated. Elapsed time %f  seconds." % elapsed_time)
 
     @staticmethod
     def _calculate(seed, world):
