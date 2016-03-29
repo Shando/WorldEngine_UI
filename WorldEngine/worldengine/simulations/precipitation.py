@@ -6,13 +6,13 @@ from simulations.basic import find_threshold_f
 from common import get_verbose
 
 class PrecipitationSimulation(object):
-    myMsg = ""
-
     @staticmethod
     def is_applicable(world):
         return not world.has_precipitations()
 
     def execute(self, world, seed):
+        myMsg = ""
+        
         if get_verbose():
             start_time = time.time()
         pre_calculated = self._calculate(seed, world)
@@ -26,9 +26,9 @@ class PrecipitationSimulation(object):
         if get_verbose():
             elapsed_time = time.time() - start_time
             myMsg = "...precipitations calculated. Elapsed time %f  seconds." % elapsed_time
-        
-        return myMsg
 
+        return myMsg
+    
     @staticmethod
     def _calculate(seed, world):
         """Precipitation is a value in [-1,1]"""

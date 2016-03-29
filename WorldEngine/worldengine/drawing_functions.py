@@ -564,8 +564,7 @@ def draw_ancientmap(world, target, resize_factor=1,
     if verbose:
         start_time = time.time()
 
-    land_color = (
-        181, 166, 127, 255)  # TODO: Put this in the argument list too??
+    land_color = (181, 166, 127, 255)  # TODO: Put this in the argument list too??
     borders = _find_land_borders(world, resize_factor)
 
     if draw_outer_land_border:
@@ -577,13 +576,10 @@ def draw_ancientmap(world, target, resize_factor=1,
     if draw_biome:
         boreal_forest_mask = _find_boreal_forest_mask(world, resize_factor)
         temperate_forest_mask = _find_temperate_forest_mask(world, resize_factor)
-        warm_temperate_forest_mask = \
-            _find_warm_temperate_forest_mask(world, resize_factor)
-        tropical_dry_forest_mask = _find_tropical_dry_forest_mask(world,
-                                                                   resize_factor)
+        warm_temperate_forest_mask = _find_warm_temperate_forest_mask(world, resize_factor)
+        tropical_dry_forest_mask = _find_tropical_dry_forest_mask(world, resize_factor)
         # jungle is actually Tropical Rain Forest and Tropical Seasonal Forest
-        jungle_mask = _mask(world, world.is_jungle,
-                            resize_factor)
+        jungle_mask = _mask(world, world.is_jungle, resize_factor)
         tundra_mask = _mask(world, world.is_tundra, resize_factor)
         # savanna is actually Tropical semi-arid
         savanna_mask = _mask(world, world.is_savanna, resize_factor)

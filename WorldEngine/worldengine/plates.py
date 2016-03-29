@@ -97,4 +97,4 @@ def world_gen(name, width, height, seed, temps=[.874, .765, .594, .439, .366, .1
         elapsed_time = time.time() - start_time
         myMsg = myMsg + "\n...plates.world_gen: oceans initialized. Elapsed time " + str(elapsed_time) + " seconds."
 
-    return generate_world(world, step), myMsg
+    return generate_world(world, step, myMsg)

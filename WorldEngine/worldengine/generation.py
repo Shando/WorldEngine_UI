@@ -177,8 +177,8 @@ def _around(x, y, width, height):
     return ps
 
 
-def generate_world(w, step):
-    myMsg = ""
+def generate_world(w, step, msg1):
+    myMsg = msg1
 
     if isinstance(step, str):
         step = step.Step.get_by_name(step)
@@ -202,27 +202,27 @@ def generate_world(w, step):
                  '':                        sub_seeds[99]
     }
 
-    temp().execute(w, seed_dict['TemperatureSimulation'])
+    temp.TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'])
     # Precipitation with thresholds
-    precip().execute(w, seed_dict['PrecipitationSimulation'])
+    myMsg = myMsg + "\n" + precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'])
 
     if not step.include_erosion:
         return w, myMsg
     
-    erosion().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
+    erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
     
     if get_verbose():
-        myMsg = "...erosion calculated"
+        myMsg = myMsg + "\n...erosion calculated"
 
-    hydro().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
+    hydro.WatermapSimulation().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
 
     # FIXME: create setters
-    irri().execute(w, seed_dict['IrrigationSimulation'])  # seed not currently used
-    humid().execute(w, seed_dict['HumiditySimulation'])  # seed not currently used
+    irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'])  # seed not currently used
+    humid.HumiditySimulation().execute(w, seed_dict['HumiditySimulation'])  # seed not currently used
 
-    perm().execute(w, seed_dict['PermeabilitySimulation'])
+    perm.PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'])
 
-    cm, biome_cm = biome().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
+    cm, biome_cm = biome.BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
     for cl in cm.keys():
         count = cm[cl]
         if get_verbose():
@@ -237,6 +237,6 @@ def generate_world(w, step):
         if get_verbose():
             myMsg = myMsg + "\n %30s = %7i" % (str(cl), count)
 
-    icecap().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
+    icecap.IcecapSimulation().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
 
     return w, myMsg

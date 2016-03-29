@@ -68,53 +68,133 @@ class MyApp(FORM_1, BASE_1):
 
     def btnWorld_Clicked(self):
         self.getValues()
-
         self.cli_main(sStep)
-        
         self.updatePopup('World Generated')
-        
+        self.update_Buttons(False)
+
+    def update_Buttons(self, bAncient):
         if (sFormat == "png" or sFormat == "bmp"):
-            self.tabWidget.setTabEnabled(2, True)
-
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
-            self.btnBM.setIcon(tIcon)
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_elevation." + sFormat)
-            self.btnEM.setIcon(tIcon)
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_ocean." + sFormat)
-            self.btnOM.setIcon(tIcon)
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_precipitation." + sFormat)
-            self.btnPM.setIcon(tIcon)
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_temperature." + sFormat)
-            self.btnTM.setIcon(tIcon)
-
-            tPix = QtGui.QPixmap(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
-            self.lblImage.setPixmap(tPix)
-            
-#TODO: CHECK IF ICE CAP MAPS WORK
-#            if bICM:
-#                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_ice." + sFormat)
-#                self.btnICM.setIcon(tIcon)
-
-            if bGH:
-                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_grayscale." + sFormat)
-                self.btnGH.setIcon(tIcon)
+            if bAncient:
+                self.btnBM.setEnabled(False)
+                self.btnBM.hide()
+                self.btnEM.setEnabled(False)
+                self.btnEM.hide()
+                self.btnOM.setEnabled(False)
+                self.btnOM.hide()
+                self.btnPM.setEnabled(False)
+                self.btnPM.hide()
+                self.btnTM.setEnabled(False)
+                self.btnTM.hide()
+                self.btnICM.setEnabled(False)
+                self.btnICM.hide()
+                self.btnGH.setEnabled(False)
+                self.btnGH.hide()
+                self.btnSP.setEnabled(False)
+                self.btnSP.hide()
+                self.btnSM.setEnabled(False)
+                self.btnSM.hide()
+                self.btnRM.setEnabled(False)
+                self.btnRM.hide()
+                self.label_5.hide()
+                self.label_15.hide()
+                self.label_16.hide()
+                self.label_17.hide()
+                self.label_44.hide()
+                self.label_45.hide()
+                self.label_46.hide()
+                self.label_47.hide()
+                self.label_48.hide()
+                self.label_49.hide()
+    
+                tPix = QtGui.QPixmap(sOutputDirectory + "/" + sAncFile)
+                self.lblImage.setPixmap(tPix)                
+            else:
+                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
+                self.btnBM.setEnabled(True)
+                self.btnBM.show()
+                self.btnBM.setIcon(tIcon)
+                self.label_5.show()
+                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_elevation." + sFormat)
+                self.btnEM.setEnabled(True)
+                self.btnEM.show()
+                self.btnEM.setIcon(tIcon)
+                self.label_15.show()
+                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_ocean." + sFormat)
+                self.btnOM.setEnabled(True)
+                self.btnOM.show()
+                self.btnOM.setIcon(tIcon)
+                self.label_17.show()
+                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_precipitation." + sFormat)
+                self.btnPM.setEnabled(True)
+                self.btnPM.show()
+                self.btnPM.setIcon(tIcon)
+                self.label_45.show()
+                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_temperature." + sFormat)
+                self.btnTM.setEnabled(True)
+                self.btnTM.show()
+                self.btnTM.setIcon(tIcon)
+                self.label_48.show()
+    
+                tPix = QtGui.QPixmap(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
+                self.lblImage.setPixmap(tPix)
                 
-            if bSP:
-                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_scatter." + sFormat)
-                self.btnSP.setIcon(tIcon)
-                
-            if bSM:
-                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_satellite." + sFormat)
-                self.btnSM.setIcon(tIcon)
-                
-            if bRM:
-                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_rivers." + sFormat)
-                self.btnRM.setIcon(tIcon)
+    #TODO: CHECK IF ICE CAP MAPS WORK
+    #            if bICM:
+    #                tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_ice." + sFormat)
+    #                self.btnICM.setEnabled(True)
+    #                self.btnICM.show()
+    #                self.btnICM.setIcon(tIcon)
+    #                self.label_46.show()
+    #            else:
+    #                self.btnICM.setEnabled(False)
+    #                self.btnICM.hide()
+    #                self.label_46.hide()
+    
+                if bGH:
+                    tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_grayscale." + sFormat)
+                    self.btnGH.setEnabled(True)
+                    self.btnGH.show()
+                    self.btnGH.setIcon(tIcon)
+                    self.label_16.show()
+                else:
+                    self.btnGH.setEnabled(False)
+                    self.btnGH.hide()
+                    self.label_16.hide()
+    
+                if bSP:
+                    tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_scatter." + sFormat)
+                    self.btnSP.setEnabled(True)
+                    self.btnSP.show()
+                    self.btnSP.setIcon(tIcon)
+                    self.label_49.show()
+                else:
+                    self.btnSP.setEnabled(False)
+                    self.btnSP.hide()
+                    self.label_49.hide()
+    
+                if bSM:
+                    tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_satellite." + sFormat)
+                    self.btnSM.setEnabled(True)
+                    self.btnSM.show()
+                    self.btnSM.setIcon(tIcon)
+                    self.label_47.show()
+                else:
+                    self.btnSM.setEnabled(False)
+                    self.btnSM.hide()
+                    self.label_47.hide()
+                    
+                if bRM:
+                    tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_rivers." + sFormat)
+                    self.btnRM.setEnabled(True)
+                    self.btnRM.show()
+                    self.btnRM.setIcon(tIcon)
+                    self.label_44.show()
+                else:
+                    self.btnRM.setEnabled(False)
+                    self.btnRM.hide()
+                    self.label_44.hide()
         else:
-            #Unable to Display Images due to selected Format
-            self.setTabEnabled(2, False)
-
-            QtGui.QMessageBox.information(self, "WorldEngine", "Unfortunately, you will not be able to view the created Images due to the selected format: %s " % sFormat)
+            QtGui.QMessageBox.information(self, "WorldEngine", "Unfortunately, you will not be able to view the created Image(s) due to the selected format: %s " % sFormat)
 
     def btnRandomise_Clicked(self):
         from random import randint
@@ -131,20 +211,28 @@ class MyApp(FORM_1, BASE_1):
     def btnAncientOpen_Clicked(self):
         global sAncWorld
         global sAncFile
+        global sAncFilePath
         
-        sAncWorld = QtGui.QFileDialog.getOpenFileName(self, tr("Open World File"), ".", tr("World Files (*.world)"));
-        sAncFile = "Ancient_World_" + sAncWorld
+        sAncWorld = QtGui.QFileDialog.getOpenFileName(self, "Open World File", ".", "World Files (*.world)");
+        
+        from PyQt4.QtCore import QFileInfo
+        
+        sFile = QFileInfo(sAncWorld).completeBaseName()
+        sAncFilePath = QFileInfo(sAncWorld).absolutePath()
+        
+        sAncFile = "ancient_world_" + sFile + "." + sAncFormat
+        
+        sAncWorld = sFile
         
         self.txtAncWorld.setText(sAncWorld)
         self.txtAncFile.setText(sAncFile)
 
     def btnAncient_Clicked(self):
         self.getValues()
-        
         self.cli_main('ancient_map')
-
         self.updatePopup("Ancient Map Generated")
-    
+        self.update_Buttons(True)
+                
     def btnBiome_Clicked(self):
         tPix = QtGui.QPixmap(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
         self.lblImage.setPixmap(tPix)
@@ -194,6 +282,7 @@ class MyApp(FORM_1, BASE_1):
         global sDataType
         global sAncWorld
         global sAncFile
+        global sAncFilePath
         global sAncFormat
         global sAncDataType
         global sOutputDirectory
@@ -287,6 +376,7 @@ class MyApp(FORM_1, BASE_1):
         dGammaOff = 0.2
         sAncWorld = "seed_11111"
         sAncFile = "seed_11111_ancient"
+        sAncFilePath = "."
         dAncResize = 1.0
         bAncSeaColour = False
 #True = blue, False = brown
@@ -383,7 +473,6 @@ class MyApp(FORM_1, BASE_1):
         self.btnRM.setIcon(QtGui.QIcon())
         self.lblImage.setPixmap(QtGui.QPixmap())
         self.tabWidget.setCurrentIndex(0)
-        self.tabWidget.setTabEnabled(2, False)
         
     def getValues(self):
         global sDataType
@@ -475,28 +564,6 @@ class MyApp(FORM_1, BASE_1):
         bAncBorders = self.rdoLandYes.isChecked()
         sAncFormat = self.cboAncFormat.currentText()
         sAncDataType = self.cboAncData.currentText()
-        
-        if (sFormat == "png" or sFormat == ""):
-            tIcon = QtGui.QIcon(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
-            self.btnBM.setIcon(tIcon)
-
-            tPix = QtGui.QPixmap(sOutputDirectory + "/" + sWorld + "_biome." + sFormat)
-            self.lblImage.setPixmap(tPix)
-        else:
-            self.btnBM.setIcon(QtGui.QIcon())
-            self.lblImage.setPixmap(QtGui.QPixmap())
-            
-        self.btnEM.setIcon(QtGui.QIcon())
-        self.btnGH.setIcon(QtGui.QIcon())
-        self.btnOM.setIcon(QtGui.QIcon())
-        self.btnPM.setIcon(QtGui.QIcon())
-        self.btnICM.setIcon(QtGui.QIcon())
-        self.btnSP.setIcon(QtGui.QIcon())
-        self.btnSM.setIcon(QtGui.QIcon())
-        self.btnTM.setIcon(QtGui.QIcon())
-        self.btnRM.setIcon(QtGui.QIcon())
-
-        self.tabWidget.setCurrentIndex(0)
     
     def onActionNew(self):
         global iMsg
@@ -538,23 +605,19 @@ class MyApp(FORM_1, BASE_1):
         
         sOutputDirectory = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
         
+        if not sOutputDirectory:
+            sOutputDirectory = "."
+        
     def onActionVersionInformation(self):
         self.cli_main('version')
 
     def generateWorld(self, step):
-        w, myMsg, myMsg1 = world_gen(sWorld, iWidth, iHeight, iSeed, [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6],
+        w, myMsg = world_gen(sWorld, iWidth, iHeight, iSeed, [dTemp1, dTemp2, dTemp3, dTemp4, dTemp5, dTemp6],
         [dPrecip1, dPrecip2, dPrecip3, dPrecip4, dPrecip5, dPrecip6, dPrecip7], iPlates, dSea,
         step, dGammaVal, dGammaOff, bFB, bVM)
         
         if myMsg:
-            if myMsg1:
-                myMsg = myMsg + "\n" + myMsg1
-                self.updatePopup(myMsg)
-            else:
-                self.updatePopup(myMsg)
-        else:
-            if myMsg1:
-                self.updatePopup(myMsg1)
+            self.updatePopup(myMsg)
 
         filename = "%s/%s.world" % (sOutputDirectory, sWorld)
         
@@ -652,9 +715,9 @@ class MyApp(FORM_1, BASE_1):
         
     def operation_ancient_map(self, world):
         if bAncSeaColour == True:
-            sea_colour = "blue"
+            sea_colour = (142, 162, 179, 255)
         else:
-            sea_colour = "brown"
+            sea_colour = (212, 198, 169, 255)
             
         myMsg = draw_ancientmap_on_file(world, sAncFile, dAncResize, sea_colour,
         bAncBiomes, bAncRivers, bAncMountains, bAncBorders)
@@ -772,7 +835,7 @@ class MyApp(FORM_1, BASE_1):
         if operation == 'ancient_map':
             self.updatePopup(' operation              : %s generation' % operation)
             self.updatePopup(' resize factor          : %i' % dAncResize)
-            self.updatePopup(' world file             : %s' % sAncFile)
+            self.updatePopup(' world file             : %s' % sAncWorld)
             
             if (bAncSeaColour):
                 self.updatePopup(' sea color              : blue')
@@ -820,21 +883,24 @@ class MyApp(FORM_1, BASE_1):
         elif operation == 'ancient_map':
             self.updatePopup('')  # empty line
             self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
-
+            APP.processEvents()
+            
             # First, some error checking
             if bAncSeaColour:
                 sea_color = (142, 162, 179, 255)
             else:
                 sea_color = (212, 198, 169, 255)
 
-            world = self.load_world(sAncWorld)
+            sTmp = sAncFilePath + "/" + sAncWorld + ".world"
+            
+            world = self.load_world(sTmp)
     
             self.updatePopup(" * world loaded")
     
             generated_file = "ancient_map_%s.png" % world.name
             APP.processEvents()
             
-            self.operation_ancient_map()
+            self.operation_ancient_map(world)
 
             self.updatePopup("ancient map generated")
         elif operation == 'info':
