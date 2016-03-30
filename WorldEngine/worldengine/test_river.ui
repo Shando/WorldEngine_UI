@@ -568,12 +568,11 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    </property>
    <property name="font">
     <font>
-     <family>Open Sans</family>
-     <pointsize>12</pointsize>
+     <pointsize>-1</pointsize>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">font-szie: 16px</string>
+    <string notr="true">font-size: 16px</string>
    </property>
    <property name="suffix">
     <string>%</string>
