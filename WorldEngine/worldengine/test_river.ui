@@ -557,7 +557,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <enum>QGraphicsView::RubberBandDrag</enum>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox">
+  <widget class="QSpinBox" name="spnZoom">
    <property name="geometry">
     <rect>
      <x>1000</x>
@@ -578,7 +578,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <string>%</string>
    </property>
    <property name="minimum">
-    <number>1</number>
+    <number>25</number>
    </property>
    <property name="maximum">
     <number>500</number>
