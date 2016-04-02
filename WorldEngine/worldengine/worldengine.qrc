@@ -17,5 +17,13 @@
         <file>Images/seed_57829_satellite.png</file>
         <file>Images/seed_57829_scatter.png</file>
         <file>Images/seed_57829_temperature.png</file>
+        <file>Images/exit.png</file>
+        <file>Images/handbook.png</file>
+        <file>Images/icon.png</file>
+        <file>Images/new.png</file>
+        <file>Images/open.png</file>
+        <file>Images/qt.png</file>
+        <file>Images/zoomin.png</file>
+        <file>Images/zoomout.png</file>        
     </qresource>
 </RCC>

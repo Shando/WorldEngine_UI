@@ -1,273 +1,988 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# $RCSfile: mdiimageviewer.pyw,v $ $Revision: 00c5d1c96a3b $ $Date: 2010/10/18 20:43:38 $
 
-# Example of an image viewer with zoom
-#
-# Created: Thu Feb 25 19:54:49 2010
-#      by: PyQt4 UI code generator 4.4.4
-#
-# Author: Vincent Vande Vyvre <vins@swing.be>
-#
-# Note: before use, change the line 63
+"""
+MDI Image Viewer Window
 
-import os
-import time
-import glob
+based on PyQt MDI.py example.
+
+"""
+
+# ====================================================================
+
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+from future_builtins import *
+
+# This is only needed for Python v2 but is harmless for Python v3.
+import sip
+sip.setapi('QDate', 2)
+sip.setapi('QTime', 2)
+sip.setapi('QDateTime', 2)
+sip.setapi('QUrl', 2)
+sip.setapi('QTextStream', 2)
+sip.setapi('QVariant', 2)
+sip.setapi('QString', 2)
+
+# ====================================================================
 
 from PyQt4 import QtCore, QtGui
 
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.resize(900, 600)
-        self.centralwidget = QtGui.QWidget(MainWindow)
-        self.gridLayout = QtGui.QGridLayout(self.centralwidget)
-        self.verticalLayout = QtGui.QVBoxLayout()
-        self.scene = QtGui.QGraphicsScene()
-        self.view = QtGui.QGraphicsView(self.scene)
-        self.verticalLayout.addWidget(self.view)
-        self.horizontalLayout = QtGui.QHBoxLayout()
-        spacerItem = QtGui.QSpacerItem(150, 20, QtGui.QSizePolicy.Expanding,
-                                        QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem)
-        self.toolButton_3 = QtGui.QToolButton(self.centralwidget)
-        self.toolButton_3.setIconSize(QtCore.QSize(48, 24))
-        self.toolButton_3.setText("Previous")
-        self.horizontalLayout.addWidget(self.toolButton_3)
-        self.toolButton_4 = QtGui.QToolButton(self.centralwidget)
-        self.toolButton_4.setIconSize(QtCore.QSize(48, 24))
-        self.toolButton_4.setText("Next")
-        self.horizontalLayout.addWidget(self.toolButton_4)
-        spacerItem1 = QtGui.QSpacerItem(100, 20, QtGui.QSizePolicy.Expanding,
-                                        QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout.addItem(spacerItem1)
-        self.toolButton_6 = QtGui.QToolButton(self.centralwidget)
-        self.toolButton_6.setText("Quit")
-        self.horizontalLayout.addWidget(self.toolButton_6)
-        self.verticalLayout.addLayout(self.horizontalLayout)
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 1, 1)
-        MainWindow.setCentralWidget(self.centralwidget)
-        MainWindow.setWindowTitle("speedyView")
-        MainWindow.show()
-        QtCore.QCoreApplication.processEvents()
+import imageviewer
+#import icons_rc
 
-        QtCore.QObject.connect(ui.toolButton_3, QtCore.SIGNAL("clicked()"), self.prec)
-        QtCore.QObject.connect(ui.toolButton_4, QtCore.SIGNAL("clicked()"), self.next)
-        QtCore.QObject.connect(ui.toolButton_6, QtCore.SIGNAL("clicked()"), exit)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+__version__ = "1.0.0"
+COMPANY = "TPWorks"
+DOMAIN = "dummy-tpworks.com"
+APPNAME = "MDI Image Viewer"
 
-        self.centralwidget.wheelEvent = self.wheel_event
+SETTING_RECENTFILELIST = "recentfilelist"
+SETTING_FILEOPEN = "fileOpenDialog"
+SETTING_SCROLLBARS = "scrollbars"
+SETTING_STATUSBAR = "statusbar"
+SETTING_SYNCHZOOM = "synchzoom"
+SETTING_SYNCHPAN = "synchpan"
 
-        self.set_view()
+# ====================================================================
 
-    def set_view(self):
-        in_folder = "D:/Users/Simon/git/WorldEngine/worldengine/"
-        chain = in_folder + "*.png"
-        self.images = glob.glob(chain)
-        self.images.sort(cmp=lambda x, y: cmp(x.lower(), y.lower()))
-        self.zoom_step = 0.04
-        self.w_vsize = self.view.size().width()
-        self.h_vsize = self.view.size().height()
-        if self.w_vsize <= self.h_vsize:
-            self.max_vsize = self.w_vsize
+def toBool(value):
+    """
+    Module function to convert a value to bool.
+
+    :param value: value to be converted
+    :returns:     converted data
+    """
+    if value in ["true", "1", "True"]:
+        return True
+    elif value in ["false", "0", "False"]:
+        return False
+    else:
+        return bool(value)
+
+def strippedName(fullFilename):
+    return QtCore.QFileInfo(fullFilename).fileName()
+
+# ====================================================================
+
+class MdiChild(imageviewer.ImageViewer):
+    """ImageViewer that implements <Space> key pressed panning."""
+
+    def __init__(self, pixmap, filename, name):
+        """:param pixmap: |QPixmap| to display
+        :type pixmap: |QPixmap| or None
+        :param filename: |QPixmap| filename
+        :type filename: str or None
+        :param name: name associated with this ImageViewer
+        :type name: str or None"""
+        super(MdiChild, self).__init__(pixmap, name)
+
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+        self._isUntitled = True
+        
+        self.currentFile = filename
+# ------------------------------------------------------------------
+    @property
+    def currentFile(self):
+        """Current filename (*str*)."""
+        return self._currentFile
+
+    @currentFile.setter
+    def currentFile(self, filename):
+        self._currentFile = QtCore.QFileInfo(filename).canonicalFilePath()
+        self._isUntitled = False
+        self.setWindowTitle(self.userFriendlyCurrentFile)
+
+    @property
+    def userFriendlyCurrentFile(self):
+        """Get current filename without path (*str*)."""
+        if self.currentFile:
+            return strippedName(self.currentFile)
         else:
-            self.max_vsize = self.h_vsize
-        self.l_pix = ["", "", ""]
+            return ""
 
-        self.i_pointer = 0
-        self.p_pointer = 0
-        self.load_current()
-        self.p_pointer = 1
-        self.load_next()
-        self.p_pointer = 2
-        self.load_prec()
-        self.p_pointer = 0
+    # ------------------------------------------------------------------
 
-    def next(self):
-        self.i_pointer += 1
-        if self.i_pointer == len(self.images):
-            self.i_pointer = 0
-        self.p_view = self.c_view
-        self.c_view = self.n_view
-        self.view_current()
-        if self.p_pointer == 0:
-            self.p_pointer = 2
-            self.load_next()
-            self.p_pointer = 1
-        elif self.p_pointer == 1:
-            self.p_pointer = 0
-            self.load_next()
-            self.p_pointer = 2
+    def keyPressEvent(self, keyEvent):
+        """Overrides to enable panning while dragging.
+
+        :param QKeyEvent keyEvent: instance of |QKeyEvent|"""
+
+        assert isinstance(keyEvent, QtGui.QKeyEvent)
+        if keyEvent.key() == QtCore.Qt.Key_Space:
+            if (not keyEvent.isAutoRepeat() and
+                not self.handDragging):
+                self.enableHandDrag(True)
+            keyEvent.accept()
         else:
-            self.p_pointer = 1
-            self.load_next()
-            self.p_pointer = 0
+            keyEvent.ignore()
+        super(MdiChild, self).keyPressEvent(keyEvent)
 
-    def prec(self):
-        self.i_pointer -= 1
-        if self.i_pointer <= 0:
-            self.i_pointer = len(self.images)-1
-        self.n_view = self.c_view
-        self.c_view = self.p_view
-        self.view_current()
-        if self.p_pointer == 0:
-            self.p_pointer = 1
-            self.load_prec()
-            self.p_pointer = 2
-        elif self.p_pointer == 1:
-            self.p_pointer = 2
-            self.load_prec()
-            self.p_pointer = 0
+    def keyReleaseEvent(self, keyEvent):
+        """Overrides to disable panning while dragging.
+
+        :param QKeyEvent keyEvent: instance of |QKeyEvent|"""
+        assert isinstance(keyEvent, QtGui.QKeyEvent)
+        if keyEvent.key() == QtCore.Qt.Key_Space:
+            if (not keyEvent.isAutoRepeat() and
+                self.handDragging):
+                self.enableHandDrag(False)
+            keyEvent.accept()
         else:
-            self.p_pointer = 0
-            self.load_prec()
-            self.p_pointer = 1
+            keyEvent.ignore()
+        super(MdiChild, self).keyReleaseEvent(keyEvent)
+        
+# ====================================================================
 
-       
-    def view_current(self):
-        size_img = self.c_view.size()
-        wth, hgt = QtCore.QSize.width(size_img), QtCore.QSize.height(size_img)
-        self.scene.clear()
-        self.scene.setSceneRect(0, 0, wth, hgt)
-        self.scene.addPixmap(self.c_view)
-        QtCore.QCoreApplication.processEvents()
+class MDIImageViewerWindow(QtGui.QMainWindow):
+    """Views multiple images with optionally synchonized zooming & panning."""
 
-    def load_current(self):
-        self.l_pix[self.p_pointer] = QtGui.QPixmap(self.images[self.i_pointer])
-        self.c_view = self.l_pix[self.p_pointer].scaled(self.max_vsize, self.max_vsize, 
-                                            QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.FastTransformation)
-        #change the previous line with QtCore.Qt.SmoothTransformation eventually
-        self.view_current()
+    MaxRecentFiles = 10
 
-    def load_next(self):
-        if self.i_pointer == len(self.images)-1:
-            p = 0
+    def __init__(self):
+        super(MDIImageViewerWindow, self).__init__()
+
+        self.iX = 0
+        self.iY = 0
+        
+        self._recentFileActions = []
+        self._handlingScrollChangedSignal = False
+
+        self._mdiArea = QtGui.QMdiArea()
+        self._mdiArea.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self._mdiArea.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self._mdiArea.subWindowActivated.connect(self.subWindowActivated)
+        self.setCentralWidget(self._mdiArea)
+        #self._mdiArea.setViewMode(QtGui.QMdiArea.TabbedView)
+
+        self._mdiArea.subWindowActivated.connect(self.updateMenus)
+
+        self._windowMapper = QtCore.QSignalMapper(self)
+        self._windowMapper.mapped[QtGui.QWidget].connect(self.setActiveSubWindow)
+
+        self._actionMapper = QtCore.QSignalMapper(self)
+        self._actionMapper.mapped[str].connect(self.mappedImageViewerAction)
+        self._recentFileMapper = QtCore.QSignalMapper(self)
+        self._recentFileMapper.mapped[str].connect(self.openRecentFile)
+
+        self.createActions()
+        self.addAction(self._activateSubWindowSystemMenuAct)
+
+        self.createMenus()
+        self.updateMenus()
+        self.createStatusBar()
+        
+        self.readSettings()
+        self.updateStatusBar()
+
+        self.setUnifiedTitleAndToolBarOnMac(True)
+
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.MouseMove:
+            if event.buttons() == QtCore.Qt.NoButton:
+                self.iX = -1
+                self.iY = -1
+                self.updateStatusBar()
+            else:
+                pass # do other stuff
+        return QtGui.QMainWindow.eventFilter(self, source, event)
+        
+    def createMappedAction(self, icon, text, parent, shortcut, methodName):
+        """Create |QAction| that is mapped via methodName to call.
+
+        :param icon: icon associated with |QAction|
+        :type icon: |QIcon| or None
+        :param str text: the |QAction| descriptive text
+        :param QObject parent: the parent |QObject|
+        :param QKeySequence shortcut: the shortcut |QKeySequence|
+        :param str methodName: name of method to call when |QAction| is
+                               triggered
+        :rtype: |QAction|"""
+
+        if icon is not None:
+            action = QtGui.QAction(icon, text, parent,
+                                   shortcut=shortcut,
+                                   triggered=self._actionMapper.map)
         else:
-            p = self.i_pointer + 1
-        self.l_pix[self.p_pointer] = QtGui.QPixmap(self.images[p])
-        self.n_view = self.l_pix[self.p_pointer].scaled(self.max_vsize, 
-                                            self.max_vsize, 
-                                            QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.FastTransformation)
+            action = QtGui.QAction(text, parent,
+                                   shortcut=shortcut,
+                                   triggered=self._actionMapper.map)
+        self._actionMapper.setMapping(action, methodName)
+        return action
 
-    def load_prec(self):
-        if self.i_pointer == 0:
-            p = len(self.images)-1
+    def createActions(self):
+        """Create actions used in menus."""
+        #File menu actions
+        self._openAct = QtGui.QAction(
+            QtGui.QIcon('Images/open.png'),
+            "&Open...", self,
+            shortcut=QtGui.QKeySequence.Open,
+            statusTip="Open an existing file",
+            triggered=self.open)
+
+        self._switchLayoutDirectionAct = QtGui.QAction(
+            "Switch &layout direction", self,
+            triggered=self.switchLayoutDirection)
+
+        #create dummy recent file actions
+        for i in range(MDIImageViewerWindow.MaxRecentFiles):
+            self._recentFileActions.append(
+                QtGui.QAction(self, visible=False,
+                              triggered=self._recentFileMapper.map))
+
+        self._exitAct = QtGui.QAction(
+            QtGui.QIcon('Images/exit.png'),
+            "E&xit", self,
+            shortcut=QtGui.QKeySequence.Quit,
+            statusTip="Exit the application",
+            triggered=QtGui.qApp.closeAllWindows)
+
+        #View menu actions
+        self._showScrollbarsAct = QtGui.QAction(
+            "&Scrollbars", self,
+            checkable=True,
+            statusTip="Toggle display of subwindow scrollbars",
+            triggered=self.toggleScrollbars)
+
+        self._showStatusbarAct = QtGui.QAction(
+            "S&tatusbar", self,
+            checkable=True,
+            statusTip="Toggle display of statusbar",
+            triggered=self.toggleStatusbar)
+
+        self._synchZoomAct = QtGui.QAction(
+            "Synch &Zoom", self,
+            checkable=True,
+            statusTip="Synch zooming of subwindows",
+            triggered=self.toggleSynchZoom)
+
+        self._synchPanAct = QtGui.QAction(
+            "Synch &Pan", self,
+            checkable=True,
+            statusTip="Synch panning of subwindows",
+            triggered=self.toggleSynchPan)
+
+        #Scroll menu actions
+        self._scrollActions = [
+            self.createMappedAction(
+                None,
+                "&Top", self,
+                QtGui.QKeySequence.MoveToStartOfDocument,
+                "scrollToTop"),
+
+            self.createMappedAction(
+                None,
+                "&Bottom", self,
+                QtGui.QKeySequence.MoveToEndOfDocument,
+                "scrollToBottom"),
+
+            self.createMappedAction(
+                None,
+                "&Left Edge", self,
+                QtGui.QKeySequence.MoveToStartOfLine,
+                "scrollToBegin"),
+
+            self.createMappedAction(
+                None,
+                "&Right Edge", self,
+                QtGui.QKeySequence.MoveToEndOfLine,
+                "scrollToEnd"),
+
+            self.createMappedAction(
+                None,
+                "&Center", self,
+                "5",
+                "centerView"),
+            ]
+
+        #zoom menu actions
+        separatorAct = QtGui.QAction(self)
+        separatorAct.setSeparator(True)
+
+        self._zoomActions = [
+            self.createMappedAction(
+                QtGui.QIcon('Images/zoomin.png'),
+                "Zoo&m In (25%)", self,
+                QtGui.QKeySequence.ZoomIn,
+                "zoomIn"),
+
+            self.createMappedAction(
+                QtGui.QIcon('Images/zoomout.png'),
+                "Zoom &Out (25%)", self,
+                QtGui.QKeySequence.ZoomOut,
+                "zoomOut"),
+
+            #self.createMappedAction(
+                #None,
+                #"&Zoom To...", self,
+                #"Z",
+                #"zoomTo"),
+
+            separatorAct,
+
+            self.createMappedAction(
+                None,
+                "Actual &Size", self,
+                "/",
+                "actualSize"),
+
+            self.createMappedAction(
+                None,
+                "Fit &Image", self,
+                "*",
+                "fitToWindow"),
+
+            self.createMappedAction(
+                None,
+                "Fit &Width", self,
+                "Alt+Right",
+                "fitWidth"),
+
+            self.createMappedAction(
+                None,
+                "Fit &Height", self,
+                "Alt+Down",
+                "fitHeight"),
+           ]
+
+        #Window menu actions
+        self._activateSubWindowSystemMenuAct = QtGui.QAction(
+            "Activate &System Menu", self,
+            shortcut="Ctrl+ ",
+            statusTip="Activate subwindow System Menu",
+            triggered=self.activateSubwindowSystemMenu)
+
+        self._closeAct = QtGui.QAction(
+            "Cl&ose", self,
+            shortcut=QtGui.QKeySequence.Close,
+            shortcutContext=QtCore.Qt.WidgetShortcut,
+            #shortcut="Ctrl+Alt+F4",
+            statusTip="Close the active window",
+            triggered=self._mdiArea.closeActiveSubWindow)
+
+        self._closeAllAct = QtGui.QAction(
+            "Close &All", self,
+            statusTip="Close all the windows",
+            triggered=self._mdiArea.closeAllSubWindows)
+
+        self._tileAct = QtGui.QAction(
+            "&Tile", self,
+            statusTip="Tile the windows",
+            triggered=self._mdiArea.tileSubWindows)
+
+        self._cascadeAct = QtGui.QAction(
+            "&Cascade", self,
+            statusTip="Cascade the windows",
+            triggered=self._mdiArea.cascadeSubWindows)
+
+        self._nextAct = QtGui.QAction(
+            "Ne&xt", self,
+            shortcut=QtGui.QKeySequence.NextChild,
+            statusTip="Move the focus to the next window",
+            triggered=self._mdiArea.activateNextSubWindow)
+
+        self._previousAct = QtGui.QAction(
+            "Pre&vious", self,
+            shortcut=QtGui.QKeySequence.PreviousChild,
+            statusTip="Move the focus to the previous window",
+            triggered=self._mdiArea.activatePreviousSubWindow)
+
+        self._separatorAct = QtGui.QAction(self)
+        self._separatorAct.setSeparator(True)
+
+        self._aboutAct = QtGui.QAction(
+            QtGui.QIcon('Images/help.png'),
+            "&About", self,
+            statusTip="Show the application's About box",
+            triggered=self.about)
+
+        self._aboutQtAct = QtGui.QAction(
+            QtGui.QIcon('Images/qt.png'),
+            "About &Qt", self,
+            statusTip="Show the Qt library's About box",
+            triggered=QtGui.qApp.aboutQt)
+
+    def createMenus(self):
+        """Create menus."""
+        self._fileMenu = self.menuBar().addMenu("&File")
+        self._fileMenu.addAction(self._openAct)
+        self._fileMenu.addAction(self._switchLayoutDirectionAct)
+
+        self._fileSeparatorAct = self._fileMenu.addSeparator()
+        for action in self._recentFileActions:
+            self._fileMenu.addAction(action)
+        self.updateRecentFileActions()
+        self._fileMenu.addSeparator()
+        self._fileMenu.addAction(self._exitAct)
+
+        self._viewMenu = self.menuBar().addMenu("&View")
+        self._viewMenu.addAction(self._showScrollbarsAct)
+        self._viewMenu.addAction(self._showStatusbarAct)
+        self._viewMenu.addSeparator()
+        self._viewMenu.addAction(self._synchZoomAct)
+        self._viewMenu.addAction(self._synchPanAct)
+
+        self._scrollMenu = self.menuBar().addMenu("&Scroll")
+        [self._scrollMenu.addAction(action) for action in self._scrollActions]
+
+        self._zoomMenu = self.menuBar().addMenu("&Zoom")
+        [self._zoomMenu.addAction(action) for action in self._zoomActions]
+
+        self._windowMenu = self.menuBar().addMenu("&Window")
+        self.updateWindowMenu()
+        self._windowMenu.aboutToShow.connect(self.updateWindowMenu)
+
+        self.menuBar().addSeparator()
+
+        self._helpMenu = self.menuBar().addMenu("&Help")
+        self._helpMenu.addAction(self._aboutAct)
+        self._helpMenu.addAction(self._aboutQtAct)
+
+    def updateMenus(self):
+        """Update menus."""
+        hasMdiChild = (self.activeMdiChild is not None)
+
+        self._scrollMenu.setEnabled(hasMdiChild)
+        self._zoomMenu.setEnabled(hasMdiChild)
+
+        self._closeAct.setEnabled(hasMdiChild)
+        self._closeAllAct.setEnabled(hasMdiChild)
+
+        self._tileAct.setEnabled(hasMdiChild)
+        self._cascadeAct.setEnabled(hasMdiChild)
+        self._nextAct.setEnabled(hasMdiChild)
+        self._previousAct.setEnabled(hasMdiChild)
+        self._separatorAct.setVisible(hasMdiChild)
+
+    def updateRecentFileActions(self):
+        """Update recent file menu items."""
+        settings = QtCore.QSettings()
+        files = settings.value(SETTING_RECENTFILELIST)
+        numRecentFiles = min(len(files) if files else 0,
+                             MDIImageViewerWindow.MaxRecentFiles)
+
+        for i in range(numRecentFiles):
+            text = "&%d %s" % (i + 1, strippedName(files[i]))
+            self._recentFileActions[i].setText(text)
+            self._recentFileActions[i].setData(files[i])
+            self._recentFileActions[i].setVisible(True)
+            self._recentFileMapper.setMapping(self._recentFileActions[i],
+                                              files[i])
+
+        for j in range(numRecentFiles, MDIImageViewerWindow.MaxRecentFiles):
+            self._recentFileActions[j].setVisible(False)
+
+        self._fileSeparatorAct.setVisible((numRecentFiles > 0))
+
+    def updateWindowMenu(self):
+        """Update the Window menu."""
+        self._windowMenu.clear()
+        self._windowMenu.addAction(self._closeAct)
+        self._windowMenu.addAction(self._closeAllAct)
+        self._windowMenu.addSeparator()
+        self._windowMenu.addAction(self._tileAct)
+        self._windowMenu.addAction(self._cascadeAct)
+        self._windowMenu.addSeparator()
+        self._windowMenu.addAction(self._nextAct)
+        self._windowMenu.addAction(self._previousAct)
+        self._windowMenu.addAction(self._separatorAct)
+
+        windows = self._mdiArea.subWindowList()
+        self._separatorAct.setVisible(len(windows) != 0)
+
+        for i, window in enumerate(windows):
+            child = window.widget()
+
+            text = "%d %s" % (i + 1, child.userFriendlyCurrentFile)
+            if i < 9:
+                text = '&' + text
+
+            action = self._windowMenu.addAction(text)
+            action.setCheckable(True)
+            action.setChecked(child == self.activeMdiChild)
+            action.triggered.connect(self._windowMapper.map)
+            self._windowMapper.setMapping(action, window)
+
+    def createStatusBarLabel(self, stretch=0):
+        """Create status bar label.
+
+        :param int stretch: stretch factor
+        :rtype: |QLabel|"""
+        label = QtGui.QLabel()
+        label.setFrameStyle(QtGui.QFrame.Panel | QtGui.QFrame.Sunken)
+        label.setLineWidth(2)
+        self.statusBar().addWidget(label, stretch)
+        return label
+
+    def createStatusBar(self):
+        """Create status bar."""
+        statusBar = self.statusBar()
+
+        self._sbLabelName = self.createStatusBarLabel(1)
+        self._sbLabelXX = self.createStatusBarLabel()
+        self._sbLabelX = self.createStatusBarLabel()
+        self._sbLabelYY = self.createStatusBarLabel()
+        self._sbLabelY = self.createStatusBarLabel()
+        self._sbLabelSize = self.createStatusBarLabel()
+        self._sbLabelDimensions = self.createStatusBarLabel()
+        self._sbLabelDate = self.createStatusBarLabel()
+        self._sbLabelZoom = self.createStatusBarLabel()
+
+        statusBar.showMessage("Ready")
+
+    # ------------------------------------------------------------------
+
+    @property
+    def activeMdiChild(self):
+        """Get active MDI child (:class:`MdiChild` or *None*)."""
+        activeSubWindow = self._mdiArea.activeSubWindow()
+        if activeSubWindow:
+            return activeSubWindow.widget()
+        return None
+
+    # ------------------------------------------------------------------
+
+    #overriden methods
+
+    def closeEvent(self, event):
+        """Overrides close event to save application settings.
+
+        :param QEvent event: instance of |QEvent|"""
+        self._mdiArea.closeAllSubWindows()
+        if self.activeMdiChild:
+            event.ignore()
         else:
-            p = self.i_pointer - 1
-        self.l_pix[self.p_pointer] = QtGui.QPixmap(self.images[p])
-        self.p_view = self.l_pix[self.p_pointer].scaled(self.max_vsize, 
-                                            self.max_vsize, 
-                                            QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.FastTransformation)
+            self.writeSettings()
+            event.accept()
 
-    def wheel_event (self, event):
-        numDegrees = event.delta() / 8
-        numSteps = numDegrees / 15.0
-        self.zoom(numSteps)
-        event.accept()
+    # ------------------------------------------------------------------
 
-    def zoom(self, step):
-        self.scene.clear()
-        w = self.c_view.size().width()
-        h = self.c_view.size().height()
-        w, h = w * (1 + self.zoom_step*step), h * (1 + self.zoom_step*step)
-        self.c_view = self.l_pix[self.p_pointer].scaled(w, h, 
-                                            QtCore.Qt.KeepAspectRatio, 
-                                            QtCore.Qt.FastTransformation)
-        self.view_current()
+    @QtCore.pyqtSlot()
+    def updateMouseCoords(self):
+        send = self.sender()
+        tX = send._view.iX
+        tY = send._view.iY
+        iTX = 0
+        iTY = 0
+        
+        #I now have the location within WIDGET,
+        #just need to convert to location within IMAGE
+        pixOffset = send._pixmapItem.offset()
+        zfDelta = send._view.zoomFactor * 10000
+        fWidth = send.frameGeometry().width()
+        fHeight = send.frameGeometry().height()
+        pixmap = send.pixmap
+        pWidth = pixmap.width()
+        pHeight = pixmap.height()
 
-if __name__ == "__main__":
+        mouse = QtCore.QPoint(tX, tY)
+
+        iPoint = send._view.mapFromGlobal(mouse)
+        iPointF = send._view.mapToScene(iPoint)
+
+        print ("offset X: %d - Y: %d" % (pixOffset.x(), pixOffset.y()))
+        #zfDelta = % zoom * 10000 - i.e. to 2dp
+        print ("Zoom Delta: %0.f" % zfDelta)
+        #fHeight & fWidth are size of the Frame
+        print ("Frame H: %d - W: %d" % (fHeight, fWidth))
+        #pHeight & pWidth are size of original Pixmap
+        print ("Pixmap H: %d - W: %d" % (pHeight, pWidth))
+        #iPointF = Location on SCALED PIXMAP
+        print ("Pixel: X: %d - Y: %d" % (iPointF.x(), iPointF.y()))
+
+        self.iX = iPointF.x()
+        self.iY = iPointF.y()
+        self.updateStatusBar()
+
+    @QtCore.pyqtSlot(str)
+    def mappedImageViewerAction(self, methodName):
+        """Perform action mapped to :class:`imageviewer.ImageViewer`
+        methodName.
+
+        :param str methodName: method to call"""
+        activeViewer = self.activeMdiChild
+        if hasattr(activeViewer, str(methodName)):
+            getattr(activeViewer, str(methodName))()
+
+    @QtCore.pyqtSlot()
+    def toggleSynchPan(self):
+        """Toggle synchronized subwindow panning."""
+        if self._synchPanAct.isChecked():
+            self.synchPan(self.activeMdiChild)
+
+    @QtCore.pyqtSlot()
+    def panChanged(self):
+        """Synchronize subwindow pans."""
+        mdiChild = self.sender()
+        while mdiChild is not None and type(mdiChild) != MdiChild:
+            mdiChild = mdiChild.parent()
+        if mdiChild and self._synchPanAct.isChecked():
+            self.synchPan(mdiChild)
+
+    @QtCore.pyqtSlot()
+    def toggleSynchZoom(self):
+        """Toggle synchronized subwindow zooming."""
+        if self._synchZoomAct.isChecked():
+            self.synchZoom(self.activeMdiChild)
+
+    @QtCore.pyqtSlot()
+    def zoomChanged(self):
+        """Synchronize subwindow zooms."""
+        mdiChild = self.sender()
+        if self._synchZoomAct.isChecked():
+            self.synchZoom(mdiChild)
+        self.updateStatusBar()
+
+    @QtCore.pyqtSlot()
+    def activateSubwindowSystemMenu(self):
+        """Activate current subwindow's System Menu."""
+        activeSubWindow = self._mdiArea.activeSubWindow()
+        if activeSubWindow:
+            activeSubWindow.showSystemMenu()
+
+    @QtCore.pyqtSlot(str)
+    def openRecentFile(self, filename):
+        """Open a recent file.
+
+        :param str filename: filename to view"""
+        self.loadFile(filename)
+
+    @QtCore.pyqtSlot()
+    def open(self):
+        """Handle the open action."""
+        fileDialog = QtGui.QFileDialog(self)
+        settings = QtCore.QSettings()
+        fileDialog.setNameFilters(["Image Files (*.jpg *.png *.tif)",
+                                   "All Files (*)"])
+        if not settings.contains(SETTING_FILEOPEN + "/state"):
+            fileDialog.setDirectory(".")
+        else:
+            self.restoreDialogState(fileDialog, SETTING_FILEOPEN)
+        fileDialog.setFileMode(QtGui.QFileDialog.ExistingFile)
+        if not fileDialog.exec_():
+            return
+        self.saveDialogState(fileDialog, SETTING_FILEOPEN)
+
+        filename = fileDialog.selectedFiles()[0]
+        self.loadFile(filename)
+
+    @QtCore.pyqtSlot()
+    def toggleScrollbars(self):
+        """Toggle subwindow scrollbar visibility."""
+        checked = self._showScrollbarsAct.isChecked()
+
+        windows = self._mdiArea.subWindowList()
+        for window in windows:
+            child = window.widget()
+            child.enableScrollBars(checked)
+
+    @QtCore.pyqtSlot()
+    def toggleStatusbar(self):
+        """Toggle status bar visibility."""
+        self.statusBar().setVisible(self._showStatusbarAct.isChecked())
+
+    @QtCore.pyqtSlot()
+    def about(self):
+        """Display About dialog box."""
+        QtGui.QMessageBox.about(self, "About MDI",
+                "<b>MDI Image Viewer</b> demonstrates how to"
+                "synchronize the panning and zooming of multiple image"
+                "viewer windows using Qt.")
+
+    @QtCore.pyqtSlot(QtGui.QMdiSubWindow)
+    def subWindowActivated(self, window):
+        """Handle |QMdiSubWindow| activated signal.
+
+        :param |QMdiSubWindow| window: |QMdiSubWindow| that was just
+                                       activated"""
+        self.updateStatusBar()
+
+    @QtCore.pyqtSlot(QtGui.QMdiSubWindow)
+    def setActiveSubWindow(self, window):
+        """Set active |QMdiSubWindow|.
+
+        :param |QMdiSubWindow| window: |QMdiSubWindow| to activate """
+        if window:
+            self._mdiArea.setActiveSubWindow(window)
+
+# ------------------------------------------------------------------
+
+    def loadFile(self, filename):
+        """Load filename into new :class:`MdiChild` window.
+
+        :param str filename: filename to load"""
+        activeMdiChild = self.activeMdiChild
+        QtGui.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        pixmap = QtGui.QPixmap(filename)
+        QtGui.QApplication.restoreOverrideCursor()
+        if (not pixmap or
+            pixmap.width()==0 or pixmap.height==0):
+            QtGui.QMessageBox.warning(self, APPNAME,
+                                      "Cannot read file %s." % (filename,))
+            self.updateRecentFileSettings(filename, delete=True)
+            self.updateRecentFileActions()
+            return
+
+        child = self.createMdiChild(pixmap, filename)
+        
+        child.show()
+
+        if activeMdiChild:
+            if self._synchPanAct.isChecked():
+                self.synchPan(activeMdiChild)
+            if self._synchZoomAct.isChecked():
+                self.synchZoom(activeMdiChild)
+
+        self.updateRecentFileSettings(filename)
+        self.updateRecentFileActions()
+
+        self.statusBar().showMessage("File loaded", 2000)
+
+    def updateStatusBar(self):
+        """Update status bar."""
+        self.statusBar().setVisible(self._showStatusbarAct.isChecked())
+        imageViewer = self.activeMdiChild
+        if not imageViewer:
+            self._sbLabelName.setText("")
+            self._sbLabelXX.setText("X:")
+            sX = "%d" % self.iX
+            self._sbLabelX.setText(sX)
+            self._sbLabelYY.setText("Y:")
+            sY = "%d" % self.iY
+            self._sbLabelY.setText(sY)
+            self._sbLabelSize.setText("")
+            self._sbLabelDimensions.setText("")
+            self._sbLabelDate.setText("")
+            self._sbLabelZoom.setText("")
+
+            self._sbLabelXX.hide()
+            self._sbLabelX.hide()
+            self._sbLabelYY.hide()
+            self._sbLabelY.hide()
+            self._sbLabelSize.hide()
+            self._sbLabelDimensions.hide()
+            self._sbLabelDate.hide()
+            self._sbLabelZoom.hide()
+            return
+
+        filename = imageViewer.currentFile
+        self._sbLabelName.setText(" %s " % filename)
+        self._sbLabelXX.setText("X:")
+        curMDIChild = imageViewer._view.cursor()
+        sX = "%d" % self.iX
+        self._sbLabelX.setText(sX)
+        self._sbLabelYY.setText("Y:")
+        sY = "%d" % self.iY
+        self._sbLabelY.setText(sY)
+        
+        fi = QtCore.QFileInfo(filename)
+        size = fi.size()
+        fmt = " %.1f %s "
+        if size > 1024*1024*1024:
+            unit = "MB"
+            size /= 1024*1024*1024
+        elif size > 1024*1024:
+            unit = "MB"
+            size /= 1024*1024
+        elif size > 1024:
+            unit = "KB"
+            size /= 1024
+        else:
+            unit = "Bytes"
+            fmt = " %d %s "
+        self._sbLabelSize.setText(fmt % (size, unit))
+
+        pixmap = imageViewer.pixmap
+        self._sbLabelDimensions.setText(" %dx%dx%d " %
+                                        (pixmap.width(),
+                                         pixmap.height(),
+                                         pixmap.depth()))
+
+        self._sbLabelDate.setText(
+            " %s " %
+            fi.lastModified().toString(QtCore.Qt.SystemLocaleShortDate))
+        self._sbLabelZoom.setText(" %0.f%% " % (imageViewer.zoomFactor*100,))
+
+        self._sbLabelSize.show()
+        self._sbLabelDimensions.show()
+        self._sbLabelXX.show()
+        self._sbLabelX.show()
+        self._sbLabelYY.show()
+        self._sbLabelY.show()
+        self._sbLabelDate.show()
+        self._sbLabelZoom.show()
+
+    def createMdiChild(self, pixmap, filename):
+        """Create new :class:`MdiChild` for pixmap.
+
+        :param pixmap: |QPixmap| to display in :class:`MdiChild`
+        :type pixmap: |QPixmap| or None
+        :param filename: |QPixmap| filename
+        :type filename: str or None
+        :rtype: :class:`MdiChild`"""
+
+        child = MdiChild(pixmap, filename, "")
+        
+        child.enableScrollBars(self._showScrollbarsAct.isChecked())
+        window = self._mdiArea.addSubWindow(child)
+        
+        child.scrollChanged.connect(self.panChanged)
+        child.transformChanged.connect(self.zoomChanged)
+        child.mouseMoved.connect(self.updateMouseCoords)
+        x = child.frameRect()        
+
+        return child
+
+    def switchLayoutDirection(self):
+        """Switch MDI subwindow layout direction."""
+        if self.layoutDirection() == QtCore.Qt.LeftToRight:
+            QtGui.qApp.setLayoutDirection(QtCore.Qt.RightToLeft)
+        else:
+            QtGui.qApp.setLayoutDirection(QtCore.Qt.LeftToRight)
+
+    def synchPan(self, fromViewer):
+        """Synch panning of all subwindows to the same as *fromViewer*.
+
+        :param fromViewer: :class:`MdiChild` that initiated synching"""
+        assert isinstance(fromViewer, MdiChild)
+        if not fromViewer:
+            return
+        if self._handlingScrollChangedSignal:
+            return
+        self._handlingScrollChangedSignal = True
+
+        newState = fromViewer.scrollState
+        changedWindow = fromViewer.parent()
+        windows = self._mdiArea.subWindowList()
+        for window in windows:
+            if window != changedWindow:
+                window.widget().scrollState = newState
+        self._handlingScrollChangedSignal = False
+
+    def synchZoom(self, fromViewer):
+        """Synch zoom of all subwindows to the same as *fromViewer*.
+
+        :param fromViewer: :class:`MdiChild` that initiated synching"""
+        if not fromViewer:
+            return
+        newZoomFactor = fromViewer.zoomFactor
+        changedWindow = fromViewer.parent()
+        windows = self._mdiArea.subWindowList()
+        for window in windows:
+            if window != changedWindow:
+                window.widget().zoomFactor = newZoomFactor
+
+    # ------------------------------------------------------------------
+
+    def saveDialogState(self, dialog, groupName):
+        """Save dialog state, position & size.
+
+        :param |QDialog| dialog: dialog to save state of
+        :param str groupName: |QSettings| group name"""
+        assert isinstance(dialog, QtGui.QDialog)
+
+        settings = QtCore.QSettings()
+        settings.beginGroup(groupName)
+
+        settings.setValue('state', dialog.saveState())
+        settings.setValue('geometry', dialog.saveGeometry())
+        settings.setValue('filter', dialog.selectedNameFilter())
+
+        settings.endGroup()
+
+    def restoreDialogState(self, dialog, groupName):
+        """Restore dialog state, position & size.
+
+        :param str groupName: |QSettings| group name"""
+        assert isinstance(dialog, QtGui.QDialog)
+
+        settings = QtCore.QSettings()
+        settings.beginGroup(groupName)
+
+        dialog.restoreState(settings.value('state'))
+        dialog.restoreGeometry(settings.value('geometry'))
+        dialog.selectNameFilter(settings.value('filter', ""))
+
+        settings.endGroup()
+
+    def writeSettings(self):
+        """Write application settings."""
+        settings = QtCore.QSettings()
+        settings.setValue('pos', self.pos())
+        settings.setValue('size', self.size())
+        settings.setValue('windowgeometry', self.saveGeometry())
+        settings.setValue('windowstate', self.saveState())
+
+        settings.setValue(SETTING_SCROLLBARS,
+                          self._showScrollbarsAct.isChecked())
+        settings.setValue(SETTING_STATUSBAR,
+                          self._showStatusbarAct.isChecked())
+        settings.setValue(SETTING_SYNCHZOOM,
+                          self._synchZoomAct.isChecked())
+        settings.setValue(SETTING_SYNCHPAN,
+                          self._synchPanAct.isChecked())
+
+    def readSettings(self):
+        """Read application settings."""
+        settings = QtCore.QSettings()
+        pos = settings.value('pos', QtCore.QPoint(320, 320))
+        size = settings.value('size', QtCore.QSize(640, 640))
+        self.move(pos)
+        self.resize(size)
+        if settings.contains('windowgeometry'):
+            self.restoreGeometry(settings.value('windowgeometry'))
+        if settings.contains('windowstate'):
+            self.restoreState(settings.value('windowstate'))
+
+        self._showScrollbarsAct.setChecked(
+            toBool(settings.value(SETTING_SCROLLBARS, True)))
+        self._showStatusbarAct.setChecked(
+            toBool(settings.value(SETTING_STATUSBAR, True)))
+        self._synchZoomAct.setChecked(
+            toBool(settings.value(SETTING_SYNCHZOOM, True)))
+        self._synchPanAct.setChecked(
+            toBool(settings.value(SETTING_SYNCHPAN, True)))
+
+    def updateRecentFileSettings(self, filename, delete=False):
+        """Update recent file list setting.
+
+        :param str filename: filename to add or remove from recent file
+                             list
+        :param bool delete: if True then filename removed, otherwise added"""
+        settings = QtCore.QSettings()
+        files = list(settings.value(SETTING_RECENTFILELIST, []))
+
+        try:
+            files.remove(filename)
+        except ValueError:
+            pass
+
+        if not delete:
+            files.insert(0, filename)
+        del files[MDIImageViewerWindow.MaxRecentFiles:]
+
+        settings.setValue(SETTING_RECENTFILELIST, files)
+
+
+# ====================================================================
+
+def main():
+    """Run MDI Image Viewer application."""
     import sys
+
     app = QtGui.QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
+    QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
+    app.setOrganizationName(COMPANY)
+    app.setOrganizationDomain(DOMAIN)
+    app.setApplicationName(APPNAME)
+    app.setWindowIcon(QtGui.QIcon("Images/icon.png"))
+
+    mainWin = MDIImageViewerWindow()
+    mainWin.setWindowTitle(APPNAME)
+    app.installEventFilter(mainWin)
     
-''' import sys
-import numpy
-
-import generation as geo
-from draw import draw_ancientmap_on_file, draw_biome_on_file, draw_ocean_on_file, \
-    draw_precipitation_on_file, draw_grayscale_heightmap_on_file, draw_simple_elevation_on_file, \
-    draw_temperature_levels_on_file, draw_riversmap_on_file, draw_scatter_plot_on_file, \
-    draw_satellite_on_file, draw_icecaps_on_file
-from plates import world_gen, generate_plates_simulation
-from imex import export
-from step import Step
-from model.world import World, Size, GenerationParameters
-from version import __version__
-import world
-from PyQt4.QtCore import pyqtSlot
-
-try:
-    from hdf5_serialization import save_world_to_hdf5
-    HDF5_AVAILABLE = True
-except:
-    HDF5_AVAILABLE = False
-
-VERSION = __version__
-
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4 import uic
-from PyQt4 import QtOpenGL
-
-FORM_1, BASE_1 = uic.loadUiType("worldengine.ui")
-FORM_2, BASE_2 = uic.loadUiType("popup.ui")
-FORM_3, BASE_3 = uic.loadUiType("dialog.ui")
-FORM_4, BASE_4 = uic.loadUiType("test_river.ui")
-
-class MyApp(FORM_4, BASE_4):
-    def __init__(self, parent=None):
-        super(MyApp, self).__init__(parent)
-        self.setupUi(self)
-        
-        self.connect(self.btnRiver, QtCore.SIGNAL("released()"), self.btnRiver_Clicked)
-        self.connect(self.spnZoom, QtCore.SIGNAL("valueChanged(int)"), self.spnZoom_Changed)
-
-        self.grView = self.gvMain
-        self.grView.setViewport(QtOpenGL.QGLWidget())
-        self.grScene = QtGui.QGraphicsScene()
-        self.tPix = QtGui.QPixmap('seed_11111_elevation.png')
-        
-        self.iHeight = self.tPix.height()
-        self.iWidth = self.tPix.width()
-        
-        self.tPix = self.tPix.scaled(768, 768, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-        self.spnZoom.setValue(75)
-
-        self.grView.centerOn(0, 0)
-
-        self.tPixItem = QtGui.QGraphicsPixmapItem(self.tPix)        
-        self.grScene.addItem(self.tPixItem)
-        self.grView.setRenderHints(QtGui.QPainter.Antialiasing | QtGui.QPainter.SmoothPixmapTransform)
-        self.grView.setScene(self.grScene)
-        self.grView.show()
-        
-    def btnRiver_Clicked(self):
-        from random import randint
-
-    def spnZoom_Changed(self, inVal):       
-        iScaleX = self.iWidth * inVal / 100
-        iScaleY = self.iHeight * inVal / 100
-        
-        if inVal == 75:
-            self.tPix = QtGui.QPixmap('seed_11111_elevation.png')
-            self.grScene.clear()
-            self.grScene.setSceneRect(0, 0, iScaleX, iScaleY)
-            self.grScene.addPixmap(self.tPix)
-        else:
-            self.tPix = self.tPix.scaled(iScaleX, iScaleY, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
-            self.grScene.clear()
-            self.grScene.setSceneRect(0, 0, iScaleX, iScaleY)
-            self.grScene.addPixmap(self.tPix)
+    mainWin.show()
+    sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    APP = QtGui.QApplication(sys.argv)
-    FORM = MyApp()
-    FORM.show()
-    APP.exec_()
-'''
+    main()
