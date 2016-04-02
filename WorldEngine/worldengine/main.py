@@ -829,7 +829,6 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         child.scrollChanged.connect(self.panChanged)
         child.transformChanged.connect(self.zoomChanged)
         child.mouseMoved.connect(self.updateMouseCoords)
-        x = child.frameRect()        
 
         return child
 

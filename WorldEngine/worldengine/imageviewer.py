@@ -50,8 +50,6 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         :param QWidget: parent widget
         :type QWidget: QWidget or None"""
         if scene:
-            x = scene.sceneRect().height()
-            y = scene.sceneRect().width()
             super(SynchableGraphicsView, self).__init__(scene, parent)
         else:
             super(SynchableGraphicsView, self).__init__(parent)
