@@ -63,8 +63,6 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.actionVersion_Information, QtCore.SIGNAL("triggered()"), self.onActionVersionInformation)
         self.connect(self.dialog.btnCentre, QtCore.SIGNAL("released()"), self.btnCentre_Clicked)
         self.connect(self.dialog.btnRight, QtCore.SIGNAL("released()"), self.btnRight_Clicked)
-
-        self.setWindowIcon(QtGui.QIcon(':/Images/icon.png'))
         
         self.setDefaults()
 
@@ -995,5 +993,6 @@ class FORM3(BASE_3, FORM_3):
 if __name__ == '__main__':
     APP = QtGui.QApplication(sys.argv)
     FORM = MyApp()
+    APP.setWindowIcon(QtGui.QIcon(':/Images/icon.png'))
     FORM.show()
     APP.exec_()
