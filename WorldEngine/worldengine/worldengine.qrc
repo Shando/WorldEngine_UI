@@ -17,5 +17,7 @@
         <file>Images/seed_57829_satellite.png</file>
         <file>Images/seed_57829_scatter.png</file>
         <file>Images/seed_57829_temperature.png</file>
+        <file>Images/icon.png</file>
+        <file>Images/seed_4879_elevation.ico</file>
     </qresource>
 </RCC>
