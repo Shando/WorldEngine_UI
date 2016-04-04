@@ -139,6 +139,14 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
 
         self.iX = 0
         self.iY = 0
+#TODO:        
+        # iSelect contains an integer representing the type
+        # of operation to be performed (i.e. the widget
+        # selected in the Right Hand Dock Window
+        # 
+        # -1 = None
+        #  1 = Add Head of River
+        self.iSelect = 1
         
         self._recentFileActions = []
         self._handlingScrollChangedSignal = False
@@ -652,6 +660,12 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
                 self.updateStatusBar()
             else:
                 pass # do other stuff
+        elif event.type() == QtCore.QEvent.MouseButtonPress:
+            if event.buttons() == QtCore.Qt.LeftButton:
+                self.iX = -1
+                self.iY = -1
+                self.updateStatusBar()
+                
         return QtGui.QMainWindow.eventFilter(self, source, event)
         
     def createMappedAction(self, icon, text, parent, shortcut, methodName):
@@ -1040,6 +1054,29 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         
         self.updateStatusBar()
 
+    @QtCore.pyqtSlot()
+    def grabMouseCoords(self):
+        send = self.sender()
+        tX = send._view.iX
+        tY = send._view.iY
+        
+        mouse = QtCore.QPoint(tX, tY)
+        iPointF = send._view.mapToScene(mouse)
+
+        pixOffset = send._pixmapItem.offset()
+
+        self.iX = iPointF.x() - pixOffset.x()
+        self.iY = iPointF.y() - pixOffset.y()
+        
+#TODO: This is the iSelect Stuff
+        if self.iSelect > -1:
+            if self.iSelect == 1:
+                pass
+            elif self.iSelect == 2:
+                pass
+        
+        self.updateStatusBar()
+
     @QtCore.pyqtSlot(str)
     def mappedImageViewerAction(self, methodName):
         """Perform action mapped to :class:`imageviewer.ImageViewer`
@@ -1278,6 +1315,7 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         child.scrollChanged.connect(self.panChanged)
         child.transformChanged.connect(self.zoomChanged)
         child.mouseMoved.connect(self.updateMouseCoords)
+        child.mouseClicked.connecy(self.grabMouseCoords)
 
         return child
 

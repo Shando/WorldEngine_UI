@@ -65,10 +65,20 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         self.iY = pos.y()
         self.mouseMoved.emit(self.iX, self.iY)
         mouseEvent.accept()
+        
+    def mouseClickEvent(self, mouseEvent):
+        assert isinstance(mouseEvent, QtGui.QMouseEvent)
+        pos = QtGui.QMouseEvent.pos(mouseEvent)
+        self.iX = pos.x()
+        self.iY = pos.y()
+        self.mouseClicked.emit(self.iX, self.iY)
+        mouseEvent.accept()
+        
 # ------------------------------------------------------------------
 
     #Signals
     mouseMoved = QtCore.pyqtSignal(int, int)
+    mouseClicked = QtCore.pyqtSignal(int, int)
 
     transformChanged = QtCore.pyqtSignal()
     """Transformed Changed **Signal**.
@@ -315,6 +325,7 @@ class ImageViewer(QtGui.QFrame):
         self._view.scrollChanged.connect(self.scrollChanged)
         self._view.wheelNotches.connect(self.handleWheelNotches)
         self._view.mouseMoved.connect(self.handleMouseMove, self._view.iX, self._view.iY)
+        self._view.mouseClicked.connect(self.handleMouseClick, self._view.iX, self._view.iY)
 
         gridSize = 10
         backgroundPixmap = QtGui.QPixmap(gridSize*2, gridSize*2)
@@ -356,9 +367,13 @@ class ImageViewer(QtGui.QFrame):
     # ------------------------------------------------------------------
 
     mouseMoved = QtCore.pyqtSignal(int, int)
+    mouseClicked = QtCore.pyqtSignal(int, int)
 
     def handleMouseMove(self, iX, iY):
         self.mouseMoved.emit(iX, iY)
+        
+    def handleMouseClick(self, iX, iY):
+        self.mouseClicked.emit(iX, iY)
 
     sceneChanged = QtCore.pyqtSignal('QList<QRectF>')
     """Scene Changed **Signal**.
