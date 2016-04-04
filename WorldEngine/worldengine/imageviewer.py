@@ -15,7 +15,6 @@ This module contains the following classes:
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from future_builtins import *
 
 # This is only needed for Python v2 but is harmless for Python v3.
 import sip
@@ -28,10 +27,6 @@ sip.setapi('QVariant', 2)
 sip.setapi('QString', 2)
 
 # ====================================================================
-
-import os
-import platform
-import sys
 
 from PyQt4 import (QtCore, QtGui)
 
@@ -62,7 +57,7 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         self.setMouseTracking(True)
         self.iX = 0
         self.iY = 0
-
+    
     def mouseMoveEvent(self, mouseEvent):
         assert isinstance(mouseEvent, QtGui.QMouseEvent)
         pos = QtGui.QMouseEvent.pos(mouseEvent)
@@ -70,7 +65,6 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         self.iY = pos.y()
         self.mouseMoved.emit(self.iX, self.iY)
         mouseEvent.accept()
-
 # ------------------------------------------------------------------
 
     #Signals
@@ -120,8 +114,8 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         sbar.valueChanged.disconnect()
         #sbar.sliderMoved.disconnect()
         sbar.rangeChanged.disconnect()
-
     # ------------------------------------------------------------------
+
     @property
     def handDragging(self):
         """Hand dragging state (*bool*)"""
@@ -161,7 +155,6 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
     def zoomFactor(self, newZoomFactor):
         newZoomFactor = newZoomFactor / self.zoomFactor
         self.scale(newZoomFactor, newZoomFactor)
-
     # ------------------------------------------------------------------
 
     def wheelEvent(self, wheelEvent):
@@ -180,11 +173,9 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
 
         :param QKeyEvent keyEvent: instance of |QKeyEvent|"""
         assert isinstance(keyEvent, QtGui.QKeyEvent)
-        #print("graphicsView keyRelease count=%d, autoRepeat=%s" %
-              #(keyEvent.count(), keyEvent.isAutoRepeat()))
+        #print("graphicsView keyRelease count=%d, autoRepeat=%s" % (keyEvent.count(), keyEvent.isAutoRepeat()))
         keyEvent.ignore()
         #super(SynchableGraphicsView, self).keyReleaseEvent(keyEvent)
-
     # ------------------------------------------------------------------
 
     def checkTransformChanged(self):
@@ -291,7 +282,6 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         print("%s%5.3f %5.3f %5.3f" % (padding, t.m21(), t.m22(), t.m23()))
         print("%s%5.3f %5.3f %5.3f" % (padding, t.m31(), t.m32(), t.m33()))
 
-
 class ImageViewer(QtGui.QFrame):
     """Image Viewer than can pan & zoom images (|QPixmap|\ s)."""
 
@@ -306,6 +296,8 @@ class ImageViewer(QtGui.QFrame):
 
         self._relativeScale = 1.0 #scale relative to other ImageViewer instances
         self._zoomFactorDelta = 1.25
+
+        self.sizeHint = lambda: QtCore.QSize(514,514)
 
         self._scene = QtGui.QGraphicsScene()
         self._view = SynchableGraphicsView(self._scene)
@@ -340,9 +332,9 @@ class ImageViewer(QtGui.QFrame):
         if pixmap:
             self.pixmap = pixmap
 
-        rect = self._scene.addRect(QtCore.QRectF(-25, -25, 25, 25),
-                                   QtGui.QPen(QtGui.QColor("red")))
-        rect.setZValue(1.0)
+#        self.rect = self._scene.addRect(QtCore.QRectF(-100, -100, 200, 200),
+#                                   QtGui.QPen(QtGui.QColor("red")))
+#        self.rect.setZValue(1.0)
 
         layout = QtGui.QGridLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -391,7 +383,6 @@ class ImageViewer(QtGui.QFrame):
 
     def disconnectSbarSignals(self):
         self._view.disconnectSbarSignals()
-
     # ------------------------------------------------------------------
 
     @property
@@ -544,7 +535,7 @@ class ImageViewer(QtGui.QFrame):
         """Fit image width to view width."""
         if not self._pixmapItem.pixmap():
             return
-        margin = 2
+        margin = 0
         viewRect = self._view.viewport().rect().adjusted(margin, margin,
                                                          -margin, -margin)
         factor = viewRect.width() / self._pixmapItem.pixmap().width()
@@ -555,7 +546,7 @@ class ImageViewer(QtGui.QFrame):
         """Fit image height to view height."""
         if not self._pixmapItem.pixmap():
             return
-        margin = 2
+        margin = 0
         viewRect = self._view.viewport().rect().adjusted(margin, margin,
                                                          -margin, -margin)
         factor = viewRect.height() / self._pixmapItem.pixmap().height()
@@ -603,275 +594,4 @@ class ImageViewer(QtGui.QFrame):
     def dumpTransform(self):
         """Dump view transform to stdout."""
         self._view.dumpTransform(self._view.transform(), " "*4)
-
-
 # ====================================================================
-
-class MainWindow(QtGui.QMainWindow):
-    """Sample app to test the :class:`ImageViewer` class."""
-
-    def __init__(self, pixmap):
-        """:param QPixmap pixmap: |QPixmap| to display"""
-        super(MainWindow, self).__init__()
-
-        self._imageViewer = ImageViewer(pixmap, "View 1")
-        self.setCentralWidget(self._imageViewer)
-
-        #self._imageViewer.sceneChanged.connect(self.sceneChanged)
-        self._imageViewer.transformChanged.connect(self.transformChanged)
-        self._imageViewer.scrollChanged.connect(self.scrollChanged)
-
-        #self._imageViewer.enableScrollBars(True)
-        #self._imageViewer.enableHandDrag(True)
-
-        self.createActions()
-        self.createMenus()
-
-        self.eventCounter = 0
-
-    def createActions(self):
-        """Create actions for the menus."""
-
-        #File Actions
-        self.exitAct = QtGui.QAction(
-            "E&xit", self,
-            shortcut=QtGui.QKeySequence.Quit,
-            statusTip="Exit the application",
-            triggered=QtGui.qApp.closeAllWindows)
-
-        #view actions
-        self.scrollToTopAct = QtGui.QAction(
-            "&Top", self,
-            shortcut=QtGui.QKeySequence.MoveToStartOfDocument,
-            triggered=self._imageViewer.scrollToTop)
-
-        self.scrollToBottomAct = QtGui.QAction(
-            "&Bottom", self,
-            shortcut=QtGui.QKeySequence.MoveToEndOfDocument,
-            triggered=self._imageViewer.scrollToBottom)
-
-        self.scrollToBeginAct = QtGui.QAction(
-            "&Left Edge", self,
-            shortcut=QtGui.QKeySequence.MoveToStartOfLine,
-            triggered=self._imageViewer.scrollToBegin)
-
-        self.scrollToEndAct = QtGui.QAction(
-            "&Right Edge", self,
-            shortcut=QtGui.QKeySequence.MoveToEndOfLine,
-            triggered=self._imageViewer.scrollToEnd)
-
-        self.centerView = QtGui.QAction(
-            "&Center", self,
-            shortcut="5",
-            triggered=self._imageViewer.centerView)
-
-        #zoom actions
-        self.zoomInAct = QtGui.QAction(
-            "Zoo&m In (25%)", self,
-            shortcut=QtGui.QKeySequence.ZoomIn,
-            triggered=self._imageViewer.zoomIn)
-
-        self.zoomOutAct = QtGui.QAction(
-            "Zoom &Out (25%)", self,
-            shortcut=QtGui.QKeySequence.ZoomOut,
-            triggered=self._imageViewer.zoomOut)
-
-        self.actualSizeAct = QtGui.QAction(
-            "Actual &Size", self,
-            shortcut="/",
-            triggered=self._imageViewer.actualSize)
-
-        self.fitToWindowAct = QtGui.QAction(
-            "Fit &Image", self,
-            shortcut="*",
-            triggered=self._imageViewer.fitToWindow)
-
-        self.fitWidthAct = QtGui.QAction(
-            "Fit &Width", self,
-            shortcut="Alt+Right",
-            triggered=self._imageViewer.fitWidth)
-
-        self.fitHeightAct = QtGui.QAction(
-            "Fit &Height", self,
-            shortcut="Alt+Down",
-            triggered=self._imageViewer.fitHeight)
-
-        self.zoomToAct = QtGui.QAction(
-            "&Zoom To...", self,
-            shortcut="Z"
-            )
-
-    def createMenus(self):
-        """Create the menus."""
-
-        #Create File Menu
-        self.fileMenu = QtGui.QMenu("&File")
-        self.fileMenu.addAction(self.exitAct)
-
-        #Create Scroll Menu
-        self.scrollMenu = QtGui.QMenu("&Scroll", self)
-        self.scrollMenu.addAction(self.scrollToTopAct)
-        self.scrollMenu.addAction(self.scrollToBottomAct)
-        self.scrollMenu.addAction(self.scrollToBeginAct)
-        self.scrollMenu.addAction(self.scrollToEndAct)
-        self.scrollMenu.addAction(self.centerView)
-
-        #Create Zoom Menu
-        self.zoomMenu = QtGui.QMenu("&Zoom", self)
-        self.zoomMenu.addAction(self.zoomInAct)
-        self.zoomMenu.addAction(self.zoomOutAct)
-        self.zoomMenu.addSeparator()
-        self.zoomMenu.addAction(self.actualSizeAct)
-        self.zoomMenu.addAction(self.fitToWindowAct)
-        self.zoomMenu.addAction(self.fitWidthAct)
-        self.zoomMenu.addAction(self.fitHeightAct)
-        #self.zoomMenu.addSeparator()
-        #self.zoomMenu.addAction(self.zoomToAct)
-
-        #Add menus to menubar
-        menubar = self.menuBar()
-        menubar.addMenu(self.fileMenu)
-        menubar.addMenu(self.scrollMenu)
-        menubar.addMenu(self.zoomMenu)
-
-    # ------------------------------------------------------------------
-
-    @QtCore.pyqtSlot(list)
-    def sceneChanged(self, rects):
-        """Triggered when the underlying graphics scene has changed.
-
-        :param list rects: scene rectangles that indicate the area that
-                           has been changed."""
-        r = self._imageViewer._sceneRect
-        print("%3d Scene changed = (%.2f,%.2f,%.2f,%.2f %.2fx%.2f)" %
-              (self.eventCounter, r.left(), r.top(), r.right(), r.bottom(),
-               r.width(), r.height()))
-        self.eventCounter += 1
-
-    @QtCore.pyqtSlot()
-    def transformChanged(self):
-        """Triggered when the underlying view has been scaled, translated,
-        or rotated.
-
-        In practice, only scaling occurs."""
-        print("%3d transform changed = " % self.eventCounter)
-        self._imageViewer.dumpTransform()
-        self.eventCounter += 1
-
-    @QtCore.pyqtSlot()
-    def scrollChanged(self):
-        """Triggered when the views scrollbars have changed."""
-        hbar = self._imageViewer._horizontalScrollBar
-        hpos = hbar.value()
-        hmin = hbar.minimum()
-        hmax = hbar.maximum()
-
-        vbar = self._imageViewer._verticalScrollBar
-        vpos = vbar.value()
-        vmin = vbar.minimum()
-        vmax = vbar.maximum()
-
-        print("%3d scroll changed h=(%d,%d,%d) v=(%d,%d,%d)" %
-              (self.eventCounter, hpos,hmin,hmax, vpos,vmin,vmax))
-        self.eventCounter += 1
-    # ------------------------------------------------------------------
-
-    #overriden events
-    def keyPressEvent(self, keyEvent):
-        """Overrides to enable panning while dragging.
-
-        :param QKeyEvent keyEvent: instance of |QKeyEvent|"""
-        assert isinstance(keyEvent, QtGui.QKeyEvent)
-        if keyEvent.key() == QtCore.Qt.Key_Space:
-            if (not keyEvent.isAutoRepeat() and
-                not self._imageViewer.handDragging):
-                self._imageViewer.enableHandDrag(True)
-            keyEvent.accept()
-        else:
-            keyEvent.ignore()
-            super(MainWindow, self).keyPressEvent(keyEvent)
-
-    def keyReleaseEvent(self, keyEvent):
-        """Overrides to disable panning while dragging.
-
-        :param QKeyEvent keyEvent: instance of |QKeyEvent|"""
-        assert isinstance(keyEvent, QtGui.QKeyEvent)
-        if keyEvent.key() == QtCore.Qt.Key_Space:
-            if not keyEvent.isAutoRepeat() and self._imageViewer.handDragging:
-                self._imageViewer.enableHandDrag(False)
-            keyEvent.accept()
-        else:
-            keyEvent.ignore()
-            super(MainWindow, self).keyReleaseEvent(keyEvent)
-
-    def closeEvent(self, event):
-        """Overrides close event to save application settings.
-
-        :param QEvent event: instance of |QEvent|"""
-        self.writeSettings()
-        event.accept()
-
-    # ------------------------------------------------------------------
-
-    def writeSettings(self):
-        """Write application settings."""
-        settings = QtCore.QSettings()
-        settings.setValue('pos', self.pos())
-        settings.setValue('size', self.size())
-        settings.setValue('windowgeometry', self.saveGeometry())
-        settings.setValue('windowstate', self.saveState())
-
-    def readSettings(self):
-        """Read application settings."""
-        settings = QtCore.QSettings()
-        pos = settings.value('pos', QtCore.QPoint(256, 256))
-        size = settings.value('size', QtCore.QSize(512, 512))
-        self.move(pos)
-        self.resize(size)
-        if settings.contains('windowgeometry'):
-            self.restoreGeometry(settings.value('windowgeometry'))
-        if settings.contains('windowstate'):
-            self.restoreState(settings.value('windowstate'))
-
-def main():
-    """Test app to run from command line.
-
-    **Usage**::
-
-      python26 imageviewer.py imagefilename
-    """
-#    import icons_rc
-
-    COMPANY = "TPWorks"
-    DOMAIN = "dummy-tpworks.com"
-    APPNAME = "Image Viewer Test"
-
-    app = QtGui.QApplication(sys.argv)
-    imageFilename = app.arguments()[-1]
-    if not os.path.exists(imageFilename):
-        print('File "%s" does not exist.' % imageFilename)
-        return
-
-    pixmap = QtGui.QPixmap(imageFilename)
-    if (not pixmap or
-        pixmap.width()==0 or pixmap.height==0):
-        print('File "%s" is not an image file that Qt can open.' % imageFilename)
-        return
-
-    QtCore.QSettings.setDefaultFormat(QtCore.QSettings.IniFormat)
-    app.setOrganizationName(COMPANY)
-    app.setOrganizationDomain(DOMAIN)
-    app.setApplicationName(APPNAME)
-    app.setWindowIcon(QtGui.QIcon("Images/icon.png"))
-
-    mainWin = MainWindow(pixmap)
-    mainWin.setWindowTitle(APPNAME)
-    mainWin.readSettings()
-    mainWin.show()
-
-    app.installEventFilter(mainWin)
-
-    sys.exit(app.exec_())
-
-if __name__ == '__main__':
-    main()
