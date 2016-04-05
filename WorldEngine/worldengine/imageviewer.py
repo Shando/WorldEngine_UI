@@ -58,6 +58,15 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         self.iX = 0
         self.iY = 0
     
+    def eventFilter(self, source, event):
+        if event.type() == QtCore.QEvent.MouseButtonPress:
+            if event.buttons() == QtCore.Qt.LeftButton:
+                print ("Mouse Button Pressed")
+            else:
+                pass # do other stuff
+               
+        return self.eventFilter(self, source, event)
+
     def mouseMoveEvent(self, mouseEvent):
         assert isinstance(mouseEvent, QtGui.QMouseEvent)
         pos = QtGui.QMouseEvent.pos(mouseEvent)
@@ -66,7 +75,7 @@ class SynchableGraphicsView(QtGui.QGraphicsView):
         self.mouseMoved.emit(self.iX, self.iY)
         mouseEvent.accept()
         
-    def mouseClickEvent(self, mouseEvent):
+    def mousePressEvent(self, mouseEvent):
         assert isinstance(mouseEvent, QtGui.QMouseEvent)
         pos = QtGui.QMouseEvent.pos(mouseEvent)
         self.iX = pos.x()

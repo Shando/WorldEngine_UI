@@ -22,7 +22,28 @@ sip.setapi('QVariant', 2)
 sip.setapi('QString', 2)
 # ====================================================================
 
+import os
 from PyQt4 import QtCore, QtGui
+
+import generation as geo
+from draw import draw_ancientmap_on_file, draw_biome_on_file, draw_ocean_on_file, \
+    draw_precipitation_on_file, draw_grayscale_heightmap_on_file, draw_simple_elevation_on_file, \
+    draw_temperature_levels_on_file, draw_riversmap_on_file, draw_scatter_plot_on_file, \
+    draw_satellite_on_file, draw_icecaps_on_file
+from plates import world_gen, generate_plates_simulation
+from imex import export
+from step import Step
+from model.world import World, Size, GenerationParameters
+from simulations import erosion_sh
+from version import __version__
+import world
+from PyQt4.QtCore import pyqtSlot
+
+try:
+    from hdf5_serialization import save_world_to_hdf5
+    HDF5_AVAILABLE = True
+except:
+    HDF5_AVAILABLE = False
 
 import imageviewer
 #import icons_rc
@@ -40,7 +61,6 @@ SETTING_SYNCHZOOM = "synchzoom"
 SETTING_SYNCHPAN = "synchpan"
 
 # ====================================================================
-
 def toBool(value):
     """
     Module function to convert a value to bool.
@@ -57,7 +77,6 @@ def toBool(value):
 
 def strippedName(fullFilename):
     return QtCore.QFileInfo(fullFilename).fileName()
-
 # ====================================================================
 
 class MdiChild(imageviewer.ImageViewer):
@@ -95,8 +114,7 @@ class MdiChild(imageviewer.ImageViewer):
             return strippedName(self.currentFile)
         else:
             return ""
-
-    # ------------------------------------------------------------------
+# ------------------------------------------------------------------
 
     def keyPressEvent(self, keyEvent):
         """Overrides to enable panning while dragging.
@@ -126,7 +144,6 @@ class MdiChild(imageviewer.ImageViewer):
         else:
             keyEvent.ignore()
         super(MdiChild, self).keyReleaseEvent(keyEvent)
-        
 # ====================================================================
 
 class MDIImageViewerWindow(QtGui.QMainWindow):
@@ -660,12 +677,7 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
                 self.updateStatusBar()
             else:
                 pass # do other stuff
-        elif event.type() == QtCore.QEvent.MouseButtonPress:
-            if event.buttons() == QtCore.Qt.LeftButton:
-                self.iX = -1
-                self.iY = -1
-                self.updateStatusBar()
-                
+               
         return QtGui.QMainWindow.eventFilter(self, source, event)
         
     def createMappedAction(self, icon, text, parent, shortcut, methodName):
@@ -1010,7 +1022,6 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         self._sbLabelZoom = self.createStatusBarLabel()
 
         statusBar.showMessage("Ready")
-
     # ------------------------------------------------------------------
 
     @property
@@ -1020,11 +1031,9 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         if activeSubWindow:
             return activeSubWindow.widget()
         return None
-
     # ------------------------------------------------------------------
 
     #overriden methods
-
     def closeEvent(self, event):
         """Overrides close event to save application settings.
 
@@ -1035,7 +1044,6 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         else:
             self.writeSettings()
             event.accept()
-
     # ------------------------------------------------------------------
 
     @QtCore.pyqtSlot()
@@ -1071,11 +1079,103 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
 #TODO: This is the iSelect Stuff
         if self.iSelect > -1:
             if self.iSelect == 1:
-                pass
+                sPixmap = send.currentFile
+                sDir = os.path.dirname(sPixmap)
+                sPixmap = send.userFriendlyCurrentFile
+                sPixmap = sPixmap.lower()
+                sContains = "elevation"
+                
+                if sContains in sPixmap:
+                    iLen = len(sPixmap)
+                    
+                    if iLen == 24:
+                        sWorld = sPixmap[0:10]
+                        iSeed = int(sPixmap[6:10])
+                    elif iLen == 23:
+                        sWorld = sPixmap[0:9]
+                        iSeed = int(sPixmap[6:9])
+                    elif iLen == 22:
+                        sWorld = sPixmap[0:8]
+                        iSeed = int(sPixmap[6:8])
+                    elif iLen == 21:
+                        sWorld = sPixmap[0:7]
+                        iSeed = int(sPixmap[6:7])
+                    else:
+                        sWorld = sPixmap[0:6]
+                        iSeed = int(sPixmap[6])
+
+                    sWorld = sDir + "/" + sWorld + ".world"
+                    sWorld = str(sWorld)
+                    
+                    if os.path.isfile(sWorld):
+#TODO: Need popup to let user know world is loading...
+#Maybe we should load the World automatically when the user selects a Map?
+                        print("Loading World.....")
+                        world = self.load_world(sWorld)
+                    
+                        print("World Loaded!")
+
+                        if world.is_mountain((self.iX, self.iY)):
+                            if world.layers['precipitation'].data[self.iY, self.iX] > 0.2:
+                                erosion_sh.ErosionSimulation.update(world, iSeed, self.iX, self.iY)
+#TODO: Message that River was created
+                                print("River created!")
+                            else:
+#TODO: Message that there is insufficient rainfall for a river
+                                print ("The Rainfall at the selected location is insufficient for a River!")
+                        else:
+#TODO: Message that point is NOT a Mountain
+                            print ("The Height of the selected location is insufficient for a River!")
+                    else:
+                        print("World File does not exist!")
             elif self.iSelect == 2:
                 pass
         
         self.updateStatusBar()
+
+    def __varint_to_value__(self, varint):
+        if len(varint) == 1:
+            return varint[0]
+        else:
+            return varint[0] + 128 * self.__varint_to_value__(varint[1:])
+    
+    def __get_tag__(self, filename):
+        with open(filename, 'rb') as ifile:
+            data = ifile.read(1)
+            
+            if not data:
+                return None
+            
+            done = False
+            tag_bytes = []
+
+            while data and not done:
+                data = ifile.read(1)
+            
+                if not data:
+                    return None
+                
+                value = ord(data)
+                tag_bytes.append(value % 128)
+                
+                if value < 128:
+                    done = True
+
+            return self.__varint_to_value__(tag_bytes)
+
+    def __seems_protobuf_worldfile__(self, world_filename):
+        worldengine_tag = self.__get_tag__(world_filename)
+        return worldengine_tag == World.worldengine_tag()
+
+    def load_world(self, world_filename):
+        pb = self.__seems_protobuf_worldfile__(world_filename)
+        if pb:
+            try:
+                return World.open_protobuf(world_filename)
+            except Exception:
+                raise Exception("Unable to load the worldfile as protobuf file")
+        else:
+            raise Exception("The given worldfile does not seem to be a protobuf file")
 
     @QtCore.pyqtSlot(str)
     def mappedImageViewerAction(self, methodName):
@@ -1187,7 +1287,6 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         :param |QMdiSubWindow| window: |QMdiSubWindow| to activate """
         if window:
             self._mdiArea.setActiveSubWindow(window)
-
 # ------------------------------------------------------------------
 
     def loadFile(self, filename):
@@ -1315,7 +1414,7 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         child.scrollChanged.connect(self.panChanged)
         child.transformChanged.connect(self.zoomChanged)
         child.mouseMoved.connect(self.updateMouseCoords)
-        child.mouseClicked.connecy(self.grabMouseCoords)
+        child.mouseClicked.connect(self.grabMouseCoords)
 
         return child
 
@@ -1357,8 +1456,7 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         for window in windows:
             if window != changedWindow:
                 window.widget().zoomFactor = newZoomFactor
-
-    # ------------------------------------------------------------------
+# ------------------------------------------------------------------
 
     def saveDialogState(self, dialog, groupName):
         """Save dialog state, position & size.
@@ -1448,8 +1546,6 @@ class MDIImageViewerWindow(QtGui.QMainWindow):
         del files[MDIImageViewerWindow.MaxRecentFiles:]
 
         settings.setValue(SETTING_RECENTFILELIST, files)
-
-
 # ====================================================================
 
 def main():
