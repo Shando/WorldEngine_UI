@@ -11,7 +11,11 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>WorldEngine Information Dialog</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="worldengine.qrc">
+    <normaloff>:/Images/icon.png</normaloff>:/Images/icon.png</iconset>
   </property>
   <property name="styleSheet">
    <string notr="true">QToolTip

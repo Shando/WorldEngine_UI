@@ -736,12 +736,9 @@ def draw_scatter_plot(world, size, target):
                     
                 target.set_pixel(int(nx), (size - 1) - int(ny), (r, 128, b, 255))
     
-
 # -------------
 # Draw on files
 # -------------
-
-
 def draw_simple_elevation_on_file(world, filename, sea_level):
     img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_simple_elevation(world, sea_level, img)
@@ -810,17 +807,20 @@ def draw_ancientmap_on_file(world, filename, resize_factor=1,
 
 
 def draw_scatter_plot_on_file(world, filename):
-    img = PNGWriter.rgba_from_dimensions(512, 512, filename)
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_scatter_plot(world, 512, img)
     img.complete()
 
 
 def draw_satellite_on_file(world, filename):
-    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    img = PNGWriter.rgba_from_dimensions(512, 512, filename)
     draw_satellite(world, img)
     img.complete()
 
 
 def draw_icecaps_on_file(world, filename):
-    img = PNGWriter.grayscale_from_array(world.icecap, filename, scale_to_range=True)
+#Changed by Shando
+#April 2016
+    img = PNGWriter.grayscale_from_array(world.layers['icecap'].data, filename, scale_to_range=True)
     img.complete()
+#-----------------
