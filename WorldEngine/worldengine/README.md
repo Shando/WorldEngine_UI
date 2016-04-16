@@ -1,4 +1,6 @@
-﻿This is a GUIfied version of WorldEngine - https://github.com/Mindwerks/worldengine
+#WorldEngine_UI
+
+This is a GUIfied version of WorldEngine - https://github.com/Mindwerks/worldengine
 
 GUI designed by Shando - shando69 _at_ live _dot_ com _dot_ au
 
