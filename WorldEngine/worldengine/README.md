@@ -1,5 +1,17 @@
 #WorldEngine_UI
 
+************************************************************************************
+IMPORTANT NOTICE:
+
+If you are looking for my simplified GUI for WorldEngine, please check out the
+"test_ui" Branch, NOT this "Main" branch
+
+Thanks
+
+Shando
+************************************************************************************
+
+
 This is a GUIfied version of WorldEngine - https://github.com/Mindwerks/worldengine
 
 GUI designed by Shando - shando69 _at_ live _dot_ com _dot_ au
