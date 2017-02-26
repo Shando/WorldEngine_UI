@@ -4,6 +4,7 @@
 import platec
 import time
 import numpy
+from PyQt4.QtCore import pyqtSignal
 
 #from generation import Step, add_noise_to_elevation, center_land, generate_world, \
 #    get_verbose, initialize_ocean_and_thresholds, place_oceans_at_map_borders
@@ -13,79 +14,73 @@ from generation import Step, add_noise_to_elevation, center_land, generate_world
     get_verbose, initialize_ocean_and_thresholds, place_oceans_at_map_borders
 import model.world as modWorld
 
-def generate_plates_simulation(seed, width, height, sea_level=0.65,
+def generate_plates_simulation(obj, seed, width, height, sea_level=0.65,
                                erosion_period=60, folding_ratio=0.02,
                                aggr_overlap_abs=1000000, aggr_overlap_rel=0.33,
-                               cycle_count=2, num_plates=10,
-                               verbose=get_verbose()):
+                               cycle_count=2, num_plates=10):
 
-    if verbose:
-        start_time = time.time()
     p = platec.create(seed, width, height, sea_level, erosion_period,
                       folding_ratio, aggr_overlap_abs, aggr_overlap_rel,
                       cycle_count, num_plates)
     # Note: To rescale the worlds heightmap to roughly Earths scale, multiply by 2000.
 
     while platec.is_finished(p) == 0:
-        # TODO: add a if verbose: message here?
         platec.step(p)
     
     hm = platec.get_heightmap(p)
     pm = platec.get_platesmap(p)
-    myMsg = ""
     
-    if verbose:
-        elapsed_time = time.time() - start_time
-        myMsg = "...plates.generate_plates_simulation() complete. " + "Elapsed time " + str(elapsed_time) + " seconds."
-    return hm, pm, myMsg
+    return hm, pm
 
 
-def _plates_simulation(name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
+def _plates_simulation(obj, name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
                         humids=[.941, .778, .507, .236, 0.073, .014, .002], gamma_curve=1.25,
                         curve_offset=.2, num_plates=10, ocean_level=1.0,
-                        step=Step.full(), verbose=get_verbose()):
-    e_as_array, p_as_array, myMsg = generate_plates_simulation(seed, width, height, num_plates=num_plates, verbose=verbose)
+                        step=Step.full()):
+    e_as_array, p_as_array = generate_plates_simulation(obj, seed, width, height, num_plates=num_plates)
 
     world = modWorld.World(name, modWorld.Size(width, height), seed,
-                  modWorld.GenerationParameters(num_plates, ocean_level, step),
-                  temps, humids, gamma_curve, curve_offset)
+                           modWorld.GenerationParameters(num_plates, ocean_level, step),
+                           temps, humids, gamma_curve, curve_offset)
     world.set_elevation(numpy.array(e_as_array).reshape(height, width), None)
     world.set_plates(numpy.array(p_as_array, dtype=numpy.uint16).reshape(height, width))
-    return world, myMsg
+
+    return world
 
 
-def world_gen(name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
+def world_gen(obj, name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
               humids=[.941, .778, .507, .236, 0.073, .014, .002], num_plates=10,
               ocean_level=1.0, step=Step.full(), gamma_curve=1.25, curve_offset=.2,
-              fade_borders=True, verbose=get_verbose()):
-    myMsg = ""
+              fade_borders=True, erosion_curve1 = 0.0, erosion_curve2 = 0.0, erosion_curve3 = 0.0,
+              erosion_max_radius = 0, erosion_maxRadius = 0, erosion_radius = 0, humidity_irrigationWeight = 0.0, humidity_precipitation_weight = 0.0,
+              hydrology_creek = 0.0, hydrology_main_river = 0.0, hydrology_river = 0.0, irrigation_radius = 0,
+              icecap_freeze_chance_window = 0.0, icecap_max_freeze_percentage = 0.0, icecap_surrounding_tile_influence = 0.0,
+              permeability_freq = 0.0, permeability_octaves = 0, permeability_perm_th_low = 0.0, permeability_perm_th_med = 0.0,
+              precipitation_freq = 0.0, precipitation_octaves = 0, precipitation_ths_low = 0.0, precipitation_ths_med = 0.0,
+              temperature_axial_tilt_hwhm = 0.0, temperature_distance_to_sun_hwhm = 0.0, temperature_frequency = 0.0, temperature_octaves = 0,
+              wind_frequency = 0.0, wind_octaves = 0):
+        
+    verbose = get_verbose()
     
     if verbose:
         start_time = time.time()
-    world, myMsg = _plates_simulation(name, width, height, seed, temps, humids, gamma_curve,
-                               curve_offset, num_plates, ocean_level, step, verbose)
+        obj.updatePopup(' ')
+        obj.updatePopup('Generating Plates ...')
 
-    if myMsg:
-        myMsg = myMsg + "\n" + center_land(world)
-    else:
-        myMsg = center_land(world)
+    world = _plates_simulation(obj, name, width, height, seed, temps, humids, gamma_curve, curve_offset, num_plates, ocean_level, step)
+
+    center_land(world)
         
     if verbose:
-        elapsed_time = time.time() - start_time        
-
-        myMsg = myMsg + "\n...plates.world_gen: set_elevation, set_plates, center_land " + "complete. Elapsed time " + str(elapsed_time) + " seconds."
-
-    if verbose:
+        elapsed_time = time.time() - start_time
+        obj.updatePopup('    Plates Simulation completed in %s seconds' % str(format(elapsed_time, '.4f')))
         start_time = time.time()
     
     add_noise_to_elevation(world, numpy.random.randint(0, 4096))  # uses the global RNG; this is the very first call to said RNG - should that change, this needs to be taken care of
     
     if verbose:
-        elapsed_time = time.time() - start_time
-        
-        myMsg = myMsg + "\n...plates.world_gen: elevation noise added. Elapsed time " + str(elapsed_time) + " seconds."
-
-    if verbose:
+        elapsed_time = time.time() - start_time        
+        obj.updatePopup('    Elevation Noise added in %s seconds' % str(format(elapsed_time, '.4f')))
         start_time = time.time()
     
     if fade_borders:
@@ -95,6 +90,14 @@ def world_gen(name, width, height, seed, temps=[.874, .765, .594, .439, .366, .1
 
     if verbose:
         elapsed_time = time.time() - start_time
-        myMsg = myMsg + "\n...plates.world_gen: oceans initialized. Elapsed time " + str(elapsed_time) + " seconds."
+        obj.updatePopup('    Oceans initialised in %s seconds' % str(format(elapsed_time, '.4f')))
 
-    return generate_world(world, step, myMsg)
+    return generate_world(obj, world, step, erosion_curve1, erosion_curve2, erosion_curve3,
+                          erosion_max_radius, erosion_maxRadius, erosion_radius,
+                          humidity_irrigationWeight, humidity_precipitation_weight,
+                          hydrology_creek, hydrology_main_river, hydrology_river, irrigation_radius,
+                          icecap_freeze_chance_window, icecap_max_freeze_percentage, icecap_surrounding_tile_influence,
+                          permeability_freq, permeability_octaves, permeability_perm_th_low, permeability_perm_th_med,
+                          precipitation_freq, precipitation_octaves, precipitation_ths_low, precipitation_ths_med,
+                          temperature_axial_tilt_hwhm, temperature_distance_to_sun_hwhm, temperature_frequency, temperature_octaves,
+                          wind_frequency, wind_octaves)

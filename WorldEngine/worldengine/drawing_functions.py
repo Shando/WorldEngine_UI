@@ -41,12 +41,12 @@ def draw_rivers_on_image(world, target, factor=1):
     for y in range(world.height):
         for x in range(world.width):
             if world.is_land((x, y)) and (world.layers['river_map'].data[y, x] > 0.0):
-                for dx in range(factor):
-                    for dy in range(factor):
+                for dx in range(int(factor)):
+                    for dy in range(int(factor)):
                         target.set_pixel(x * factor + dx, y * factor + dy, (0, 0, 128, 255))
             if world.is_land((x, y)) and (world.layers['lake_map'].data[y, x] != 0):
-                for dx in range(factor):
-                    for dy in range(factor):
+                for dx in range(int(factor)):
+                    for dy in range(int(factor)):
                         target.set_pixel(x * factor + dx, y * factor + dy, (0, 100, 128, 255))
 
 
@@ -55,12 +55,12 @@ def draw_rivers_on_image(world, target, factor=1):
 # -------------------
 
 def _find_land_borders(world, factor):
-    _ocean = numpy.zeros((factor * world.height, factor * world.width), dtype=bool)
-    _borders = numpy.zeros((factor * world.height, factor * world.width), dtype=bool)
+    _ocean = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
+    _borders = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
 
     #scale ocean
-    for y in range(world.height * factor):  # TODO: numpy
-        for x in range(world.width * factor):
+    for y in range(int(world.height * factor)):  # TODO: numpy
+        for x in range(int(world.width * factor)):
             if world.is_ocean((int(x / factor), int(y / factor))):
                 _ocean[y, x] = True
 
@@ -68,20 +68,20 @@ def _find_land_borders(world, factor):
         x, y = pos
         return _ocean[y, x]
 
-    for y in range(world.height * factor):
-        for x in range(world.width * factor):
+    for y in range(int(world.height * factor)):
+        for x in range(int(world.width * factor)):
             if not _ocean[y, x] and world.tiles_around_factor(factor, (x, y), radius=1, predicate=my_is_ocean):
                 _borders[y, x] = True
     return _borders
 
 
 def _find_outer_borders(world, factor, inner_borders):
-    _ocean = numpy.zeros((factor * world.height, factor * world.width), dtype=bool)
-    _borders = numpy.zeros((factor * world.height, factor * world.width), dtype=bool)
+    _ocean = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
+    _borders = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
 
     #scale ocean
-    for y in range(world.height * factor):  # TODO: numpy
-        for x in range(world.width * factor):
+    for y in range(int(world.height * factor)):  # TODO: numpy
+        for x in range(int(world.width * factor)):
             if world.is_ocean((int(x / factor), int(y / factor))):
                 _ocean[y, x] = True
 
@@ -89,17 +89,17 @@ def _find_outer_borders(world, factor, inner_borders):
         x, y = pos
         return inner_borders[y, x]
 
-    for y in range(world.height * factor):
-        for x in range(world.width * factor):
+    for y in range(int(world.height * factor)):
+        for x in range(int(world.width * factor)):
             if _ocean[y, x] and not inner_borders[y, x] and world.tiles_around_factor(factor, (x, y), radius=1, predicate=is_inner_border):
                 _borders[y, x] = True
     return _borders
 
 
 def _find_mountains_mask(world, factor):
-    _mask = numpy.zeros((factor * world.height, factor * world.width), dtype=float)
-    for y in range(factor * world.height):
-        for x in range(factor * world.width):
+    _mask = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=float)
+    for y in range(int(factor * world.height)):
+        for x in range(int(factor * world.width)):
             if world.is_mountain((int(x / factor), int(y / factor))):
                 v = len(world.tiles_around((int(x / factor), int(y / factor)),
                                            radius=3,
@@ -110,9 +110,9 @@ def _find_mountains_mask(world, factor):
 
 
 def _mask(world, predicate, factor):
-    _mask = numpy.zeros((factor * world.height, factor * world.width), dtype=float)
-    for y in range(factor * world.height):
-        for x in range(factor * world.width):
+    _mask = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=float)
+    for y in range(int(factor * world.height)):
+        for x in range(int(factor * world.width)):
             xf = int(x / factor)
             yf = int(y / factor)
             if predicate((xf, yf)):
@@ -476,7 +476,7 @@ def _draw_savanna(pixels, x, y):
     pixels[y, x] = (r, g, b, 255)
 
 
-# TODO: complete and enable this one
+# TODO: complete and enable this one _dynamic_draw_a_mountain
 def _dynamic_draw_a_mountain(pixels, rng, x, y, w=3, h=3):
     # mcl = (0, 0, 0, 255)  # TODO: No longer used?
     # mcll = (128, 128, 128, 255)
@@ -553,12 +553,8 @@ def _draw_a_mountain(pixels, x, y, w=3, h=3):
         pixels[y + mody, x + modx] = mcr      
 
 
-def draw_ancientmap(world, target, resize_factor=1,
-                    sea_color=(212, 198, 169, 255),
-                    draw_biome = True, draw_rivers = True, draw_mountains = True,
-                    draw_outer_land_border = False, verbose=get_verbose()):
-    myMsg = ""
-    
+def draw_ancientmap(obj, world, target, resize_factor=1, sea_color=(212, 198, 169, 255), draw_biome = True,
+                    draw_rivers = True, draw_mountains = True, draw_outer_land_border = False, verbose=False):
     rng = numpy.random.RandomState(world.seed)  # create our own random generator
 
     if verbose:
@@ -573,6 +569,7 @@ def draw_ancientmap(world, target, resize_factor=1,
 
     if draw_mountains:  # TODO: numpy offers masked arrays - maybe they can be leveraged for all this?
         mountains_mask = _find_mountains_mask(world, resize_factor)
+
     if draw_biome:
         boreal_forest_mask = _find_boreal_forest_mask(world, resize_factor)
         temperate_forest_mask = _find_temperate_forest_mask(world, resize_factor)
@@ -652,14 +649,14 @@ def draw_ancientmap(world, target, resize_factor=1,
 
     if verbose:
         elapsed_time = time.time() - start_time
-        myMsg = "...drawing_functions.draw_oldmap_on_pixel: init Elapsed time " + str(elapsed_time) + " seconds."
+        obj.updatePopup('    Init completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     if verbose:
         start_time = time.time()
     border_color = (0, 0, 0, 255)
     outer_border_color = gradient(0.5, 0, 1.0, rgba_to_rgb(border_color), rgba_to_rgb(sea_color))
-    for y in range(resize_factor * world.height):
-        for x in range(resize_factor * world.width):
+    for y in range(int(resize_factor * world.height)):
+        for x in range(int(resize_factor * world.width)):
             xf = int(x / resize_factor)
             yf = int(y / resize_factor)
             if borders[y, x]:
@@ -672,7 +669,7 @@ def draw_ancientmap(world, target, resize_factor=1,
                 target.set_pixel(x, y, land_color)
     if verbose:
         elapsed_time = time.time() - start_time
-        myMsg = myMsg + "\n...drawing_functions.draw_oldmap_on_pixel: color ocean " + "Elapsed time " + str(elapsed_time) + " seconds."
+        obj.updatePopup('    Colour Ocean completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     if verbose:
         start_time = time.time()
@@ -680,8 +677,8 @@ def draw_ancientmap(world, target, resize_factor=1,
     def anti_alias(steps):
 
         def _anti_alias_step():
-            for y in range(resize_factor * world.height):
-                for x in range(resize_factor * world.width):
+            for y in range(int(resize_factor * world.height)):
+                for x in range(int(resize_factor * world.width)):
                     _anti_alias_point(x, y)
 
         def _anti_alias_point(x, y):
@@ -691,10 +688,10 @@ def draw_ancientmap(world, target, resize_factor=1,
             tot_b = target[y, x][2] * 2
             for dy in range(-1, +2):
                 py = y + dy
-                if py > 0 and py < resize_factor * world.height:
+                if py > 0 and py < int(resize_factor * world.height):
                     for dx in range(-1, +2):
                         px = x + dx
-                        if px > 0 and px < resize_factor * world.width:
+                        if px > 0 and px < int(resize_factor * world.width):
                             n += 1
                             tot_r += target[py, px][0]
                             tot_g += target[py, px][1]
@@ -708,61 +705,84 @@ def draw_ancientmap(world, target, resize_factor=1,
             _anti_alias_step()
 
     anti_alias(1)
+
     if verbose:
         elapsed_time = time.time() - start_time
-        myMsg = myMsg + "\n...drawing_functions.draw_oldmap_on_pixel: anti alias " + "Elapsed time " + str(elapsed_time) + " seconds."
+        obj.updatePopup('    Anti Alias completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # Draw glacier
     if draw_biome:
         if verbose:
             start_time = time.time()
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if not borders[y, x] and world.is_iceland(
                         (int(x / resize_factor), int(y / resize_factor))):
                     _draw_glacier(target, x, y)
         if verbose:
             elapsed_time = time.time() - start_time
-            myMsg = myMsg + "\n...drawing_functions.draw_oldmap_on_pixel: draw glacier " + "Elapsed time " + str(elapsed_time) + " seconds."
+            obj.updatePopup('    Draw Glacier completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw tundra
         if verbose:
             start_time = time.time()
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if tundra_mask[y, x] > 0:
                     _draw_tundra(target, x, y)
         if verbose:
             elapsed_time = time.time() - start_time
-            myMsg = myMsg + "\n...drawing_functions.draw_oldmap_on_pixel: draw tundra " + "Elapsed time " + str(elapsed_time) + " seconds."
+            obj.updatePopup('    Draw Tundra completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw cold parklands
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if cold_parklands_mask[y, x] > 0:
                     _draw_cold_parklands(target, x, y)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Cold Parklands completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw steppes
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if steppe_mask[y, x] > 0:
                     _draw_steppe(target, x, y)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Steppe completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw chaparral
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if chaparral_mask[y, x] > 0:
                     _draw_chaparral(target, x, y)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Chaparral completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw savanna
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if savanna_mask[y, x] > 0:
                     _draw_savanna(target, x, y)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Savannah completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw cool desert
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if cool_desert_mask[y, x] > 0:
                     w = 8
                     h = 2
@@ -774,10 +794,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                         world.on_tiles_around_factor(resize_factor, (x, y),
                                                      radius=r,
                                                      action=unset_cool_desert_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Cool Desert completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw hot desert
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if hot_desert_mask[y, x] > 0:
                     w = 8
                     h = 2
@@ -789,10 +814,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                         world.on_tiles_around_factor(resize_factor, (x, y),
                                                      radius=r,
                                                      action=unset_hot_desert_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Hot Desert completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw boreal forest
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if boreal_forest_mask[y, x] > 0:
                     w = 4
                     h = 5
@@ -805,10 +835,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                             resize_factor, (x, y),
                             radius=r,
                             action=unset_boreal_forest_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Boreal Forest completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw temperate forest
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if temperate_forest_mask[y, x] > 0:
                     w = 4
                     h = 5
@@ -824,10 +859,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                             resize_factor, (x, y),
                             radius=r,
                             action=unset_temperate_forest_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Temperate Forest completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw warm temperate forest
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if warm_temperate_forest_mask[y, x] > 0:
                     w = 4
                     h = 5
@@ -840,10 +880,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                             resize_factor, (x, y),
                             radius=r,
                             action=unset_warm_temperate_forest_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Warm Temperate Forest completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw dry tropical forest
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if tropical_dry_forest_mask[y, x] > 0:
                     w = 4
                     h = 5
@@ -856,10 +901,15 @@ def draw_ancientmap(world, target, resize_factor=1,
                             resize_factor, (x, y),
                             radius=r,
                             action=unset_tropical_dry_forest_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Dry Tropical Forest completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
         # Draw jungle
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        if verbose:
+            start_time = time.time()
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if jungle_mask[y, x] > 0:
                     w = 4
                     h = 5
@@ -871,16 +921,26 @@ def draw_ancientmap(world, target, resize_factor=1,
                         world.on_tiles_around_factor(resize_factor, (x, y),
                                                      radius=r,
                                                      action=unset_jungle_mask)
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Jungle completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     if draw_rivers:
+        if verbose:
+            start_time = time.time()
+
         draw_rivers_on_image(world, target, resize_factor)
+
+        if verbose:
+            elapsed_time = time.time() - start_time
+            obj.updatePopup('    Draw Rivers completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # Draw mountains
     if draw_mountains:
         if verbose:
             start_time = time.time()
-        for y in range(resize_factor * world.height):
-            for x in range(resize_factor * world.width):
+        for y in range(int(resize_factor * world.height)):
+            for x in range(int(resize_factor * world.width)):
                 if mountains_mask[y, x] > 0:
                     w = mountains_mask[y, x]
                     h = 3 + int(world.level_of_mountain(
@@ -894,6 +954,4 @@ def draw_ancientmap(world, target, resize_factor=1,
                                                      radius=r, action=unset_mask)
         if verbose:
             elapsed_time = time.time() - start_time
-            myMsg = myMsg + "\n...drawing_functions.draw_oldmap_on_pixel: draw mountains " + "Elapsed time " + str(elapsed_time) + " seconds."
-
-    return myMsg
+            obj.updatePopup('    Draw Mountains completed in %s seconds' % str(format(elapsed_time, '.3f')))

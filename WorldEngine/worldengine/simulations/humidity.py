@@ -1,26 +1,24 @@
 import simulations.basic as basic
 import numpy
 
-
 class HumiditySimulation(object):
     @staticmethod
     def is_applicable(world):
         return world.has_precipitations() and world.has_irrigation() and (
             not world.has_humidity())
 
-    def execute(self, world, seed):
+    def execute(self, world, seed, irrigationWeight, precipitationWeight):
         assert seed is not None
-        data, quantiles = self._calculate(world)
+        self.irrigation_Weight = irrigationWeight
+        self.precipitation_Weight = precipitationWeight
+        data, quantiles = self._calculate(self, world)
         world.set_humidity(data, quantiles)
 
     @staticmethod
-    def _calculate(world):
+    def _calculate(self, world):
         humids = world.humids
-        precipitationWeight = 1.0
-        irrigationWeight = 3
         data = numpy.zeros((world.height, world.width), dtype=float)
-
-        data = (world.layers['precipitation'].data * precipitationWeight - world.layers['irrigation'].data * irrigationWeight)/(precipitationWeight + irrigationWeight)
+        data = (world.layers['precipitation'].data * self.precipitation_Weight - world.layers['irrigation'].data * self.irrigation_Weight)/(self.precipitation_Weight + self.irrigation_Weight)
 
         # These were originally evenly spaced at 12.5% each but changing them
         # to a bell curve produced better results
@@ -33,4 +31,5 @@ class HumiditySimulation(object):
         quantiles['62'] = basic.find_threshold_f(data, humids[2], ocean)
         quantiles['75'] = basic.find_threshold_f(data, humids[1], ocean)
         quantiles['87'] = basic.find_threshold_f(data, humids[0], ocean)
+
         return data, quantiles

@@ -16,9 +16,6 @@ CENTER = [0, 0]
 DIR_NEIGHBORS = [NORTH, EAST, SOUTH, WEST]
 DIR_NEIGHBORS_CENTER = [CENTER, NORTH, EAST, SOUTH, WEST]
 
-RIVER_TH = 0.02
-
-
 def overflow(value, max_value):
     return value % max_value
 
@@ -31,11 +28,20 @@ def in_circle(radius, center_x, center_y, x, y):
 class ErosionSimulation(object):
     def __init__(self):
         self.wrap = True
+        self.RIVER_TH = 0.2
 
     def is_applicable(self, world):
         return world.has_precipitations()
 
-    def execute(self, world, seed):
+    def execute(self, world, seed, riverth, radius1, radius2, radius3, curve1, curve2, curve3):
+        self.RIVER_TH = riverth
+        self.radius1 = radius1
+        self.radius2 = radius2
+        self.radius3 = radius3
+        self.curve1 = curve1
+        self.curve2 = curve2
+        self.curve3 = curve3
+        
         water_flow = numpy.zeros((world.height, world.width))
         water_path = numpy.zeros((world.height, world.width), dtype=int)
         river_list = []
@@ -47,7 +53,7 @@ class ErosionSimulation(object):
         self.find_water_flow(world, water_path)
 
         # step two: find river sources (seeds)
-        river_sources = self.river_sources(world, water_flow, water_path)
+        river_sources = self.river_sources(self, world, water_flow, water_path)
 
         # step three: for each source, find a path to sea
         for source in river_sources:
@@ -123,7 +129,7 @@ class ErosionSimulation(object):
         return new_path
 
     @staticmethod
-    def river_sources(world, water_flow, water_path):
+    def river_sources(self, world, water_flow, water_path):
         """Find places on map where sources of river can be found"""
         river_source_list = []
 
@@ -151,7 +157,7 @@ class ErosionSimulation(object):
                 while not neighbour_seed_found:
 
                     # have we found a seed?
-                    if world.is_mountain((cx, cy)) and water_flow[cy, cx] >= RIVER_TH:
+                    if world.is_mountain((cx, cy)) and water_flow[cy, cx] >= self.RIVER_TH:
 
                         # try not to create seeds around other seeds
                         for seed in river_source_list:
@@ -226,8 +232,8 @@ class ErosionSimulation(object):
                 else:
                     break
             elif lower_elevation and is_wrapped:
-                # TODO: make this more natural
-                max_radius = 40
+                # TODO: make this more natural (Erosion)
+                max_radius = self.radius1
 
                 cx, cy = current_location
                 lx, ly = lower_elevation
@@ -304,7 +310,7 @@ class ErosionSimulation(object):
         circle's radius and try to find the best path and return it'''
         x, y = source
         currentRadius = 1
-        maxRadius = 40
+        maxRadius = self.radius2
         lowestElevation = world.layers['elevation'].data[y, x]
         destination = []
         notFound = True
@@ -356,14 +362,14 @@ class ErosionSimulation(object):
         # erosion around river, create river valley
         for r in river:
             rx, ry = r
-            radius = 2
+            radius = self.radius3
             for x in range(rx - radius, rx + radius):
                 for y in range(ry - radius, ry + radius):
                     if not self.wrap and not world.contains(
                             (x, y)):  # ignore edges of map
                         continue
                     x, y = overflow(x, world.width), overflow(y, world.height)
-                    curve = 1.0
+                    curve = self.curve1
                     if [x, y] == [0, 0]:  # ignore center
                         continue
                     if [x, y] in river:  # ignore river itself
@@ -377,9 +383,9 @@ class ErosionSimulation(object):
 
                     adx, ady = math.fabs(rx - x), math.fabs(ry - y)
                     if adx == 1 or ady == 1:
-                        curve = 0.2
+                        curve = self.curve2
                     elif adx == 2 or ady == 2:
-                        curve = 0.05
+                        curve = self.curve3
 
                     diff = world.layers['elevation'].data[ry, rx] - world.layers['elevation'].data[y, x]
                     newElevation = world.layers['elevation'].data[y, x] + (

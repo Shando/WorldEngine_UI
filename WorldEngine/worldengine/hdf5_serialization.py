@@ -128,7 +128,7 @@ def load_world_to_hdf5(filename):
               f['generation_params/seed'].value,
               modWorld.GenerationParameters(f['generation_params/n_plates'].value,
                                    f['generation_params/ocean_level'].value,
-                                   modWorld.step.Step.get_by_name(f['generation_params/step'].value)))
+                                   modWorld.Step.get_by_name(f['generation_params/step'].value)))
 
     # Elevation
     e = numpy.array(f['elevation/data'])

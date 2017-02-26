@@ -1,9 +1,16 @@
-argparse==1.2.1
-noise==1.2.2
-numpy==1.9.2
-pypng==0.0.18
-PyPlatec==1.4.0
-protobuf==3.0.0a3
-six==1.10.0
-pygdal>=1.11.2.1
-h5py==2.5.0
+configparser2 == 4.0.0
+GDAL == 1.11.3
+h5py == 2.5.0
+noise == 1.2.2
+numpy == 1.11.0
+pi3d == 2.11
+PyPlatec == 1.4.0
+six == 1.10.0
+PyOpenGL == 3.1.1a1
+Pillow == 3.2.0
+PyQt4 == 4.11.4
+cx_Freeze == 4.3.4
+protobuf == 3.0.0b3
+pypng == 0.0.18
+pygame == 1.9.2a0
+PyOpenGL-accelerate == 3.1.1

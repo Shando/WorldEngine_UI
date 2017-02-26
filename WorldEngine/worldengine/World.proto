@@ -113,6 +113,9 @@ message World {
 
     // Ice-caps
     optional DoubleMatrix icecap  = 36;
+
+    // Winds
+    optional DoubleMatrix wind = 37;
 }
 
 

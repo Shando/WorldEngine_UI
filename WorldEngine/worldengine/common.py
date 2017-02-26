@@ -84,8 +84,10 @@ def anti_alias(map, steps):#TODO: There is probably a bit of numpy-optimization 
         return tot / n
 
     current = map
+    
     for i in range(steps):
         current = _anti_alias_step(current)
+    
     return current
 
 

@@ -17,6 +17,7 @@ class BiomeSimulation(object):
         cm = {}
         biome_cm = {}
         biome = numpy.zeros((height, width), dtype = object)#this is still kind of expensive memory-wise
+
         for y in range(height):
             for x in range(width):
                 if ocean[y, x]:
@@ -109,8 +110,12 @@ class BiomeSimulation(object):
                             biome[y, x] = 'tropical rain forest'
                     else:
                         biome[y, x] = 'bare rock'
+
                 if not biome[y, x] in biome_cm:
                     biome_cm[biome[y, x]] = 0
+
                 biome_cm[biome[y, x]] += 1
+
         w.set_biome(biome)
+
         return cm, biome_cm

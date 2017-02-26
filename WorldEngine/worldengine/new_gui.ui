@@ -27,16 +27,7 @@
    <bool>false</bool>
   </property>
   <property name="styleSheet">
-   <string notr="true">QTooltip
-{
-     border: 1px solid black;
-     background-color: #FF9930;
-     padding: 1px;
-     border-radius: 3px;
-     opacity: 100;
-}
-
-QWidget
+   <string notr="true">QWidget
 {
     color: #FFE6B1;
     background-color: #376E77;
@@ -45,6 +36,15 @@ QWidget
 QLabel
 {
     background-color: transparent;
+}
+
+QToolTip
+{
+    border: solid black;
+     background-color: #FF9930;
+     padding: 1px;
+     border-radius: 5px;
+     opacity: 200;
 }
 
 QWidget:item:hover
@@ -553,6 +553,13 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
         <height>16777215</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="styleSheet">
        <string notr="true">QToolBox::tab {
     text-align: center;
@@ -584,15 +591,15 @@ QToolBox::tab:hover
        <number>2</number>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="pgMaps">
        <property name="geometry">
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>259</width>
-         <height>814</height>
+         <width>98</width>
+         <height>28</height>
         </rect>
        </property>
        <attribute name="label">
@@ -605,13 +612,20 @@ QToolBox::tab:hover
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>50</y>
+          <y>40</y>
           <width>31</width>
           <height>31</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>Move Map Up</string>
+        </property>
         <property name="text">
-         <string>Up</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>Images/up.png</normaloff>Images/up.png</iconset>
         </property>
        </widget>
        <widget class="QTableWidget" name="tblAvailable">
@@ -621,9 +635,9 @@ QToolBox::tab:hover
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>430</y>
+          <y>320</y>
           <width>241</width>
-          <height>192</height>
+          <height>181</height>
          </rect>
         </property>
         <property name="editTriggers">
@@ -712,10 +726,17 @@ QToolBox::tab:hover
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>630</y>
-          <width>81</width>
+          <y>510</y>
+          <width>131</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Special Maps*:</string>
@@ -728,8 +749,8 @@ QToolBox::tab:hover
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>660</y>
-          <width>231</width>
+          <y>570</y>
+          <width>241</width>
           <height>31</height>
          </rect>
         </property>
@@ -737,37 +758,21 @@ QToolBox::tab:hover
          <string>Grayscale Heightmap</string>
         </property>
        </widget>
-       <widget class="QTextBrowser" name="txtMapInfo">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>270</y>
-          <width>241</width>
-          <height>131</height>
-         </rect>
-        </property>
-        <property name="html">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Map Info goes here&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="textInteractionFlags">
-         <set>Qt::NoTextInteraction</set>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_5">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>240</y>
+          <y>260</y>
           <width>71</width>
-          <height>21</height>
+          <height>31</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Opacity:</string>
@@ -779,11 +784,19 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="geometry">
          <rect>
-          <x>100</x>
-          <y>240</y>
-          <width>51</width>
-          <height>22</height>
+          <x>160</x>
+          <y>260</y>
+          <width>91</width>
+          <height>31</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
         </property>
         <property name="minimum">
          <number>1</number>
@@ -802,8 +815,8 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>720</y>
-          <width>231</width>
+          <y>630</y>
+          <width>241</width>
           <height>31</height>
          </rect>
         </property>
@@ -820,7 +833,7 @@ p, li { white-space: pre-wrap; }
           <x>10</x>
           <y>20</y>
           <width>201</width>
-          <height>192</height>
+          <height>171</height>
          </rect>
         </property>
         <property name="editTriggers">
@@ -907,10 +920,17 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>0</y>
-          <width>46</width>
-          <height>16</height>
+          <y>-10</y>
+          <width>81</width>
+          <height>31</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Map List:</string>
@@ -923,8 +943,8 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>690</y>
-          <width>231</width>
+          <y>600</y>
+          <width>241</width>
           <height>31</height>
          </rect>
         </property>
@@ -938,11 +958,18 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="geometry">
          <rect>
-          <x>100</x>
+          <x>10</x>
           <y>220</y>
-          <width>141</width>
-          <height>16</height>
+          <width>241</width>
+          <height>31</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Biome</string>
@@ -955,32 +982,44 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>150</y>
+          <y>140</y>
           <width>31</width>
           <height>31</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>Move Map Down</string>
+        </property>
         <property name="text">
-         <string>Dn</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>Images/down.png</normaloff>Images/down.png</iconset>
         </property>
        </widget>
        <widget class="QTextBrowser" name="textBrowser_2">
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>760</y>
+          <y>670</y>
           <width>241</width>
-          <height>91</height>
+          <height>111</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
         </property>
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;* These Maps will be displayed on their own as they cannot be displayed with other Maps.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;NB: To move Maps between the Lists, simply drag the required Map from one list to the other.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;* These Maps will be displayed on their own as they cannot be displayed with other Maps.&lt;/span&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:9pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:9pt;&quot;&gt;NB: To move Maps between the Lists, simply drag the required Map from one list to the other.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textInteractionFlags">
          <set>Qt::NoTextInteraction</set>
@@ -990,10 +1029,17 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>220</y>
-          <width>71</width>
-          <height>16</height>
+          <y>190</y>
+          <width>111</width>
+          <height>31</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Current Map:</string>
@@ -1003,10 +1049,17 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>410</y>
-          <width>81</width>
+          <y>290</y>
+          <width>141</width>
           <height>21</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Available Maps:</string>
@@ -1019,13 +1072,36 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>220</x>
-          <y>100</y>
+          <y>90</y>
           <width>31</width>
           <height>31</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>Update Map Display</string>
+        </property>
         <property name="text">
-         <string>Update</string>
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset>
+          <normaloff>Images/update.png</normaloff>Images/update.png</iconset>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnAW">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>540</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Ancient Map</string>
         </property>
        </widget>
       </widget>
@@ -1039,16 +1115,23 @@ p, li { white-space: pre-wrap; }
         </rect>
        </property>
        <attribute name="label">
-        <string>Options</string>
+        <string>Map Options</string>
        </attribute>
        <widget class="QLabel" name="label_8">
         <property name="geometry">
          <rect>
           <x>10</x>
           <y>250</y>
-          <width>91</width>
+          <width>151</width>
           <height>16</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Map Parameters:</string>
@@ -1082,13 +1165,24 @@ p, li { white-space: pre-wrap; }
           <x>10</x>
           <y>270</y>
           <width>241</width>
-          <height>571</height>
+          <height>501</height>
          </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="title">
          <string/>
         </property>
         <property name="flat">
+         <bool>false</bool>
+        </property>
+        <property name="checkable">
          <bool>false</bool>
         </property>
        </widget>
@@ -1105,6 +1199,2423 @@ p, li { white-space: pre-wrap; }
        <attribute name="label">
         <string>World Options</string>
        </attribute>
+       <widget class="QLabel" name="label_31">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>610</y>
+          <width>161</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Export Format:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="cboFormat">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>640</y>
+          <width>241</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>JPEG / JFIF (jpeg)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Portable Network Graphics (png)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Microsoft Windows Device Independent Bitmap (bmp)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Graphics Interchange Format (gif)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>TIFF / BigTIFF / GeoTIFF (tif)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>X11 Pixmap (xpm)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Arc/Info Binary Grid (adf)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bathymetry Attributed Grid (bag)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BSB Nautical Chart Format (kap)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Envisat Image Product (n1)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Erdas Imagine (img)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Erdas Compressed Wavelets (ecw)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ERMapper (ers)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>EUMETSAT Archive Native (nat)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>FITS (fits)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GDAL Virtual (vrt)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Generic Tagged Arrays (gta)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>In Memory Raster (mem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Japanese DEM (mem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Swedish Grid RIK (rik)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Terragen Heightfield (ter)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS ASCII DEM / CDED (dem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS DOQ 1st Generation (doq)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS DOQ New Labelled (doq)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>WMO GRIB1 / GRIB2 (grb)</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QSpinBox" name="spnHeight">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>130</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>256</number>
+        </property>
+        <property name="maximum">
+         <number>8192</number>
+        </property>
+        <property name="singleStep">
+         <number>256</number>
+        </property>
+        <property name="value">
+         <number>1024</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_10">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Width:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="cboData">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>670</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>uint8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int64</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint64</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float64</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="label_12">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>180</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>No. of Plates:</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spnRecursion">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>230</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>1000</number>
+        </property>
+        <property name="maximum">
+         <number>10000</number>
+        </property>
+        <property name="singleStep">
+         <number>500</number>
+        </property>
+        <property name="value">
+         <number>2000</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_32">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>670</y>
+          <width>161</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Export Data Type:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_11">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Height:</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spnSeed">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>0</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>999999</number>
+        </property>
+        <property name="singleStep">
+         <number>111111</number>
+        </property>
+        <property name="value">
+         <number>111111</number>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spnPlates">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>180</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>10</number>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spnWidth">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>80</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="minimum">
+         <number>256</number>
+        </property>
+        <property name="maximum">
+         <number>8192</number>
+        </property>
+        <property name="singleStep">
+         <number>256</number>
+        </property>
+        <property name="value">
+         <number>1024</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_9">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>0</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>World Seed:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_51">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>230</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Recursion Limit:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnRandomise">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>40</y>
+          <width>141</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Randomise</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnGenWorld">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>710</y>
+          <width>241</width>
+          <height>71</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Generate World
+and All Maps</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_20">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>340</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Enable Verbose Messages?</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_50">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>480</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Fade Borders?</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpProtocol">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>440</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoPBYes">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoPBNo">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_14">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>270</y>
+          <width>231</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Create B&amp;W Images?</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpVerbose">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>370</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoVMYes">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoVMNo">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="grpFade">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>510</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoFadeYes">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoFadeNo">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="grpBW">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>300</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoBWYes">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoBWNo">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_19">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>410</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Use Protocol Buffer?</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_23">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>550</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Sea Level Elevation Cut Off:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnSea">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>580</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="pgWorld2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>98</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>World Options Cont.</string>
+       </attribute>
+       <widget class="QDoubleSpinBox" name="spnTemp1">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>30</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.126000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnOffset">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>650</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>0.999000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.200000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnTemp6">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>230</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.876000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_25">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>270</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Precipitation Range:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnTemp2">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>70</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.235000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip5">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>460</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.927000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_15">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>680</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>*GCC = Gamma Correction Curve</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_24">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>0</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Temperature Range:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip4">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>420</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.764000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnTemp5">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>190</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.634000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_27">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>650</y>
+          <width>111</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>GCC* Offset:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip3">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>380</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.493000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip2">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>340</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.222000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip6">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>500</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.986000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_26">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>580</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>GCC* Gamma Value:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip7">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>540</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.998000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnGamma">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>610</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="value">
+         <double>1.250000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnTemp3">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>110</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.406000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnTemp4">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>150</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.561000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnPrecip1">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>300</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.059000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>30</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>1:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_4">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>70</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>2:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_16">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>110</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>3:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_17">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>150</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>4:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_18">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>190</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>5:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_21">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>230</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>6:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_22">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>300</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>1:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_28">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>420</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>4:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_29">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>380</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>3:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_30">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>460</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>5:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_33">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>340</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>2:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_34">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>500</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>6:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_44">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>540</y>
+          <width>21</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>7:</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="btnGenWorld_2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>710</y>
+          <width>241</width>
+          <height>71</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Generate World
+and All Maps</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="pgAncient">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>259</width>
+         <height>776</height>
+        </rect>
+       </property>
+       <attribute name="label">
+        <string>Ancient Map Options</string>
+       </attribute>
+       <widget class="QGroupBox" name="grpBiomes">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>200</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoBiomesYes_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoBiomesNo_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_36">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>80</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Sea Colour:</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpSea">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>110</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoSeaBlue_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Blue</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoSeaBrown_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Brown</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QComboBox" name="cboAncData">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>610</y>
+          <width>81</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>uint8</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>int64</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>uint64</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float16</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float32</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>float64</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QLabel" name="label_37">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>170</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Draw Biomes?</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_42">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>530</y>
+          <width>161</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Export Format:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_40">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>440</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Draw Outer Land Border?</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpMountains">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>290</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoMountYes_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoMountNo_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="grpRivers">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>380</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoRiverYes_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoRiverNo_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_38">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>260</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Draw Mountains?</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spnResize">
+        <property name="geometry">
+         <rect>
+          <x>160</x>
+          <y>20</y>
+          <width>91</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>-1</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;</string>
+        </property>
+        <property name="minimum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpBorder">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>470</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoLandYes_3">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Yes</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoLandNo_3">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_39">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>350</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Draw Rivers?</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_41">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>610</y>
+          <width>151</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Export Data Type:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_35">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>20</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Resize Factor:</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="cboAncFormat">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>560</y>
+          <width>241</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Open Sans</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToContentsOnFirstShow</enum>
+        </property>
+        <item>
+         <property name="text">
+          <string>JPEG / JFIF (jpeg)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Portable Network Graphics (png)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Microsoft Windows Device Independent Bitmap (bmp)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Graphics Interchange Format (gif)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>TIFF / BigTIFF / GeoTIFF (tif)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>X11 Pixmap (xpm)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Arc/Info Binary Grid (adf)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Bathymetry Attributed Grid (bag)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>BSB Nautical Chart Format (kap)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Envisat Image Product (n1)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Erdas Imagine (img)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Erdas Compressed Wavelets (ecw)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>ERMapper (ers)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>EUMETSAT Archive Native (nat)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>FITS (fits)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>GDAL Virtual (vrt)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Generic Tagged Arrays (gta)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>In Memory Raster (mem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Japanese DEM (mem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Swedish Grid RIK (rik)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Terragen Heightfield (ter)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS ASCII DEM / CDED (dem)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS DOQ 1st Generation (doq)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>USGS DOQ New Labelled (doq)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>WMO GRIB1 / GRIB2 (grb)</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QPushButton" name="btnGenWorld_3">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>680</y>
+          <width>241</width>
+          <height>71</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Generate Ancient Map</string>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -1184,7 +3695,6 @@ p, li { white-space: pre-wrap; }
     <addaction name="actionOpen"/>
     <addaction name="action_Save"/>
     <addaction name="separator"/>
-    <addaction name="actionSave_Selected_Map_As"/>
     <addaction name="actionSave_All_Maps_As"/>
     <addaction name="separator"/>
     <addaction name="actionSave_Current_Map_View"/>
@@ -1226,22 +3736,15 @@ p, li { white-space: pre-wrap; }
      <property name="title">
       <string>Generate Individual Maps</string>
      </property>
-     <addaction name="actionBiome"/>
-     <addaction name="actionElevation"/>
      <addaction name="actionGrayscale_Heightmap"/>
-     <addaction name="actionIce_Cap"/>
-     <addaction name="actionOcean"/>
-     <addaction name="actionPrecipitation"/>
-     <addaction name="actionRivers"/>
      <addaction name="actionScatter_Plot"/>
      <addaction name="actionSatellite_View"/>
-     <addaction name="actionTemperature"/>
-     <addaction name="actionWinds"/>
     </widget>
     <addaction name="actionGenerate_World"/>
     <addaction name="separator"/>
-    <addaction name="actionGenerate_All_Maps"/>
     <addaction name="menuGenerate_Maps"/>
+    <addaction name="separator"/>
+    <addaction name="actionExport_World"/>
    </widget>
    <widget class="QMenu" name="menu3D_View">
     <property name="title">
@@ -1270,7 +3773,6 @@ p, li { white-space: pre-wrap; }
    <addaction name="actionNew"/>
    <addaction name="actionOpen"/>
    <addaction name="action_Save"/>
-   <addaction name="actionSave_Selected_Map_As"/>
    <addaction name="actionSave_All_Maps_As"/>
    <addaction name="actionSave_Current_Map_View"/>
    <addaction name="action_Print_Current_Map_View"/>
@@ -1314,23 +3816,15 @@ p, li { white-space: pre-wrap; }
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
    <addaction name="actionGenerate_World"/>
    <addaction name="separator"/>
-   <addaction name="actionGenerate_All_Maps"/>
-   <addaction name="separator"/>
-   <addaction name="actionBiome"/>
-   <addaction name="actionElevation"/>
    <addaction name="actionGrayscale_Heightmap"/>
-   <addaction name="actionIce_Cap"/>
-   <addaction name="actionOcean"/>
-   <addaction name="actionPrecipitation"/>
-   <addaction name="actionRivers"/>
    <addaction name="actionScatter_Plot"/>
    <addaction name="actionSatellite_View"/>
-   <addaction name="actionTemperature"/>
-   <addaction name="actionWinds"/>
+   <addaction name="separator"/>
+   <addaction name="actionExport_World"/>
   </widget>
   <widget class="QToolBar" name="toolBar_5">
    <property name="windowTitle">
@@ -1344,9 +3838,21 @@ p, li { white-space: pre-wrap; }
    </attribute>
    <addaction name="action3D_View"/>
   </widget>
+  <widget class="QToolBar" name="toolBar_6">
+   <property name="windowTitle">
+    <string>toolBar_6</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionGenerate_Ancient_World"/>
+  </widget>
   <action name="actionNew">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="icon">
     <iconset>
@@ -1398,21 +3904,6 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+S</string>
    </property>
   </action>
-  <action name="actionSave_Selected_Map_As">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/save-as.png</normaloff>Images/save-as.png</iconset>
-   </property>
-   <property name="text">
-    <string>Save Selected &amp;Map As</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+M</string>
-   </property>
-  </action>
   <action name="actionSave_All_Maps_As">
    <property name="enabled">
     <bool>false</bool>
@@ -1422,7 +3913,7 @@ p, li { white-space: pre-wrap; }
      <normaloff>Images/save-all.png</normaloff>Images/save-all.png</iconset>
    </property>
    <property name="text">
-    <string>Save All Maps As</string>
+    <string>Save All Maps</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+S</string>
@@ -1596,10 +4087,10 @@ p, li { white-space: pre-wrap; }
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>Images/generate.png</normaloff>Images/generate.png</iconset>
+     <normaloff>Images/elevation.png</normaloff>Images/elevation.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Generate World</string>
+    <string>&amp;Generate World and Maps</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
@@ -1617,124 +4108,49 @@ p, li { white-space: pre-wrap; }
     <string>Ctrl+D</string>
    </property>
   </action>
-  <action name="actionBiome">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/biome.png</normaloff>Images/biome.png</iconset>
-   </property>
-   <property name="text">
-    <string>Biome</string>
-   </property>
-  </action>
-  <action name="actionElevation">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/elevation.png</normaloff>Images/elevation.png</iconset>
-   </property>
-   <property name="text">
-    <string>Elevation</string>
-   </property>
-  </action>
   <action name="actionGrayscale_Heightmap">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/grayscale.png</normaloff>Images/grayscale.png</iconset>
+   </property>
    <property name="text">
     <string>Grayscale Heightmap</string>
    </property>
-  </action>
-  <action name="actionIce_Cap">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Ice Caps</string>
-   </property>
-  </action>
-  <action name="actionRivers">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Rivers</string>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
    </property>
   </action>
   <action name="actionScatter_Plot">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/scatter.png</normaloff>Images/scatter.png</iconset>
+   </property>
    <property name="text">
     <string>Scatter Plot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
   <action name="actionSatellite_View">
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/satellite.png</normaloff>Images/satellite.png</iconset>
+   </property>
    <property name="text">
     <string>Satellite View</string>
    </property>
-  </action>
-  <action name="actionTemperature">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/temperature.png</normaloff>Images/temperature.png</iconset>
-   </property>
-   <property name="text">
-    <string>Temperature</string>
-   </property>
-  </action>
-  <action name="actionWinds">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Winds</string>
-   </property>
-  </action>
-  <action name="actionPrecipitation">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/precipitation.png</normaloff>Images/precipitation.png</iconset>
-   </property>
-   <property name="text">
-    <string>Precipitation</string>
-   </property>
-  </action>
-  <action name="actionOcean">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/ocean.png</normaloff>Images/ocean.png</iconset>
-   </property>
-   <property name="text">
-    <string>Ocean</string>
-   </property>
-  </action>
-  <action name="actionGenerate_All_Maps">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Images/window.png</normaloff>Images/window.png</iconset>
-   </property>
-   <property name="text">
-    <string>Generate All Maps</string>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="action3D_View">
@@ -1748,8 +4164,104 @@ p, li { white-space: pre-wrap; }
    <property name="text">
     <string>3D View</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+3</string>
+   </property>
+  </action>
+  <action name="actionGenerate_Ancient_World">
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/ancient_world.png</normaloff>Images/ancient_world.png</iconset>
+   </property>
+   <property name="text">
+    <string>Generate Ancient World</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate Ancient World</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionExport_World">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Images/biome.png</normaloff>Images/biome.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export World</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
+   </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>tblMapList</tabstop>
+  <tabstop>btnUp</tabstop>
+  <tabstop>btnUpdate</tabstop>
+  <tabstop>btnDown</tabstop>
+  <tabstop>spnOpacity</tabstop>
+  <tabstop>tblAvailable</tabstop>
+  <tabstop>btnAW</tabstop>
+  <tabstop>btnGH</tabstop>
+  <tabstop>btnSM</tabstop>
+  <tabstop>btnSP</tabstop>
+  <tabstop>textBrowser_2</tabstop>
+  <tabstop>gvSmall</tabstop>
+  <tabstop>spnSeed</tabstop>
+  <tabstop>btnRandomise</tabstop>
+  <tabstop>spnWidth</tabstop>
+  <tabstop>spnHeight</tabstop>
+  <tabstop>spnPlates</tabstop>
+  <tabstop>spnRecursion</tabstop>
+  <tabstop>rdoBWYes</tabstop>
+  <tabstop>rdoBWNo</tabstop>
+  <tabstop>rdoVMYes</tabstop>
+  <tabstop>rdoVMNo</tabstop>
+  <tabstop>rdoPBYes</tabstop>
+  <tabstop>rdoPBNo</tabstop>
+  <tabstop>rdoFadeYes</tabstop>
+  <tabstop>rdoFadeNo</tabstop>
+  <tabstop>spnSea</tabstop>
+  <tabstop>cboFormat</tabstop>
+  <tabstop>cboData</tabstop>
+  <tabstop>btnGenWorld</tabstop>
+  <tabstop>spnTemp1</tabstop>
+  <tabstop>spnTemp2</tabstop>
+  <tabstop>spnTemp3</tabstop>
+  <tabstop>spnTemp4</tabstop>
+  <tabstop>spnTemp5</tabstop>
+  <tabstop>spnTemp6</tabstop>
+  <tabstop>spnPrecip1</tabstop>
+  <tabstop>spnPrecip2</tabstop>
+  <tabstop>spnPrecip3</tabstop>
+  <tabstop>spnPrecip4</tabstop>
+  <tabstop>spnPrecip5</tabstop>
+  <tabstop>spnPrecip6</tabstop>
+  <tabstop>spnPrecip7</tabstop>
+  <tabstop>spnGamma</tabstop>
+  <tabstop>spnOffset</tabstop>
+  <tabstop>btnGenWorld_2</tabstop>
+  <tabstop>spnResize</tabstop>
+  <tabstop>rdoSeaBlue_3</tabstop>
+  <tabstop>rdoSeaBrown_3</tabstop>
+  <tabstop>rdoBiomesYes_3</tabstop>
+  <tabstop>rdoBiomesNo_3</tabstop>
+  <tabstop>rdoMountYes_3</tabstop>
+  <tabstop>rdoMountNo_3</tabstop>
+  <tabstop>rdoRiverYes_3</tabstop>
+  <tabstop>rdoRiverNo_3</tabstop>
+  <tabstop>rdoLandYes_3</tabstop>
+  <tabstop>rdoLandNo_3</tabstop>
+  <tabstop>cboAncFormat</tabstop>
+  <tabstop>cboAncData</tabstop>
+  <tabstop>btnGenWorld_3</tabstop>
+  <tabstop>gvLarge</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -185,6 +185,7 @@ class PNGWriter(object):
         #write the image
         with open(filename, 'wb') as f:
             self.img.write_array(f, self.prepare_array(self.array))
+            f.close()
 
     @staticmethod
     def get_dtype(channel_bitdepth):

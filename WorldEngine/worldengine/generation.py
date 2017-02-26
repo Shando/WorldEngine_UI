@@ -1,5 +1,5 @@
 import numpy
-
+import time
 import noise
 
 from model.world import Step
@@ -13,36 +13,26 @@ import simulations.erosion as erosion
 import simulations.precipitation as precip
 import simulations.biome as biome
 import simulations.icecap as icecap
+import simulations.wind as wind
 from common import anti_alias, get_verbose
-
-
 
 # ------------------
 # Initial generation
 # ------------------
 
 def center_land(world):
-    myMsg = ""
     """Translate the map horizontally and vertically to put as much ocean as
        possible at the borders. It operates on elevation and plates map"""
 
     y_sums = world.layers['elevation'].data.sum(1)  # 1 == sum along x-axis
     y_with_min_sum = y_sums.argmin()
-    if get_verbose():
-        myMsg = "geo.center_land: height complete"
-
+    
     x_sums = world.layers['elevation'].data.sum(0)  # 0 == sum along y-axis
     x_with_min_sum = x_sums.argmin()
-    if get_verbose():
-        myMsg = myMsg + "\ngeo.center_land: width complete"
 
     latshift = 0
     world.layers['elevation'].data = numpy.roll(numpy.roll(world.layers['elevation'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     world.layers['plates'].data = numpy.roll(numpy.roll(world.layers['plates'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
-    if get_verbose():
-        myMsg = myMsg + "\ngeo.center_land: width complete"
-
-    return myMsg
 
 def place_oceans_at_map_borders(world):
     """
@@ -65,35 +55,41 @@ def place_oceans_at_map_borders(world):
             place_ocean(i, y, i)
             place_ocean(world.width - i - 1, y, i)
 
-
 def add_noise_to_elevation(world, seed):
     octaves = 8
     freq = 16.0 * octaves
+    
     for y in range(world.height):
         for x in range(world.width):
             n = noise.snoise2(x / freq * 2, y / freq * 2, octaves, base=seed)
             world.layers['elevation'].data[y, x] += n
-
 
 def fill_ocean(elevation, sea_level):#TODO: Make more use of numpy?
     height, width = elevation.shape
 
     ocean = numpy.zeros(elevation.shape, dtype=bool)
     to_expand = []
+    
     for x in range(width):#handle top and bottom border of the map
         if elevation[0, x] <= sea_level:
             to_expand.append((x, 0))
+    
         if elevation[height - 1, x] <= sea_level:
             to_expand.append((x, height - 1))
+    
     for y in range(height):#handle left- and rightmost border of the map
         if elevation[y, 0] <= sea_level:
             to_expand.append((0, y))
+    
         if elevation[y, width - 1] <= sea_level:
             to_expand.append((width - 1, y))
+
     for t in to_expand:
         tx, ty = t
+    
         if not ocean[ty, tx]:
             ocean[ty, tx] = True
+        
             for px, py in _around(tx, ty, width, height):
                 if not ocean[py, px] and elevation[py, px] <= sea_level:
                     to_expand.append((px, py))
@@ -116,11 +112,11 @@ def initialize_ocean_and_thresholds(world, ocean_level=1.0):
             ('plain', hl),
             ('hill', ml),
             ('mountain', None)]
+    
     harmonize_ocean(ocean, e, ocean_level)
     world.set_ocean(ocean)
     world.set_elevation(e, e_th)
     world.set_sea_depth(sea_depth(world, ocean_level))
-
 
 def harmonize_ocean(ocean, elevation, ocean_level):
     """
@@ -145,6 +141,7 @@ def harmonize_ocean(ocean, elevation, ocean_level):
 
 def sea_depth(world, sea_level):
     sea_depth = sea_level - world.layers['elevation'].data
+
     for y in range(world.height):
         for x in range(world.width):
             if world.tiles_around((x, y), radius=1, predicate=world.is_land):
@@ -157,34 +154,50 @@ def sea_depth(world, sea_level):
                 sea_depth[y, x] *= 0.7
             elif world.tiles_around((x, y), radius=5, predicate=world.is_land):
                 sea_depth[y, x] *= 0.9
+    
     sea_depth = anti_alias(sea_depth, 10)
 
     min_depth = sea_depth.min()
     max_depth = sea_depth.max()
     sea_depth = (sea_depth - min_depth) / (max_depth - min_depth)
+    
     return sea_depth
-
 
 def _around(x, y, width, height):
     ps = []
+
     for dx in range(-1, 2):
         nx = x + dx
+    
         if 0 <= nx < width:
             for dy in range(-1, 2):
                 ny = y + dy
+        
                 if 0 <= ny < height and (dx != 0 or dy != 0):
                     ps.append((nx, ny))
+    
     return ps
 
+def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
+                   erosion_max_radius, erosion_maxRadius, erosion_radius,
+                   humidity_irrigationWeight, humidity_precipitation_weight,
+                   hydrology_creek, hydrology_main_river, hydrology_river, irrigation_radius,
+                   icecap_freeze_chance_window, icecap_max_freeze_percentage, icecap_surrounding_tile_influence,
+                   permeability_freq, permeability_octaves, permeability_perm_th_low, permeability_perm_th_med,
+                   precipitation_freq, precipitation_octaves, precipitation_ths_low, precipitation_ths_med,
+                   temperature_axial_tilt_hwhm, temperature_distance_to_sun_hwhm, temperature_frequency, temperature_octaves,
+                   wind_frequency, wind_octaves):
 
-def generate_world(w, step, msg1):
-    myMsg = msg1
+    if get_verbose():
+        start_time = time.time()
+        obj.updatePopup(' ')
+        obj.updatePopup('Generating World ...')
 
     if isinstance(step, str):
         step = step.Step.get_by_name(step)
 
-    if not step.include_precipitations:
-        return w, myMsg
+#    if not step.include_precipitations:
+#        return w
 
     # Prepare sufficient seeds for the different steps of the generation
     rng = numpy.random.RandomState(w.seed)  # create a fresh RNG in case the global RNG is compromised (i.e. has been queried an indefinite amount of times before generate_world() was called)
@@ -199,44 +212,106 @@ def generate_world(w, step, msg1):
                  'PermeabilitySimulation':  sub_seeds[ 6],
                  'BiomeSimulation':         sub_seeds[ 7],
                  'IcecapSimulation':        sub_seeds[ 8],
+                 'WindSimulation':          sub_seeds[ 9],
                  '':                        sub_seeds[99]
     }
 
-    temp.TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'])
-    # Precipitation with thresholds
-    myMsg = myMsg + "\n" + precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'])
+    temp.TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'], temperature_distance_to_sun_hwhm,
+                                         temperature_axial_tilt_hwhm, temperature_frequency, temperature_octaves)
 
-    if not step.include_erosion:
-        return w, myMsg
-    
-    erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'])  # seed not currently used
-    
     if get_verbose():
-        myMsg = myMsg + "\n...erosion calculated"
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Temperature Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    hydro.WatermapSimulation().execute(w, seed_dict['WatermapSimulation'])  # seed not currently used
+    # Precipitation with thresholds
+    precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'], precipitation_freq, precipitation_octaves,
+                                            precipitation_ths_low, precipitation_ths_med)
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Precipitation Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+#    if not step.include_erosion:
+#        return w
+    
+    erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'], hydrology_river, erosion_max_radius,
+                                        erosion_maxRadius, erosion_radius, erosion_curve1, erosion_curve2, erosion_curve3)  # seed not currently used
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Erosion Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+    hydro.WatermapSimulation().execute(w, seed_dict['WatermapSimulation'], hydrology_creek, hydrology_main_river, hydrology_river)  # seed not currently used
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Watermap Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # FIXME: create setters
-    irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'])  # seed not currently used
-    humid.HumiditySimulation().execute(w, seed_dict['HumiditySimulation'])  # seed not currently used
-
-    perm.PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'])
-
-    cm, biome_cm = biome.BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
-    for cl in cm.keys():
-        count = cm[cl]
-        if get_verbose():
-            myMsg = myMsg + "\n%s = %i" % (str(cl), count)
+    irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'], irrigation_radius)  # seed not currently used
 
     if get_verbose():
-        myMsg = myMsg + ('\n')  # empty line
-        myMsg = myMsg + '\nBiome obtained:'
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Irrigation Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+    humid.HumiditySimulation().execute(w, seed_dict['HumiditySimulation'], humidity_irrigationWeight, humidity_precipitation_weight)  # seed not currently used
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Humidity Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+    perm.PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'], permeability_freq, permeability_octaves,
+                                          permeability_perm_th_low, permeability_perm_th_med)
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Permeability Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+        obj.updatePopup(' ')
+
+    cm, biome_cm = biome.BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
+
+    for cl in cm.keys():
+        count = cm[cl]
+
+        if get_verbose():
+            obj.updatePopup('        %s = %i' % (str(cl), count))
+
+    if get_verbose():
+        obj.updatePopup('    Biome obtained:')
 
     for cl in biome_cm.keys():
         count = biome_cm[cl]
+
         if get_verbose():
-            myMsg = myMsg + "\n %30s = %7i" % (str(cl), count)
+            obj.updatePopup('        %30s = %7i' % (str(cl), count))
 
-    icecap.IcecapSimulation().execute(w, seed_dict['IcecapSimulation'])  # makes use of temperature-map
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup(' ')
+        obj.updatePopup('    Biome Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    return w, myMsg
+    icecap.IcecapSimulation().execute(w, seed_dict['IcecapSimulation'], icecap_freeze_chance_window,
+                                      icecap_max_freeze_percentage, icecap_surrounding_tile_influence)  # makes use of temperature-map
+    
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup(' ')
+        obj.updatePopup('    Icecap Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+    wind.WindSimulation().execute(w, seed_dict['WindSimulation'], wind_frequency, wind_octaves)
+
+    if get_verbose():
+        elapsed_time = time.time() - start_time
+        start_time = time.time()
+        obj.updatePopup('    Wind Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
+
+    return w

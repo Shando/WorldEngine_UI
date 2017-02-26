@@ -1,5 +1,6 @@
 try:
     from osgeo import gdal
+    from osgeo import ogr
 except ImportError:
     try:
         import gdal
@@ -46,7 +47,22 @@ def export(world, export_filetype = 'GTiff', export_datatype = 'float32', path =
         print("Cannot export: please install pygdal.")
         sys.exit(1)
 
+    gdal.AllRegister()
+    for i in range(1, gdal.GetDriverCount()):
+        drv = gdal.GetDriver(i)
+        sTmp = drv.GetDescription()
+        print (sTmp)
+    
     final_driver = gdal.GetDriverByName(export_filetype)
+    
+    metadata = final_driver.GetMetadata()
+    
+    if metadata.has_key(gdal.DCAP_CREATE) and metadata[gdal.DCAP_CREATE] == 'YES':
+        print 'Driver %s supports Create() method.' % final_driver
+    
+    if metadata.has_key(gdal.DCAP_CREATECOPY) and metadata[gdal.DCAP_CREATECOPY] == 'YES':
+        print 'Driver %s supports CreateCopy() method.' % final_driver
+
     if final_driver is None:
         print("%s driver not registered." % export_filetype)
         sys.exit(1)
@@ -59,7 +75,7 @@ def export(world, export_filetype = 'GTiff', export_datatype = 'float32', path =
     # Note: GDAL will throw informative errors on its own whenever file type and data type cannot be matched.
 
     # translate export_datatype; http://www.gdal.org/gdal_8h.html#a22e22ce0a55036a96f652765793fb7a4
-    export_datatype = export_datatype.lower()
+    export_datatype = export_datatype.toLower()
     if export_datatype in ['gdt_byte', 'uint8', 'int8', 'byte', 'char']:  # GDAL does not support int8
         bpp, signed, normalize = (8, False, True)
         numpy_type = numpy.uint8
@@ -92,7 +108,7 @@ def export(world, export_filetype = 'GTiff', export_datatype = 'float32', path =
         raise TypeError("Type of data not recognized or not supported by GDAL: %s" % export_datatype)
 
     # massage data to scale between the absolute min and max
-    elevation = numpy.copy(world.elevation['data'])
+    elevation = numpy.copy(world.layers['elevation'].data)
 
     # shift data according to minimum possible value
     if signed:

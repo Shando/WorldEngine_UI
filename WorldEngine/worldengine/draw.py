@@ -1,7 +1,8 @@
 import numpy
 
-import drawing_functions as drawFunc
+from drawing_functions import draw_ancientmap, draw_rivers_on_image, gradient
 from image_io import PNGWriter
+from common import get_verbose
 
 # -------------
 # Helper values
@@ -360,7 +361,7 @@ def draw_riversmap(world, target):
         for x in range(world.width):
             target.set_pixel(x, y, sea_color if world.is_ocean((x, y)) else land_color)
 
-    drawFunc.draw_rivers_on_image(world, target, factor=1)
+    draw_rivers_on_image(world, target, factor = 1)
 
 
 def draw_grayscale_heightmap(world, target):
@@ -525,23 +526,52 @@ def draw_ocean(ocean, target):
             else:
                 target.set_pixel(x, y, (0, 255, 255, 255))
 
+def draw_wind(world, target):
+    WEST_COLOR = (255, 0, 0)
+    NORTH_COLOR = (0, 255, 0)
+    EAST_COLOR = (0, 0, 255)
+    SOUTH_COLOR = (255, 255, 0)
 
-def draw_precipitation(world, target, black_and_white=False):
-    # FIXME we are drawing humidity, not precipitations
+    def _wind_color(dir):
+        if dir > 0.75:
+            return gradient(dir, 0.75, 1.00, WEST_COLOR, NORTH_COLOR)
+        elif dir > 0.5:
+            return gradient(dir, 0.50, 0.75, SOUTH_COLOR, WEST_COLOR)
+        elif dir > 0.25:
+            return gradient(dir, 0.25, 0.50, EAST_COLOR, SOUTH_COLOR)
+        else:
+            return gradient(dir, 0.00, 0.25, NORTH_COLOR, EAST_COLOR)
+
+    width = world.width
+    height = world.height
+
+    for y in range(height):
+        for x in range(width):
+            target.set_pixel(x, y, _wind_color(world.layers['wind_direction'].data[y, x]))
+
+def draw_humidity(world, target, black_and_white=False):
     width = world.width
     height = world.height
 
     if black_and_white:
-        low = world.precipitation['data'].min()
-        high = world.precipitation['data'].max()
-        floor = 0
-        ceiling = 255  # could be changed into 16 Bit grayscale easily
-
-        colors = numpy.interp(world.precipitation['data'], [low, high], [floor, ceiling])
-        colors = numpy.rint(colors).astype(dtype=numpy.int32)  # proper rounding
         for y in range(height):
             for x in range(width):
-                target.set_pixel(x, y, (colors[y, x], colors[y, x], colors[y, x], 255))
+                if world.is_humidity_superarid((x, y)):
+                    target.set_pixel(x, y, (32, 32, 32, 255))
+                elif world.is_humidity_perarid((x, y)):
+                    target.set_pixel(x, y, (64, 64, 64, 255))
+                elif world.is_humidity_arid((x, y)):
+                    target.set_pixel(x, y, (96, 96, 96, 255))
+                elif world.is_humidity_semiarid((x, y)):
+                    target.set_pixel(x, y, (128, 128, 128, 255))
+                elif world.is_humidity_subhumid((x, y)):
+                    target.set_pixel(x, y, (160, 160, 160, 255))
+                elif world.is_humidity_humid((x, y)):
+                    target.set_pixel(x, y, (192, 192, 192, 255))
+                elif world.is_humidity_perhumid((x, y)):
+                    target.set_pixel(x, y, (224, 224, 224, 255))
+                elif world.is_humidity_superhumid((x, y)):
+                    target.set_pixel(x, y, (255, 255, 255, 255))
     else:
         for y in range(height):
             for x in range(width):
@@ -562,6 +592,29 @@ def draw_precipitation(world, target, black_and_white=False):
                 elif world.is_humidity_superhumid((x, y)):
                     target.set_pixel(x, y, (0, 255, 255, 255))
 
+def draw_precipitation(world, target, black_and_white=False):
+    width = world.width
+    height = world.height
+    low = world.layers['precipitation'].data.min()
+    high = world.layers['precipitation'].data.max()
+
+    if black_and_white:
+        floor = 0
+        ceiling = 255  # could be changed into 16 Bit grayscale easily
+
+        colors = numpy.interp(world.layers['precipitation'].data, [low, high], [floor, ceiling])
+        colors = numpy.rint(colors).astype(dtype=numpy.int32)  # proper rounding
+        for y in range(height):
+            for x in range(width):
+                target.set_pixel(x, y, (colors[y, x], colors[y, x], colors[y, x], 255))
+    else:
+        lowColor = (0, 0, 0)
+        highColor = (255, 255, 255)
+
+        for y in range(height):
+            for x in range(width):
+                pos = (x, y)
+                target.set_pixel(x, y, gradient(world.precipitations_at(pos), low, high, lowColor, highColor))
 
 def draw_world(world, target):
     width = world.width
@@ -735,10 +788,29 @@ def draw_scatter_plot(world, size, target):
                 ny = (size - 1) * ((p - min_humidity) / humidity_delta)
                     
                 target.set_pixel(int(nx), (size - 1) - int(ny), (r, 128, b, 255))
-    
+
+def draw_permeability(world, target):
+    width = world.width
+    height = world.height
+
+    lowColor = (69, 98, 33, 255)
+    medColor = (0, 68, 33, 255)
+
+    for y in range(height):
+        for x in range(width):
+            pos = (x, y)
+
+            if world.is_permeability_low(pos):
+                target.set_pixel(x, y, lowColor)
+            else:
+                target.set_pixel(x, y, medColor)
+
+
 # -------------
 # Draw on files
 # -------------
+
+
 def draw_simple_elevation_on_file(world, filename, sea_level):
     img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_simple_elevation(world, sea_level, img)
@@ -769,6 +841,18 @@ def draw_ocean_on_file(ocean, filename):
     img.complete()
 
 
+def draw_wind_on_file(world, filename):
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    draw_wind(world, img)
+    img.complete()
+
+
+def draw_humidity_on_file(world, filename, black_and_white=False):
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    draw_humidity(world, img, black_and_white)
+    img.complete()
+
+
 def draw_precipitation_on_file(world, filename, black_and_white=False):
     img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_precipitation(world, img, black_and_white)
@@ -793,34 +877,36 @@ def draw_biome_on_file(world, filename):
     img.complete()
 
 
-def draw_ancientmap_on_file(world, filename, resize_factor=1,
-                            sea_color=(212, 198, 169, 255),
+def draw_ancientmap_on_file(obj, world, filename, resize_factor=1, sea_color=(212, 198, 169, 255),
                             draw_biome=True, draw_rivers=True, draw_mountains=True, 
                             draw_outer_land_border=False, verbose=False):
-    img = PNGWriter.rgba_from_dimensions(world.width * resize_factor, world.height * resize_factor, filename)
-    msg = drawFunc.draw_ancientmap(world, img, resize_factor, sea_color,
-                    draw_biome, draw_rivers, draw_mountains, draw_outer_land_border, 
-                    verbose)
+    wWidth = int(world.width * resize_factor)
+    wHeight = int(world.height * resize_factor)
+    img = PNGWriter.rgba_from_dimensions(wWidth, wHeight, filename)
+    draw_ancientmap(obj, world, img, resize_factor, sea_color, draw_biome, draw_rivers, draw_mountains,
+                    draw_outer_land_border, verbose)
     img.complete()
-    
-    return msg
 
 
 def draw_scatter_plot_on_file(world, filename):
-    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    img = PNGWriter.rgba_from_dimensions(512, 512, filename)
     draw_scatter_plot(world, 512, img)
     img.complete()
 
 
 def draw_satellite_on_file(world, filename):
-    img = PNGWriter.rgba_from_dimensions(512, 512, filename)
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_satellite(world, img)
     img.complete()
 
 
 def draw_icecaps_on_file(world, filename):
-#Changed by Shando
-#April 2016
-    img = PNGWriter.grayscale_from_array(world.layers['icecap'].data, filename, scale_to_range=True)
+    img = PNGWriter.grayscale_from_array(world.layers["icecap"].data, filename, scale_to_range=True)
     img.complete()
-#-----------------
+
+#NEW FUNCTIONS 200217
+def draw_permeability_on_file(world, filename):
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    draw_permeability(world, img)
+    img.complete()
+

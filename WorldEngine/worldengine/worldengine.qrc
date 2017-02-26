@@ -44,7 +44,15 @@
         <file>ocean.png</file>
         <file>ancient_world.png</file>
         <file>temperature.png</file>
+        <file>rivers.png</file>
         <file>cinema.png</file>
-        <file>window.png</file>        
+        <file>window.png</file>
+        <file>scatter.png</file>
+        <file>satellite.png</file>
+        <file>grayscale.png</file>
+        <file>icecaps.png</file>
+        <file>up.png</file>
+        <file>down.png</file>
+        <file>update.png</file>
     </qresource>
 </RCC>

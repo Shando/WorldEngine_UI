@@ -6,7 +6,6 @@ from step import Step
 from common import _equal
 from version import __version__
 
-
 class Size(object):
 
     def __init__(self, width, height):
@@ -120,10 +119,10 @@ class World(object):
     #
 
     @classmethod
-    def from_dict(cls, dict):
-        instance = World(dict['name'], Size(dict['width'], dict['height']))
-        for k in dict:
-            instance.__dict__[k] = dict[k]
+    def from_dict(cls, sDict):
+        instance = World(sDict['name'], Size(sDict['width'], sDict['height']))
+        for k in sDict:
+            instance.__dict__[k] = sDict[k]
         return instance
 
     def protobuf_serialize(self):
@@ -254,8 +253,7 @@ class World(object):
             self._to_protobuf_matrix(self.layers['irrigation'].data, p_world.irrigation)
 
         if self.has_permeability():
-            self._to_protobuf_matrix(self.layers['permeability'].data,
-                                     p_world.permeabilityData)
+            self._to_protobuf_matrix(self.layers['permeability'].data, p_world.permeabilityData)
             p_world.permeability_low = self.layers['permeability'].thresholds[0][1]
             p_world.permeability_med = self.layers['permeability'].thresholds[1][1]
 
@@ -287,6 +285,9 @@ class World(object):
 
         if self.has_icecap():
             self._to_protobuf_matrix(self.layers['icecap'].data, p_world.icecap)
+        
+        if self.has_wind():
+            self._to_protobuf_matrix(self.layers['wind_direction'].data, p_world.wind)
 
         return p_world
 
@@ -318,7 +319,7 @@ class World(object):
             w.set_biome(numpy.array(World._from_protobuf_matrix(p_world.biome, biome.biome_index_to_name), dtype=object))
 
         # Humidity
-        # FIXME: use setters
+        # TODO: use setters
         if len(p_world.humidity.rows) > 0:
             data, quantiles = World._from_protobuf_matrix_with_quantiles(p_world.humidity)
             w.set_humidity(numpy.array(data), quantiles)
@@ -376,6 +377,9 @@ class World(object):
 
         if len(p_world.icecap.rows) > 0:
             w.set_icecap(numpy.array(World._from_protobuf_matrix(p_world.icecap)))
+
+        if len(p_world.wind.rows) > 0:
+            w.set_wind_direction(numpy.array(World._from_protobuf_matrix(p_world.wind)))
 
         return w
 
@@ -957,6 +961,10 @@ class World(object):
     def set_icecap(self, icecap):
         self.layers['icecap'] = Layer(icecap)
 
+    def set_wind_direction(self, wind): 
+        """The direction should be a number from 0 to 1 where 0 means North, 0.25 East, 0.5 South and 0.75 West""" 
+        self.layers['wind_direction'] = Layer(wind) 
+
     def has_ocean(self):
         return 'ocean' in self.layers
 
@@ -989,3 +997,12 @@ class World(object):
 
     def has_icecap(self):
         return 'icecap' in self.layers
+    
+    def has_wind(self):
+        return 'wind_direction' in self.layers
+
+    def is_permeability_low(self, pos):
+        perm_min = self.layers['permeability'].thresholds[0][1]
+        x, y = pos
+        t = self.layers['permeability'].data[y, x]
+        return t <= perm_min
