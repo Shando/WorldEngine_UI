@@ -2,7 +2,6 @@ import numpy
 
 from drawing_functions import draw_ancientmap, draw_rivers_on_image, gradient
 from image_io import PNGWriter
-from common import get_verbose
 
 # -------------
 # Helper values
@@ -216,24 +215,24 @@ def elevation_color(elevation, sea_level=1.0):
 
 
 def add_colors(*args):
-    ''' Do some *args magic to return a tuple, which has the sums of all tuples in *args '''
+    """ Do some *args magic to return a tuple, which has the sums of all tuples in *args """
     # Adapted from an answer here: http://stackoverflow.com/questions/14180866/sum-each-value-in-a-list-of-tuples
     added = [sum(x) for x in zip(*args)]
     return numpy.clip(added, 0, 255)  # restrict to uint8
 
 
 def average_colors(c1, c2):
-    ''' Average the values of two colors together '''
+    """ Average the values of two colors together """
     r = int((c1[0] + c2[0])/2)
     g = int((c1[1] + c2[1])/2)
     b = int((c1[2] + c2[2])/2)
 
-    return (r, g, b)
+    return r, g, b
 
 
 def get_normalized_elevation_array(world):
-    ''' Convert raw elevation into normalized values between 0 and 255,
-        and return a numpy array of these values '''
+    """ Convert raw elevation into normalized values between 0 and 255,
+        and return a numpy array of these values """
 
     e = world.layers['elevation'].data
     ocean = world.layers['ocean'].data
@@ -257,22 +256,22 @@ def get_normalized_elevation_array(world):
 
 
 def get_biome_color_based_on_elevation(world, elev, x, y, rng):
-    ''' This is the "business logic" for determining the base biome color in satellite view.
-        This includes generating some "noise" at each spot in a pixel's rgb value, potentially 
-        modifying the noise based on elevation, and finally incorporating this with the base biome color. 
+    """ This is the "business logic" for determining the base biome color in satellite view.
+        This includes generating some "noise" at each spot in a pixel's rgb value, potentially
+        modifying the noise based on elevation, and finally incorporating this with the base biome color.
 
         The basic rules regarding noise generation are:
         - Oceans have no noise added
         - land tiles start with noise somewhere inside (-NOISE_RANGE, NOISE_RANGE) for each rgb value
-        - land tiles with high elevations further modify the noise by set amounts (to drain some of the 
-          color and make the map look more like mountains) 
+        - land tiles with high elevations further modify the noise by set amounts (to drain some of the
+          color and make the map look more like mountains)
 
         The biome's base color may be interpolated with a predefined mountain brown color if the elevation is high enough.
 
         Finally, the noise plus the biome color are added and returned.
 
         rng refers to an instance of a random number generator used to draw the random samples needed by this function.
-    '''
+    """
     v = world.biome_at((x, y)).name()
     biome_color = _biome_satellite_colors[v]
 
@@ -373,7 +372,7 @@ def draw_grayscale_heightmap(world, target):
 
 
 def draw_satellite(world, target):
-    ''' This draws a "satellite map" - a view of the generated planet as it may look from space '''
+    """ This draws a "satellite map" - a view of the generated planet as it may look from space """
 
     # Get an elevation mask where heights are normalized between 0 and 255
     elevation_mask = get_normalized_elevation_array(world)

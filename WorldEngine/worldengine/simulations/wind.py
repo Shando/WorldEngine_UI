@@ -1,8 +1,8 @@
 import numpy
 from noise import snoise2
 
-class WindSimulation(object):
 
+class WindSimulation(object):
     @staticmethod
     def is_applicable(world):
         return not world.has_wind()
@@ -83,12 +83,12 @@ class WindSimulation(object):
 
         freq = self.frequency * self.octaves
 
-        #This is a variable I am adding. It exists
-        #so that worlds sharing a common seed but
-        #different sizes will have similar patterns
+        # This is a variable I am adding. It exists
+        # so that worlds sharing a common seed but
+        # different sizes will have similar patterns
         n_scale = 1024 / float(height)
-        
-        for y in range(height): #TODO: numpy
+
+        for y in range(height):  # TODO: numpy
             for x in range(width):
                 n = snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base)
 
@@ -96,9 +96,8 @@ class WindSimulation(object):
                 if x < border:
                     n = (snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base) * x / border) + \
                         (snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves, base=base) * \
-                        (border - x) / border)
+                         (border - x) / border)
 
                 data[y, x] = _wrap(data[y, x] + n * distorsion_factor)
 
         return data
-

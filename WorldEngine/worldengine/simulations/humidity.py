@@ -1,6 +1,7 @@
 import simulations.basic as basic
 import numpy
 
+
 class HumiditySimulation(object):
     @staticmethod
     def is_applicable(world):
@@ -18,18 +19,18 @@ class HumiditySimulation(object):
     def _calculate(self, world):
         humids = world.humids
         data = numpy.zeros((world.height, world.width), dtype=float)
-        data = (world.layers['precipitation'].data * self.precipitation_Weight - world.layers['irrigation'].data * self.irrigation_Weight)/(self.precipitation_Weight + self.irrigation_Weight)
+        data = (world.layers['precipitation'].data * self.precipitation_Weight - world.layers[
+            'irrigation'].data * self.irrigation_Weight) / (self.precipitation_Weight + self.irrigation_Weight)
 
         # These were originally evenly spaced at 12.5% each but changing them
         # to a bell curve produced better results
         ocean = world.layers['ocean'].data
-        quantiles = {}
-        quantiles['12'] = basic.find_threshold_f(data, humids[6], ocean)
-        quantiles['25'] = basic.find_threshold_f(data, humids[5], ocean)
-        quantiles['37'] = basic.find_threshold_f(data, humids[4], ocean)
-        quantiles['50'] = basic.find_threshold_f(data, humids[3], ocean)
-        quantiles['62'] = basic.find_threshold_f(data, humids[2], ocean)
-        quantiles['75'] = basic.find_threshold_f(data, humids[1], ocean)
-        quantiles['87'] = basic.find_threshold_f(data, humids[0], ocean)
+        quantiles = {'12': basic.find_threshold_f(data, humids[6], ocean),
+                     '25': basic.find_threshold_f(data, humids[5], ocean),
+                     '37': basic.find_threshold_f(data, humids[4], ocean),
+                     '50': basic.find_threshold_f(data, humids[3], ocean),
+                     '62': basic.find_threshold_f(data, humids[2], ocean),
+                     '75': basic.find_threshold_f(data, humids[1], ocean),
+                     '87': basic.find_threshold_f(data, humids[0], ocean)}
 
         return data, quantiles

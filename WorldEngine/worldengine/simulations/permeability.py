@@ -2,6 +2,7 @@ import simulations.basic as basic
 import noise
 import numpy
 
+
 class PermeabilitySimulation(object):
     @staticmethod
     def is_applicable(world):
@@ -26,7 +27,7 @@ class PermeabilitySimulation(object):
         perm = numpy.zeros((height, width), dtype=float)
         freq = self.frequency * self.octaves
 
-        for y in range(0, height):#TODO: numpy optimization?
+        for y in range(0, height):  # TODO: numpy optimization?
             # yscaled = float(y) / height  # TODO: what is this?
             for x in range(0, width):
                 n = noise.snoise2(x / freq, y / freq, self.octaves, base=base)

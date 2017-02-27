@@ -59,7 +59,7 @@ class Counter(object):
         sys.stdout.write(self.to_str)
 
 
-def anti_alias(map, steps):#TODO: There is probably a bit of numpy-optimization that can be done here.
+def anti_alias(map, steps):  #TODO: There is probably a bit of numpy-optimization that can be done here.
     """
     Execute the anti_alias operation steps times on the given map
     """
@@ -95,28 +95,28 @@ def _equal(a, b):
     #recursion on subclasses of types: tuple, list, dict
     #specifically checks             : float, ndarray
     if type(a) is float and type(b) is float:#float
-        return(numpy.allclose(a, b))
+        return numpy.allclose(a, b)
     elif type(a) is numpy.ndarray and type(b) is numpy.ndarray:#ndarray
-        return(numpy.array_equiv(a, b))#alternative for float-arrays: numpy.allclose(a, b[, rtol, atol])
+        return numpy.array_equiv(a, b)  #alternative for float-arrays: numpy.allclose(a, b[, rtol, atol])
     elif isinstance(a, dict) and isinstance(b, dict):#dict
         if len(a) != len(b):
-            return(False)
+            return False
         t = True
         for key, val in a.items():
             if key not in b:
-                return(False)
+                return False
             t = _equal(val, b[key])
             if not t:
-                return(False)
-        return(t)
+                return False
+        return t
     elif (isinstance(a, list) and isinstance(b, list)) or (isinstance(a, tuple) and isinstance(b, tuple)):#list, tuples
         if len(a) != len(b):
-            return(False)
+            return False
         t = True
         for vala, valb in zip(a, b):
             t = _equal(vala, valb)
             if not t:
-                return(False)
-        return(t)
+                return False
+        return t
     else:#fallback
-        return (a == b)
+        return a == b

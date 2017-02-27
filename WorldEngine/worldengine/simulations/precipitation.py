@@ -4,6 +4,7 @@ from noise import snoise2
 from simulations.basic import find_threshold_f
 from common import get_verbose
 
+
 class PrecipitationSimulation(object):
     @staticmethod
     def is_applicable(world):
@@ -50,25 +51,25 @@ class PrecipitationSimulation(object):
 
         freq = self.frequency * self.octaves
 
-        #This is a variable I am adding. It exists
-        #so that worlds sharing a common seed but
-        #different sizes will have similar patterns
+        # This is a variable I am adding. It exists
+        # so that worlds sharing a common seed but
+        # different sizes will have similar patterns
         n_scale = 1024 / float(height)
 
-        for y in range(height):#TODO: numpy
+        for y in range(height):  # TODO: numpy
             for x in range(width):
                 n = snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base)
 
                 # Added to allow noise pattern to wrap around right and left.
                 if x < border:
-                    n = (snoise2( (x * n_scale) / freq, (y * n_scale) / freq, self.octaves,
+                    n = (snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves,
                                  base=base) * x / border) + (
-                        snoise2(( (x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves,
-                                base=base) * (border - x) / border)
+                            snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves,
+                                    base=base) * (border - x) / border)
 
                 precipitations[y, x] = n
 
-        #find ranges
+        # find ranges
         min_precip = precipitations.min()
         max_precip = precipitations.max()
         min_temp = world.layers['temperature'].min()
@@ -76,13 +77,13 @@ class PrecipitationSimulation(object):
         precip_delta = (max_precip - min_precip)
         temp_delta = (max_temp - min_temp)
 
-        #normalize temperature and precipitation arrays
+        # normalize temperature and precipitation arrays
         t = (world.layers['temperature'].data - min_temp) / temp_delta
         p = (precipitations - min_precip) / precip_delta
 
-        #modify precipitation based on temperature
+        # modify precipitation based on temperature
 
-        #--------------------------------------------------------------------------------
+        # --------------------------------------------------------------------------------
         #
         # Ok, some explanation here because why the formula is doing this may be a
         # little confusing. We are going to generate a modified gamma curve based on 
@@ -102,13 +103,13 @@ class PrecipitationSimulation(object):
         # raise or lower the value for f(t) at 1 it would have negligible impact after
         # renormalizing.
         #
-        #--------------------------------------------------------------------------------
-        
-        curve = (numpy.power(t, curve_gamma) * (1-curve_bonus)) + curve_bonus
+        # --------------------------------------------------------------------------------
+
+        curve = (numpy.power(t, curve_gamma) * (1 - curve_bonus)) + curve_bonus
         precipitations = numpy.multiply(p, curve)
 
-        #Renormalize precipitation because the precipitation 
-        #changes will probably not fully extend from -1 to 1.
+        # Renormalize precipitation because the precipitation
+        # changes will probably not fully extend from -1 to 1.
         min_precip = precipitations.min()
         max_precip = precipitations.max()
         precip_delta = (max_precip - min_precip)

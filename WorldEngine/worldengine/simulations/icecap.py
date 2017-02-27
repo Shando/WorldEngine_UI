@@ -1,5 +1,6 @@
 import numpy
 
+
 class IcecapSimulation(object):
     # This class creates an "ice-map", i.e. a numpy array with positive values that describe the thickness of the ice at
     # a certain spot of the world.
@@ -31,9 +32,9 @@ class IcecapSimulation(object):
         temperature = world.layers['temperature'].data
 
         # primary constants (could be used as global variables at some point); all values should be in [0, 1]
-        #self.mfp  # only the coldest x% of the cold area will freeze (0 = no ice, 1 = all ice)
-        #self.fcw  # the warmest x% of freezable area won't completely freeze (RNG decides)
-        #self.sti  # chance-modifier to freeze a slightly warm tile when neighbors are frozen
+        # self.mfp  # only the coldest x% of the cold area will freeze (0 = no ice, 1 = all ice)
+        # self.fcw  # the warmest x% of freezable area won't completely freeze (RNG decides)
+        # self.sti  # chance-modifier to freeze a slightly warm tile when neighbors are frozen
 
         # secondary constants
         temp_min = temperature.min()  # coldest spot in the world
@@ -56,7 +57,8 @@ class IcecapSimulation(object):
 
         for y in range(world.height):
             for x in range(world.width):
-                if world.is_ocean((x, y)):  # or world.river_map[y, x] > 0 or world.lake_map[y, x] > 0 or world.watermap['data'][y, x] > 0:
+                if world.is_ocean((x,
+                                   y)):  # or world.river_map[y, x] > 0 or world.lake_map[y, x] > 0 or world.watermap['data'][y, x] > 0:
                     t = temperature[y, x]
 
                     if t - temp_min < freeze_threshold:
@@ -67,7 +69,7 @@ class IcecapSimulation(object):
 
                         # count number of frozen/solid tiles around this one
                         if 0 < x < world.width - 1 and 0 < y < world.height - 1:  # exclude borders
-                            surr_tiles = solid_map[y-1:y+2, x-1:x+2]
+                            surr_tiles = solid_map[y - 1:y + 2, x - 1:x + 2]
                             chance_mod = numpy.count_nonzero(surr_tiles)
                             chance_mod -= 1 if solid_map[y, x] else 0  # remove center-tile (i.e. the current tile)
 

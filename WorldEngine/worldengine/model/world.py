@@ -1,5 +1,4 @@
 import numpy
-
 import biome
 import protobuf.World_pb2 as Protobuf
 from step import Step
@@ -120,7 +119,7 @@ class World(object):
 
     @classmethod
     def from_dict(cls, sDict):
-        instance = World(sDict['name'], Size(sDict['width'], sDict['height']))
+        instance = World(sDict['name'], Size(sDict['width'], sDict['height']), sDict['seed'], sDict['generation_params'])
         for k in sDict:
             instance.__dict__[k] = sDict[k]
         return instance
@@ -339,10 +338,8 @@ class World(object):
         if len(p_world.watermapData.rows) > 0:
             data = numpy.array(World._from_protobuf_matrix(
                 p_world.watermapData))
-            thresholds = {}
-            thresholds['creek'] = p_world.watermap_creek
-            thresholds['river'] = p_world.watermap_river
-            thresholds['main river'] = p_world.watermap_mainriver
+            thresholds = {'creek': p_world.watermap_creek, 'river': p_world.watermap_river,
+                          'main river': p_world.watermap_mainriver}
             w.set_watermap(data, thresholds)
 
         if len(p_world.precipitationData.rows) > 0:
@@ -430,10 +427,10 @@ class World(object):
         x, y = pos
         for dx in range(-radius, radius + 1):
             nx = x + dx
-            if nx >= 0 and nx < self.width:
+            if 0 <= nx < self.width:
                 for dy in range(-radius, radius + 1):
                     ny = y + dy
-                    if ny >= 0 and ny < self.height and (dx != 0 or dy != 0):
+                    if 0 <= ny < self.height and (dx != 0 or dy != 0):
                         action((nx, ny))
 
     def tiles_around(self, pos, radius=1, predicate=None):
@@ -454,10 +451,10 @@ class World(object):
         x, y = pos
         for dx in range(-radius, radius + 1):
             nx = x + dx
-            if nx >= 0 and nx < self.width * factor:
+            if 0 <= nx < self.width * factor:
                 for dy in range(-radius, radius + 1):
                     ny = y + dy
-                    if ny >= 0 and ny < self.height * factor and (
+                    if 0 <= ny < self.height * factor and (
                             dx != 0 or dy != 0):
                         if predicate is None or predicate((nx, ny)):
                             ps.append((nx, ny))

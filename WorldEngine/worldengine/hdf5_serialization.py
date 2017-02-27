@@ -1,5 +1,4 @@
 import numpy
-
 import h5py
 
 from version import __version__
@@ -175,10 +174,8 @@ def load_world_to_hdf5(filename):
 
     if 'watermap' in f.keys():
         data = numpy.array(f['watermap/data'])
-        thresholds = {}
-        thresholds['creek'] = f['watermap/thresholds/creek'].value
-        thresholds['river'] =  f['watermap/thresholds/river'].value
-        thresholds['main river'] = f['watermap/thresholds/mainriver'].value
+        thresholds = {'creek': f['watermap/thresholds/creek'].value, 'river': f['watermap/thresholds/river'].value,
+                      'main river': f['watermap/thresholds/mainriver'].value}
         w.set_watermap(data, thresholds)
 
     if 'precipitation' in f.keys():

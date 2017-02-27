@@ -2,6 +2,7 @@ import simulations.basic as basic
 import noise  # http://nullege.com/codes/search/noise.snoise2
 import numpy
 
+
 class TemperatureSimulation(object):
     @staticmethod
     def is_applicable(world):
@@ -60,7 +61,7 @@ class TemperatureSimulation(object):
                                 see https://en.wikipedia.org/wiki/Uranus
                           -this value should usually be in the range -0.15 < axial_tilt < 0.15 for a habitable planet
         '''
-        #derive parameters
+        # derive parameters
         distance_to_sun = rng.normal(loc=1.0, scale=self.distance_to_sun_hwhm / 1.177410023)
         distance_to_sun = max(0.1, distance_to_sun)  # clamp value; no planets inside the star allowed
         distance_to_sun *= distance_to_sun  # prepare for later usage; use inverse-square law
@@ -74,8 +75,8 @@ class TemperatureSimulation(object):
 
         for y in range(0, height):  # TODO: Check for possible numpy optimizations.
             y_scaled = float(y) / height - 0.5  # -0.5...0.5
-            #map/linearly interpolate y_scaled to latitude measured from where the most sunlight hits the world:
-            #1.0 = hottest zone, 0.0 = coldest zone
+            # map/linearly interpolate y_scaled to latitude measured from where the most sunlight hits the world:
+            # 1.0 = hottest zone, 0.0 = coldest zone
             latitude_factor = numpy.interp(y_scaled, [axial_tilt - 0.5, axial_tilt, axial_tilt + 0.5],
                                            [0.0, 1.0, 0.0], left=0.0, right=0.0)
 
@@ -85,9 +86,9 @@ class TemperatureSimulation(object):
                 # Added to allow noise pattern to wrap around right and left.
                 if x <= border:
                     n = (noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves,
-                                 base=base) * x / border) \
+                                       base=base) * x / border) \
                         + (noise.snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves,
-                                   base=base) * (border - x) / border)
+                                         base=base) * (border - x) / border)
 
                 t = (latitude_factor * 12 + n * 1) / 13.0 / distance_to_sun
 

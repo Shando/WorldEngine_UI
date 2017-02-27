@@ -4,10 +4,8 @@ so no references to PIL are necessary and the module can be used also through
 Jython
 """
 
-import numpy
-import sys
 import time
-from common import get_verbose
+import numpy
 
 
 # -------------------
@@ -487,10 +485,10 @@ def _dynamic_draw_a_mountain(pixels, rng, x, y, w=3, h=3):
         bottomness = (float(mody + h) / 2.0) / w
 
         min_leftborder = int(bottomness * w * 0.66)
-        if not last_leftborder == None:
+        if not last_leftborder is None:
             min_leftborder = max(min_leftborder, last_leftborder - 1)
         max_leftborder = int(bottomness * w * 1.33)
-        if not last_leftborder == None:
+        if not last_leftborder is None:
             max_leftborder = min(max_leftborder, last_leftborder + 1)
         leftborder = int(bottomness * w) + rng.randint(-2, 2)/2
         if leftborder < min_leftborder:
@@ -514,10 +512,10 @@ def _dynamic_draw_a_mountain(pixels, rng, x, y, w=3, h=3):
     for mody in range(-h, h + 1):
         bottomness = (float(mody + h) / 2.0) / w
         min_modx = int(bottomness * w * 0.66)
-        if not last_modx == None:
+        if not last_modx is None:
             min_modx = max(min_modx, last_modx - 1)
         max_modx = int(bottomness * w * 1.33)
-        if not last_modx == None:
+        if not last_modx is None:
             max_modx = min(max_modx, last_modx + 1)
         modx = int(bottomness * w) + numpy.random.randint(-2, 2)/2
         if modx < min_modx:
@@ -688,10 +686,10 @@ def draw_ancientmap(obj, world, target, resize_factor=1, sea_color=(212, 198, 16
             tot_b = target[y, x][2] * 2
             for dy in range(-1, +2):
                 py = y + dy
-                if py > 0 and py < int(resize_factor * world.height):
+                if 0 < py < int(resize_factor * world.height):
                     for dx in range(-1, +2):
                         px = x + dx
-                        if px > 0 and px < int(resize_factor * world.width):
+                        if 0 < px < int(resize_factor * world.width):
                             n += 1
                             tot_r += target[py, px][0]
                             tot_g += target[py, px][1]

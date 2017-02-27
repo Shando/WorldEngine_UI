@@ -1,6 +1,7 @@
 import simulations.basic as basic
 import numpy
 
+
 class WatermapSimulation(object):
     @staticmethod
     def is_applicable(world):
@@ -27,7 +28,7 @@ class WatermapSimulation(object):
             min_lower = None
             tot_lowers = 0
 
-            for p in world.tiles_around((x, y)):#TODO: switch to numpy
+            for p in world.tiles_around((x, y)):  # TODO: switch to numpy
                 px, py = p
                 e = world.layers['elevation'].data[py, px] + _watermap[py, px]
 

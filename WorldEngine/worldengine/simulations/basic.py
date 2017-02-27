@@ -1,11 +1,11 @@
 import numpy
 
 
-def find_threshold(map_data, land_percentage, ocean=None):#never used anywhere?
+def find_threshold(map_data, land_percentage, ocean=None):  # never used anywhere?
     height, width = map_data.shape
 
-    #maybe map was already masked when we got it; if not, this will make sure we operate on a mask
-    mask = numpy.ma.array(map_data, mask = False, keep_mask = True)
+    # maybe map was already masked when we got it; if not, this will make sure we operate on a mask
+    mask = numpy.ma.array(map_data, mask=False, keep_mask=True)
 
     if ocean is not None:
         if ocean.shape != map_data.shape:
@@ -13,7 +13,7 @@ def find_threshold(map_data, land_percentage, ocean=None):#never used anywhere?
                 "Dimension of map and ocean do not match. " +
                 "Map is %d x %d, while ocean is %d x%d" % (width, height, ocean.shape[1], ocean.shape[0]))
 
-        mask = numpy.ma.array(mask, mask = ocean, keep_mask = True)
+        mask = numpy.ma.array(mask, mask=ocean, keep_mask=True)
 
     def count(e):
         return numpy.ma.masked_less_equal(mask, e).count()
@@ -49,11 +49,12 @@ def find_threshold(map_data, land_percentage, ocean=None):#never used anywhere?
 
     return search(0, 255, desired_land)
 
+
 def find_threshold_f(map_data, land_perc, ocean=None, fMax=1000.0, mindist=0.005):
     height, width = map_data.shape
 
-    #maybe map was already masked when we got it; if not, this will make sure we operate on a mask
-    mask = numpy.ma.array(map_data, mask = False, keep_mask = True)
+    # maybe map was already masked when we got it; if not, this will make sure we operate on a mask
+    mask = numpy.ma.array(map_data, mask=False, keep_mask=True)
 
     if ocean is not None:
         if ocean.shape != map_data.shape:
@@ -61,7 +62,7 @@ def find_threshold_f(map_data, land_perc, ocean=None, fMax=1000.0, mindist=0.005
                 "Dimension of map_data and ocean do not match. " +
                 "Map is %d x %d, while ocean is %d x%d" % (width, height, ocean.shape[1], ocean.shape[0]))
 
-        mask = numpy.ma.array(mask, mask = ocean, keep_mask = True)
+        mask = numpy.ma.array(mask, mask=ocean, keep_mask=True)
 
     def count(e):
         return numpy.ma.masked_less_equal(mask, e).count()

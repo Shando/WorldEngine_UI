@@ -1,9 +1,9 @@
 configparser2 == 4.0.0
-GDAL == 1.11.3
+GDAL == 2.1.0
 h5py == 2.5.0
 noise == 1.2.2
 numpy == 1.11.0
-pi3d == 2.11
+pi3d == 2.18
 PyPlatec == 1.4.0
 six == 1.10.0
 PyOpenGL == 3.1.1a1
@@ -14,3 +14,4 @@ protobuf == 3.0.0b3
 pypng == 0.0.18
 pygame == 1.9.2a0
 PyOpenGL-accelerate == 3.1.1
+Pillow == 3.2.0

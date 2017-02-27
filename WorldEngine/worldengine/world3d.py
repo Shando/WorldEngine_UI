@@ -8,9 +8,9 @@ import pi3d
 from pygame.constants import K_ESCAPE
 
 def limit(value, inMin, inMax):
-    if (value < inMin):
+    if value < inMin:
         value = inMin
-    elif (value > inMax):
+    elif value > inMax:
         value = inMax
     
     return value
@@ -29,7 +29,6 @@ def world3dA(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
     # inTextureMap = Maps/seed_XXXXX_elevation.png
     mymap = pi3d.ElevationMap(inHeightmap, width = mapwidth, depth = mapdepth, height = mapheight, divx = 199, divy = 199, ntiles=20, name = "sub")
     mymap.set_draw_details(flatsh, [tex], 1.0, 1.0)
-    print ('LINE 32')
     rot = 0.0
     tilt = 0.0
     height = 20.0
@@ -42,7 +41,7 @@ def world3dA(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
     mymouse = pi3d.Mouse(restrict = False)
     mymouse.start()
     
-    mx, my = mymouse.position()
+    omx, omy = mymouse.position()
 
     while DISPLAY.loop_running():
 #    while DISPLAY.loop_running() and not inputs.key_state("KEY_ESC"):
@@ -51,8 +50,12 @@ def world3dA(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
 #        mx, my, mv, mh, md = inputs.get_mouse_movement()
         mx, my = mymouse.position()
         
-        rot -= (mx) * 0.2
-        tilt -= (my) * 0.2
+        rot -= (mx - omx) * 0.2
+        tilt -= (my - omy) * 0.2
+
+        omx = mx
+        omy = my
+
         CAMERA.reset()
         CAMERA.rotate(-tilt, rot, 0)
         CAMERA.position((xm, ym, zm))

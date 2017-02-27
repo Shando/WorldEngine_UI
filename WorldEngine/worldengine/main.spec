@@ -5,8 +5,8 @@ block_cipher = None
 
 a = Analysis(['main.py'],
              pathex=['D:\\Users\\Simon\\git\\WorldEngine\\worldengine'],
-             binaries=None,
-             datas=None,
+             binaries=[],
+             datas=[],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -18,11 +18,16 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
-          a.binaries,
-          a.zipfiles,
-          a.datas,
+          exclude_binaries=True,
           name='main',
           debug=False,
           strip=False,
           upx=True,
-          console=False )
+          console=True )
+coll = COLLECT(exe,
+               a.binaries,
+               a.zipfiles,
+               a.datas,
+               strip=False,
+               upx=True,
+               name='main')

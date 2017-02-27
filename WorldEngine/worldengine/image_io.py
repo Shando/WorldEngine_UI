@@ -23,9 +23,9 @@ rewritten:
 
 import numpy
 import png
-#Documentation PyPNG: https://pythonhosted.org/pypng/png.html
-#Documentation PurePNG: http://purepng.readthedocs.org/en/latest/
-#The latter one is a fork of the former one. It is yet to be seen which one is better.
+# Documentation PyPNG: https://pythonhosted.org/pypng/png.html
+# Documentation PurePNG: http://purepng.readthedocs.org/en/latest/
+# The latter one is a fork of the former one. It is yet to be seen which one is better.
 
 
 class PNGWriter(object):
@@ -182,14 +182,14 @@ class PNGWriter(object):
             self.img = png.Writer(width=self.width, height=self.height,
                                   greyscale=self.grayscale, bitdepth=self.channel_bitdepth,  # British spelling
                                   alpha=self.has_alpha, palette=self.palette)
-        #write the image
+        # write the image
         with open(filename, 'wb') as f:
             self.img.write_array(f, self.prepare_array(self.array))
             f.close()
 
     @staticmethod
     def get_dtype(channel_bitdepth):
-        #PNG uses unsigned data exclusively; max. 16 Bit per channel
+        # PNG uses unsigned data exclusively; max. 16 Bit per channel
         if 8 < channel_bitdepth <= 16:
             return numpy.uint16
         return numpy.uint8

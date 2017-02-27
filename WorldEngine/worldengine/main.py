@@ -1,26 +1,23 @@
-import sys
-import os
-import numpy
-import json
-from shutil import copy
-import configparser2
-import common
 import time
+from shutil import copy
 
-import generation as geo
+import configparser2
+import numpy
+
+import common
 from draw import draw_ancientmap_on_file, draw_biome_on_file, draw_ocean_on_file, \
     draw_precipitation_on_file, draw_grayscale_heightmap_on_file, draw_simple_elevation_on_file, \
     draw_temperature_levels_on_file, draw_riversmap_on_file, draw_scatter_plot_on_file, \
     draw_satellite_on_file, draw_icecaps_on_file, draw_wind_on_file, draw_permeability_on_file, \
     draw_humidity_on_file
-from plates import world_gen, generate_plates_simulation
 from imex import export
-from model.world import World, Size, GenerationParameters
+from model.world import World
+from plates import world_gen
 from version import __version__
+
 # TODO: is this required??
 # #import world
 from PyQt4.QtCore import pyqtSlot
-from PyQt4 import QtOpenGL
 from step import Step
 # from code3D import pi_3d
 from world3d import world3dA
@@ -37,18 +34,9 @@ VERSION = __version__
 from PyQt4 import QtGui
 from PyQt4 import QtCore
 from PyQt4 import uic
-from OpenGL import GL
-from OpenGL.GLU import *
 from OpenGL.GLUT import *
-from os import path
 
 from height2bump import readHeight2Bump
-
-from PyQt4.QtOpenGL import QGLWidget
-from PyQt4.QtOpenGL import QGLBuffer
-from PyQt4.QtOpenGL import QGLShaderProgram
-from PyQt4.QtOpenGL import QGLPixelBuffer
-from PyQt4.QtOpenGL import QGLFramebufferObject
 
 FORM_1, BASE_1 = uic.loadUiType('new_gui_2.ui')
 FORM_2, BASE_2 = uic.loadUiType('popup.ui')
@@ -182,6 +170,7 @@ class MyApp(FORM_1, BASE_1):
         self.mapDict = dict()
         self.bBW = False
         self.lblCurrentMap.setText('No Maps Available')
+        self.bPNG = False
 
         self.actionGenerate_World.setEnabled(True)
         self.actionExport_World.setEnabled(False)
@@ -214,6 +203,17 @@ class MyApp(FORM_1, BASE_1):
         self.spnRecursion.setValue(2000)
         self.cboFormat.setCurrentIndex(0)
         self.cboData.setCurrentIndex(0)
+
+        self.sFormat = self.cboFormat.currentText()
+
+        self.sFormat = self.sFormat[-5:]
+
+        if self.sFormat[:1] == '(':
+            self.sFormat = self.sFormat[2:2]
+        elif self.sFormat[:1] == ' ':
+            self.sFormat = self.sFormat[1:3]
+        else:
+            self.sFormat = self.sFormat[:4]
 
         self.rdoBWNo.setChecked(True)
         self.rdoVMNo.setChecked(True)
@@ -288,7 +288,7 @@ class MyApp(FORM_1, BASE_1):
             sHeight = config.get('world', 'spnHeight')
             sPlates = config.get('world', 'spnPlates')
             sRecursion = config.get('world', 'spnRecursion')
-            sFormat = config.get('world', 'cboFormat')
+            sFormat1 = config.get('world', 'cboFormat')
             sData = config.get('world', 'cboData')
             sBW = config.get('world', 'rdoBW')
             sVM = config.get('world', 'rdoVM')
@@ -356,7 +356,7 @@ class MyApp(FORM_1, BASE_1):
             sHeight = str(self.world.height)
             sPlates = str(self.world.n_plates)
             sRecursion = '2000'
-            sFormat = '0'
+            sFormat1 = '0'
             sData = '0'
             sBW = 'False'
             sVM = 'False'
@@ -427,8 +427,17 @@ class MyApp(FORM_1, BASE_1):
         self.spnHeight.setValue(int(sHeight))
         self.spnPlates.setValue(int(sPlates))
         self.spnRecursion.setValue(int(sRecursion))
-        self.cboFormat.setCurrentIndex(int(sFormat))
+        self.cboFormat.setCurrentIndex(int(sFormat1))
         self.cboData.setCurrentIndex(int(sData))
+
+        if sFormat1 == '0':
+            self.sFormat = 'jpeg'
+        elif sFormat1 == '2':
+            self.sFormat = 'bmp'
+        elif sFormat1 == '3':
+            self.sFormat = 'gif'
+        else:
+            self.sFormat = 'png'
 
         if sBW == 'True':
             self.rdoBWNo.setChecked(True)
@@ -476,7 +485,7 @@ class MyApp(FORM_1, BASE_1):
         self.updateBox()
 
     def eventFilter(self, source, event):
-        if (event.type() == QtCore.QEvent.Drop):
+        if event.type() == QtCore.QEvent.Drop:
             mimeData = event.mimeData()
 
             for mimeFormat in mimeData.formats():
@@ -562,9 +571,9 @@ class MyApp(FORM_1, BASE_1):
                         self.updateOpacities()
 
             self.iDrag = 0
-        elif (event.type() == QtCore.QEvent.DragEnter):
-            self.iDrag = self.iDrag + 1
-        elif (event.type() == QtCore.QEvent.DragLeave):
+        elif event.type() == QtCore.QEvent.DragEnter:
+            self.iDrag += 1
+        elif event.type() == QtCore.QEvent.DragLeave:
             pass
 
         return QtGui.QMainWindow.eventFilter(self, source, event)
@@ -616,7 +625,7 @@ class MyApp(FORM_1, BASE_1):
     def btnDown_Clicked(self):
         iRow = self.tblMapList.currentRow()
 
-        if iRow == None:
+        if iRow is None:
             iRow = 0
 
         iRowCount = self.tblMapList.rowCount() - 1
@@ -660,7 +669,11 @@ class MyApp(FORM_1, BASE_1):
         self.action_Print_Current_Map_View.setEnabled(True)
         self.actionSave_Current_Map_View.setEnabled(True)
 
-        sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
+        if self.sFormat == 'png' or self.sFormat == 'jpg' or self.sFormat == 'jpeg' or self.sFormat == 'bmp':
+            sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, inStr, self.sFormat)
+        else:
+            sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
+
         self.pixmap = QtGui.QPixmap(sTmp)
         piPixItemLg = QtGui.QGraphicsPixmapItem()
         piPixItemLg.setPixmap(self.pixmap)
@@ -693,7 +706,7 @@ class MyApp(FORM_1, BASE_1):
     def btnUp_Clicked(self):
         iRow = self.tblMapList.currentRow()
 
-        if iRow == None:
+        if iRow is None:
             iRow = self.tblMapList.rowCount() - 1
 
         if iRow > 0:
@@ -726,8 +739,11 @@ class MyApp(FORM_1, BASE_1):
         self.actionSave_Current_Map_View.setEnabled(True)
 
         for index in reversed(xrange(self.tblMapList.rowCount())):
-            sTmp = '%s/Maps/seed_%s_%s.png' % (
-            self.sDefaultDirectory, self.iSeed, self.tblMapList.item(index, 0).text())
+            if self.sFormat == 'png' or self.sFormat == 'jpg' or self.sFormat == 'jpeg' or self.sFormat == 'bmp':
+                sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, self.tblMapList.item(index, 0).text(), self.sFormat)
+            else:
+                sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, self.tblMapList.item(index, 0).text())
+
             self.pixmap = QtGui.QPixmap(sTmp)
             piPixItemLg = QtGui.QGraphicsPixmapItem()
             piPixItemLg.setPixmap(self.pixmap)
@@ -978,7 +994,7 @@ class MyApp(FORM_1, BASE_1):
                                                 iTemp = QtGui.QTableWidgetItem(sTmp[0])
                                                 self.tblAvailable.setItem(curRowCount, 0, iTemp)
 
-                                                iCount = iCount + 1
+                                                iCount += 1
                                     else:
                                         curRowCount = self.tblAvailable.rowCount()
                                         self.tblAvailable.insertRow(curRowCount)
@@ -987,7 +1003,7 @@ class MyApp(FORM_1, BASE_1):
                                         iTemp = QtGui.QTableWidgetItem(sTmp[0])
                                         self.tblAvailable.setItem(curRowCount, 0, iTemp)
 
-                                        iCount = iCount + 1
+                                        iCount += 1
                                 else:
                                     self.btnGH.setEnabled(True)
                             else:
@@ -1074,7 +1090,7 @@ class MyApp(FORM_1, BASE_1):
 
     def updateConfig(self):
         config = configparser2.ConfigParser()
-        sFile = '/%s.cfg' % (self.iSeed)
+        sFile = '/%s.cfg' % self.iSeed
         sFile = '%s%s' % (self.sDefaultDirectory, sFile)
 
         tResize = str(self.spnResize.value())
@@ -1464,8 +1480,8 @@ class MyApp(FORM_1, BASE_1):
         self.bAncBorders = self.rdoLandYes_3.isChecked()
         self.sAncFormat = self.cboAncFormat.currentText()
 
-        if self.dTemp1 < self.dTemp2 and self.dTemp2 < self.dTemp3 and self.dTemp4 < self.dTemp5 and self.dTemp5 < self.dTemp6:
-            if self.dPrecip1 < self.dPrecip2 and self.dPrecip2 < self.dPrecip3 and self.dPrecip4 < self.dPrecip5 and self.dPrecip5 < self.dPrecip6 and self.dPrecip6 < self.dPrecip7:
+        if self.dTemp1 < self.dTemp2 < self.dTemp3 and self.dTemp4 < self.dTemp5 < self.dTemp6:
+            if self.dPrecip1 < self.dPrecip2 < self.dPrecip3 and self.dPrecip4 < self.dPrecip5 < self.dPrecip6 < self.dPrecip7:
                 self.sAncFormat = self.sAncFormat[-5:]
 
                 if self.sAncFormat[:1] == '(':
@@ -1532,12 +1548,16 @@ class MyApp(FORM_1, BASE_1):
         else:
             self.sFormat = self.sFormat[:4]
 
+        if self.sFormat != 'png' and self.sFormat != 'jpeg' and self.sFormat != 'jpg' and self.sFormat != 'bmp':
+            self.bPNG = True
+
         self.onActionMapsBiome()
         self.updatePopup('    Generated Biome Map')
         self.onActionMapsElevation()
         self.updatePopup('    Generated Elevation Map')
         self.onActionMapsGrayscale()
         self.updatePopup('    Generated Grayscale Heightmap')
+        self.updatePopup('    Generated Normal Map')
         self.onActionMapsHumidity()
         self.updatePopup('    Generated Humidity Map')
         self.onActionMapsIceCaps()
@@ -1583,6 +1603,7 @@ class MyApp(FORM_1, BASE_1):
 
         self.sAll = 'all'
         self.copyMapsFrom()
+        self.bPNG = False
 
     #        elif operation == 'plates':
     #            self.updatePopup('')  # empty line
@@ -1696,7 +1717,7 @@ class MyApp(FORM_1, BASE_1):
                                self.temperature_frequency, self.temperature_octaves,
                                self.wind_frequency, self.wind_octaves)
 
-        filename = '%s' % (self.sWorld)
+        filename = '%s' % self.sWorld
 
         if self.bPB:
             with open(filename, "wb") as f:
@@ -1722,6 +1743,9 @@ class MyApp(FORM_1, BASE_1):
         else:
             self.sFormat = self.sFormat[:4]
 
+        if self.sFormat != 'png' and self.sFormat != 'jpeg' and self.sFormat != 'jpg' and self.sFormat != 'bmp':
+            self.bPNG = True
+
         self.sAll = 'map'
 
         self.onActionMapsBiome()
@@ -1739,10 +1763,16 @@ class MyApp(FORM_1, BASE_1):
         self.onActionMapsWinds()
 
         self.copyMapsFrom()
+        self.bPNG = False
 
     def onActionMapsBiome(self):
-        filename = '%s/Maps/seed_%s_biome.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_biome.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         draw_biome_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_biome.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_biome_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     #        sType = self.cboData.currentText()
@@ -1754,16 +1784,30 @@ class MyApp(FORM_1, BASE_1):
     #            export(self.world, str(self.sFormat), sType, path = '%s/seed_%s_biome' % (self.sOutputDirectory, self.iSeed))
 
     def onActionMapsElevation(self):
-        filename = '%s/Maps/seed_%s_elevation.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_elevation.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         sea_level = self.world.sea_level()
+        draw_simple_elevation_on_file(self.world, filename, sea_level=sea_level)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_elevation.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_simple_elevation_on_file(self.world, filename)
+
+        filename = '%s/elevation.png' % self.sDefaultDirectory
         draw_simple_elevation_on_file(self.world, filename, sea_level=sea_level)
         iCount = self.updateAvail()
 
     def onActionMapsGrayscale(self):
-        filename = '%s/Maps/seed_%s_grayscale.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_grayscale.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         draw_grayscale_heightmap_on_file(self.world, filename)
 
-        bumpFilename = '%s/Maps/seed_%s_normal.png' % (self.sDefaultDirectory, self.iSeed)
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_grayscale.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_grayscale_heightmap_on_file(self.world, filename)
+
+        filename = '%s/grayscale.png' % self.sDefaultDirectory
+        draw_grayscale_heightmap_on_file(self.world, filename)
+
+        bumpFilename = '%s/normal.png' % self.sDefaultDirectory
 
         if self.rdoVMYes.isChecked():
             tRes = readHeight2Bump(filename, bumpFilename, options='tqv')
@@ -1773,53 +1817,113 @@ class MyApp(FORM_1, BASE_1):
         self.btnGH.setEnabled(True)
 
     def onActionMapsHumidity(self):
-        filename = '%s/Maps/seed_%s_humidity.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_humidity.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_humidity.png' % (self.sDefaultDirectory, self.iSeed)
         draw_humidity_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_humidity.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_humidity_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsIceCaps(self):
-        filename = '%s/Maps/seed_%s_icecaps.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_icecaps.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_icecaps.png' % (self.sDefaultDirectory, self.iSeed)
         draw_icecaps_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_icecaps.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_icecaps_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsOcean(self):
-        filename = '%s/Maps/seed_%s_ocean.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_ocean.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_ocean.png' % (self.sDefaultDirectory, self.iSeed)
         draw_ocean_on_file(self.world.layers['ocean'].data, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_ocean.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_ocean_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsPermeability(self):
-        filename = '%s/Maps/seed_%s_permeability.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_permeability.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_permeability.png' % (self.sDefaultDirectory, self.iSeed)
         draw_permeability_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_permeability.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_permeability_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsPrecipitation(self):
-        filename = '%s/Maps/seed_%s_precipitation.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_precipitation.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_precipitation.png' % (self.sDefaultDirectory, self.iSeed)
         draw_precipitation_on_file(self.world, filename, self.bBW)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_precipitation.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_precipitation_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsRivers(self):
-        filename = '%s/Maps/seed_%s_rivers.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_rivers.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_rivers.png' % (self.sDefaultDirectory, self.iSeed)
         draw_riversmap_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_rivers.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_riversmap_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsScatter(self):
-        filename = '%s/Maps/seed_%s_scatter.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_scatter.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_scatter.png' % (self.sDefaultDirectory, self.iSeed)
         draw_scatter_plot_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_scatter.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_scatter_plot_on_file(self.world, filename)
+
         self.btnSP.setEnabled(True)
 
     def onActionMapsSatellite(self):
-        filename = '%s/Maps/seed_%s_satellite.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_satellite.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_satellite.png' % (self.sDefaultDirectory, self.iSeed)
         draw_satellite_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_satellite.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_satellite_on_file(self.world, filename)
+
         self.btnSM.setEnabled(True)
 
     def onActionMapsTemperature(self):
-        filename = '%s/Maps/seed_%s_temperature.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_temperature.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_temperature.png' % (self.sDefaultDirectory, self.iSeed)
         draw_temperature_levels_on_file(self.world, filename, self.bBW)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_temperature.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_temperature_levels_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionMapsWinds(self):
-        filename = '%s/Maps/seed_%s_wind.png' % (self.sDefaultDirectory, self.iSeed)
+        filename = '%s/Maps/seed_%s_wind.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        # filename = '%s/Maps/seed_%s_wind.png' % (self.sDefaultDirectory, self.iSeed)
         draw_wind_on_file(self.world, filename)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_wind.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_wind_on_file(self.world, filename)
+
         iCount = self.updateAvail()
 
     def onActionAncient(self):
@@ -1868,7 +1972,21 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('')  # empty line
         self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
 
-        filename = '%s/Maps/seed_%s_ancient_world.png' % (self.sDefaultDirectory, self.iSeed)
+        ancFormat = self.cboAncFormat.currentText()
+        ancFormat = ancFormat[-5:]
+
+        if ancFormat[:1] == '(':
+            ancFormat = ancFormat[2:2]
+        elif ancFormat[:1] == ' ':
+            ancFormat = ancFormat[1:3]
+        else:
+            ancFormat = ancFormat[:4]
+
+        if self.sFormat != 'png' and self.sFormat != 'jpeg' and self.sFormat != 'jpg' and self.sFormat != 'bmp':
+            self.bPNG = True
+
+        filename = '%s/Maps/seed_%s_ancient_world.%s' % (self.sDefaultDirectory, self.iSeed, ancFornat)
+        # filename = '%s/Maps/seed_%s_ancient_world.png' % (self.sDefaultDirectory, self.iSeed)
 
         drawBiome = self.rdoBiomesYes_3.isChecked()
         drawRivers = self.rdoRiverYes_3.isChecked()
@@ -1879,7 +1997,14 @@ class MyApp(FORM_1, BASE_1):
         draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, drawBiome, drawRivers,
                                 drawMountains, drawOuterLandBorder, ancVerbose)
 
-        generated_file = "%s_ancient_map.png" % self.world.name
+        generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
+
+        if self.bPNG:
+            filename = "%s/Maps/seed_%s_ancient_world.png" %(self.sDefaultDirectory, self.iSeed)
+            draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, drawBiome, drawRivers,
+                                    drawMountains, drawOuterLandBorder, ancVerbose)
+
+            generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
 
         # TODO: Is this required??
         # self.operation_ancient_map(world)
@@ -1895,6 +2020,7 @@ class MyApp(FORM_1, BASE_1):
         self.sAll = 'ancient'
 
         self.copyMapsFrom()
+        self.bPNG = False
 
         self.btnAW.setEnabled(True)
         self.btnAncient_Clicked()

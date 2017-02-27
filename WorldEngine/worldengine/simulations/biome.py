@@ -2,7 +2,6 @@ import numpy
 
 
 class BiomeSimulation(object):
-
     @staticmethod
     def is_applicable(world):
         return world.has_humidity() and world.has_temperature() and not world.has_biome()
@@ -16,7 +15,7 @@ class BiomeSimulation(object):
         ocean = world.layers['ocean'].data
         cm = {}
         biome_cm = {}
-        biome = numpy.zeros((height, width), dtype = object)#this is still kind of expensive memory-wise
+        biome = numpy.zeros((height, width), dtype=object)  # this is still kind of expensive memory-wise
 
         for y in range(height):
             for x in range(width):

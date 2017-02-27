@@ -4,8 +4,6 @@
 import platec
 import time
 import numpy
-from PyQt4.QtCore import pyqtSignal
-
 #from generation import Step, add_noise_to_elevation, center_land, generate_world, \
 #    get_verbose, initialize_ocean_and_thresholds, place_oceans_at_map_borders
 #from model.world import World, Size, GenerationParameters

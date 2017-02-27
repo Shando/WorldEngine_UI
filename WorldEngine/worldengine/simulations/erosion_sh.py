@@ -18,12 +18,15 @@ DIR_NEIGHBORS_CENTER = [CENTER, NORTH, EAST, SOUTH, WEST]
 
 RIVER_TH = 0.02
 
+
 def overflow(value, max_value):
     return value % max_value
+
 
 def in_circle(radius, center_x, center_y, x, y):
     square_dist = ((center_x - x) ** 2 + (center_y - y) ** 2)
     return square_dist <= radius ** 2
+
 
 class ErosionSimulation(object):
     def __init__(self):
@@ -72,9 +75,9 @@ class ErosionSimulation(object):
         world.set_rivermap(river_map)
         world.set_lakemap(lake_map)
 
-#----------------------------------------------------------------
-# ADDED by Shando
-# April 2016
+    # ----------------------------------------------------------------
+    # ADDED by Shando
+    # April 2016
     def update(self, world, seed, iX, iY):
         # recalculate as per execute()
         # so we have access to river_sources
@@ -99,15 +102,15 @@ class ErosionSimulation(object):
             x, y = source
 
             if x > iX:
-# TODO: THE NEXT LINE MAY NOT BE CORRECT
+                # TODO: THE NEXT LINE MAY NOT BE CORRECT
                 river_sources.insert(iCount, [iX, iY])
                 break
             elif x == iX and y > iY:
-# TODO: THE NEXT LINE MAY NOT BE CORRECT
+                # TODO: THE NEXT LINE MAY NOT BE CORRECT
                 river_sources.insert(iCount, [iX, iY])
                 break
             else:
-                iCount = iCount + 1
+                iCount += 1
         else:
             river_sources.append([iX, iY])
 
@@ -124,7 +127,7 @@ class ErosionSimulation(object):
                     lake_list.append(river[-1])  # river flowed into a lake
 
         # step four: simulate erosion and updating river map
-        for river in self.river_list:
+        for river in river_list:
             self.river_erosion(river, world)
             self.rivermap_update(river, self.water_flow, self.river_map, world.layers['precipitation'].data)
 
@@ -137,7 +140,8 @@ class ErosionSimulation(object):
         world.set_lakemap(lake_map)
 
         return True, 0, 0
-#----------------------------------------------------------------
+
+    # ----------------------------------------------------------------
     def find_water_flow(self, world, water_path):
         """Find the flow direction for each cell in heightmap"""
         # iterate through each cell
@@ -363,8 +367,8 @@ class ErosionSimulation(object):
         return path
 
     def cleanUpFlow(self, river, world):
-        '''Validate that for each point in river is equal to or lower than the
-        last'''
+        """Validate that for each point in river is equal to or lower than the
+        last"""
         celevation = 1.0
         for r in river:
             rx, ry = r
@@ -378,8 +382,8 @@ class ErosionSimulation(object):
         return river
 
     def findLowerElevation(self, source, world):
-        '''Try to find a lower elevation with in a range of an increasing
-        circle's radius and try to find the best path and return it'''
+        """Try to find a lower elevation with in a range of an increasing
+        circle's radius and try to find the best path and return it"""
         x, y = source
         currentRadius = 1
         maxRadius = 40

@@ -79,8 +79,8 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
         dz = math.cos(rot * rads)
         dy = math.sin(tilt * rads)
 
-        if (walk):
-            if (fly):
+        if walk:
+            if fly:
                 xm += dx * 3
                 zm += dz * 3
                 ym += dy * 3
@@ -92,7 +92,7 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
                 zm += dz * 0.5
                 ym += dy * 0.5
         
-            if (xm < -490 or xm > 490 or zm < -490 or zm > 490):
+            if xm < -490 or xm > 490 or zm < -490 or zm > 490:
                 fly = True # reached the edge
       
         if not (mx == omx and my == omy and oxm == xm and ozm == zm):
@@ -119,7 +119,7 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
 
         if k > -1:
             if k == 119: # W Key toggle
-                walk = not(walk)
+                walk = not walk
             elif k == 115: # S Key
                 walk = False
                 dy = -(mymap.calcHeight(xm - dx, zm - dz) + avhgt) - ym

@@ -16,6 +16,7 @@ CENTER = [0, 0]
 DIR_NEIGHBORS = [NORTH, EAST, SOUTH, WEST]
 DIR_NEIGHBORS_CENTER = [CENTER, NORTH, EAST, SOUTH, WEST]
 
+
 def overflow(value, max_value):
     return value % max_value
 
@@ -41,7 +42,7 @@ class ErosionSimulation(object):
         self.curve1 = curve1
         self.curve2 = curve2
         self.curve3 = curve3
-        
+
         water_flow = numpy.zeros((world.height, world.width))
         water_path = numpy.zeros((world.height, world.width), dtype=int)
         river_list = []
@@ -293,8 +294,8 @@ class ErosionSimulation(object):
         return path
 
     def cleanUpFlow(self, river, world):
-        '''Validate that for each point in river is equal to or lower than the
-        last'''
+        """Validate that for each point in river is equal to or lower than the
+        last"""
         celevation = 1.0
         for r in river:
             rx, ry = r
@@ -306,8 +307,8 @@ class ErosionSimulation(object):
         return river
 
     def findLowerElevation(self, source, world):
-        '''Try to find a lower elevation with in a range of an increasing
-        circle's radius and try to find the best path and return it'''
+        """Try to find a lower elevation with in a range of an increasing
+        circle's radius and try to find the best path and return it"""
         x, y = source
         currentRadius = 1
         maxRadius = self.radius2
