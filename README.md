@@ -1,3 +1,4 @@
+
 # WorldEngine_UI
 
 Hello and welcome to my GUI for WorldEngine (http://world-engine.org/). 
@@ -34,22 +35,35 @@ As you can see, the list is pretty comprehensive and will allow you to create so
 The Command Line version of WorldEngine allows you to create several Maps to show off various aspects of your world:
 
 Ancient World       (this is a Map of your world drawn in a way that follows the old Asian Map traditions)
+
 Elevation           (a colourful Map showing the various heights of the land in your world)
+
 Precipitation       (a Map showing where rain is likely to fall in your world, and how much) 
+
 Temperature         (a Map showing the varying temperatures of your world)
+
 Biomes              (a Map showing the different types of land in your world)
+
 Ocean               (a Map showing the oceans of your world)
+
 Icecaps             (a Map showing the ice caps of your world)
+
 Rivers              (a Map showing all the rivers and lakes of your world)
+
 Grayscale Heightmap (very useful if you want to use your world in a game engine)
+
 Satellite           (a Map showing your world as it would look from a satellite in orbit)
+
 Scatter Plot        (a Map that shows a scatter plot of the humidity & temperature across your world)
 
 To this list, I have also added the following:
 
 Wind                (a Map showing the winds that blow across your world)
+
 Permeability        (a Map showing the permeability of your world)
+
 Humidity            (a Map showing the humidity across your world)
+
 Normal Map          (a Normal Map of your world - for use in game engines)
 
 To see examples of each of the Maps, and how to use this GUI, take a look at the Help File (WorlEnging GUI.chm)
