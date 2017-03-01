@@ -132,7 +132,7 @@ class PNGWriter(object):
                    grayscale=grayscale, channel_bitdepth=channel_bitdepth,
                    has_alpha=has_alpha, palette=palette)
 
-    #the following methods should not need to be overriden
+    # the following methods should not need to be overriden
     def set_pixel(self, x, y, color):
         """
         Color may be: value, tuple, list etc.
@@ -243,5 +243,5 @@ class PNGReader(object):
         return self.array[item]
 
     def __eq__(self, other):
-        #palettes do not need to be compared since asDirect() automatically maps the pixels to their colors
+        # palettes do not need to be compared since asDirect() automatically maps the pixels to their colors
         return numpy.array_equiv(self.array, other.array)

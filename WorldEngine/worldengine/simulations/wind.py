@@ -96,7 +96,7 @@ class WindSimulation(object):
                 if x < border:
                     n = (snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base) * x / border) + \
                         (snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves, base=base) * \
-                         (border - x) / border)
+                        (border - x) / border)
 
                 data[y, x] = _wrap(data[y, x] + n * distorsion_factor)
 

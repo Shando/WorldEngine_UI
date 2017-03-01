@@ -5,6 +5,7 @@ from step import Step
 from common import _equal
 from version import __version__
 
+
 class Size(object):
 
     def __init__(self, width, height):
@@ -85,7 +86,7 @@ class World(object):
 
     def __init__(self, name, size, seed, generation_params,
                  temps=[0.874, 0.765, 0.594, 0.439, 0.366, 0.124],
-                 humids = [.941, .778, .507, .236, 0.073, .014, .002],
+                 humids=[.941, .778, .507, .236, 0.073, .014, .002],
                  gamma_curve=1.25, curve_offset=.2):
         self.name = name
         self.size = size
@@ -295,8 +296,8 @@ class World(object):
         w = World(p_world.name, Size(p_world.width, p_world.height),
                   p_world.generationData.seed,
                   GenerationParameters(p_world.generationData.n_plates,
-                        p_world.generationData.ocean_level,
-                        Step.get_by_name(p_world.generationData.step)))
+                  p_world.generationData.ocean_level,
+                  Step.get_by_name(p_world.generationData.step)))
 
         # Elevation
         e = numpy.array(World._from_protobuf_matrix(p_world.heightMapData))
@@ -400,7 +401,7 @@ class World(object):
         return x, y
 
     def is_land(self, pos):
-        return not self.layers['ocean'].data[pos[1], pos[0]]#faster than reversing pos or transposing ocean
+        return not self.layers['ocean'].data[pos[1], pos[0]]  # faster than reversing pos or transposing ocean
 
     def is_ocean(self, pos):
         return self.layers['ocean'].data[pos[1], pos[0]]
@@ -679,8 +680,7 @@ class World(object):
     #
 
     def contains_stream(self, pos):
-        return self.contains_creek(pos) or self.contains_river(
-            pos) or self.contains_main_river(pos)
+        return self.contains_creek(pos) or self.contains_river(pos) or self.contains_main_river(pos)
 
     def contains_creek(self, pos):
         x, y = pos
@@ -875,16 +875,15 @@ class World(object):
                     self.width, self.height, data.shape[1], data.shape[0]))
         self.layers['plates'] = Layer(data)
 
-    def set_biome(self, biome):
-        if biome.shape[0] != self.height:
+    def set_biome(self, in_biome):
+        if in_biome.shape[0] != self.height:
             raise Exception(
                 "Setting data with wrong height: biome has height %i while "
-                "the height is currently %i" % (
-                    biome.shape[0], self.height))
-        if biome.shape[1] != self.width:
+                "the height is currently %i" % (in_biome.shape[0], self.height))
+        if in_biome.shape[1] != self.width:
             raise Exception("Setting data with wrong width")
 
-        self.layers['biome'] = Layer(biome)
+        self.layers['biome'] = Layer(in_biome)
 
     def set_ocean(self, ocean):
         if (ocean.shape[0] != self.height) or (ocean.shape[1] != self.width):

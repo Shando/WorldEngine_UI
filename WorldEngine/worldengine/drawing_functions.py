@@ -56,7 +56,7 @@ def _find_land_borders(world, factor):
     _ocean = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
     _borders = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
 
-    #scale ocean
+    # scale ocean
     for y in range(int(world.height * factor)):  # TODO: numpy
         for x in range(int(world.width * factor)):
             if world.is_ocean((int(x / factor), int(y / factor))):
@@ -77,7 +77,7 @@ def _find_outer_borders(world, factor, inner_borders):
     _ocean = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
     _borders = numpy.zeros((int(factor * world.height), int(factor * world.width)), dtype=bool)
 
-    #scale ocean
+    # scale ocean
     for y in range(int(world.height * factor)):  # TODO: numpy
         for x in range(int(world.width * factor)):
             if world.is_ocean((int(x / factor), int(y / factor))):
@@ -481,24 +481,32 @@ def _dynamic_draw_a_mountain(pixels, rng, x, y, w=3, h=3):
     mcr = (75, 75, 75, 255)
     # left edge
     last_leftborder = None
+
     for mody in range(-h, h + 1):
         bottomness = (float(mody + h) / 2.0) / w
-
         min_leftborder = int(bottomness * w * 0.66)
-        if not last_leftborder is None:
+
+        if last_leftborder is not None:
             min_leftborder = max(min_leftborder, last_leftborder - 1)
+
         max_leftborder = int(bottomness * w * 1.33)
-        if not last_leftborder is None:
+
+        if last_leftborder is not None:
             max_leftborder = min(max_leftborder, last_leftborder + 1)
+
         leftborder = int(bottomness * w) + rng.randint(-2, 2)/2
+
         if leftborder < min_leftborder:
             leftborder = min_leftborder
+
         if leftborder > max_leftborder:
             leftborder = max_leftborder
+
         last_leftborder = leftborder
 
         darkarea = int(bottomness * w / 2)
         lightarea = int(bottomness * w / 2)
+
         for itx in range(darkarea, leftborder + 1):
             pixels[y + mody, x - itx] = gradient(itx, darkarea, leftborder,
                                                  (0, 0, 0), (64, 64, 64))
@@ -512,10 +520,10 @@ def _dynamic_draw_a_mountain(pixels, rng, x, y, w=3, h=3):
     for mody in range(-h, h + 1):
         bottomness = (float(mody + h) / 2.0) / w
         min_modx = int(bottomness * w * 0.66)
-        if not last_modx is None:
+        if last_modx is not None:
             min_modx = max(min_modx, last_modx - 1)
         max_modx = int(bottomness * w * 1.33)
-        if not last_modx is None:
+        if last_modx is not None:
             max_modx = min(max_modx, last_modx + 1)
         modx = int(bottomness * w) + numpy.random.randint(-2, 2)/2
         if modx < min_modx:
@@ -551,8 +559,8 @@ def _draw_a_mountain(pixels, x, y, w=3, h=3):
         pixels[y + mody, x + modx] = mcr      
 
 
-def draw_ancientmap(obj, world, target, resize_factor=1, sea_color=(212, 198, 169, 255), draw_biome = True,
-                    draw_rivers = True, draw_mountains = True, draw_outer_land_border = False, verbose=False):
+def draw_ancientmap(obj, world, target, resize_factor=1, sea_color=(212, 198, 169, 255), draw_biome=True,
+                    draw_rivers=True, draw_mountains=True, draw_outer_land_border=False, verbose=False):
     rng = numpy.random.RandomState(world.seed)  # create our own random generator
 
     if verbose:

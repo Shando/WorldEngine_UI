@@ -24,15 +24,15 @@ from PIL import Image, ImageFilter, ImageChops
 verbose = False
 
 
-def height2bump(heightBand, filter="Scharr" ):  # normal[0..2] band-array
-    if filter == "Sobel":
+def height2bump(heightBand, in_filter="Scharr"):  # normal[0..2] band-array
+    if in_filter == "Sobel":
         a1 = 1
         a2 = 2
         a3 = 0
         b1 = 1
         b2 = 4
         b3 = 6
-    elif filter == "Scharr":  # 5x5 opt Scharr Filter from
+    elif in_filter == "Scharr":  # 5x5 opt Scharr Filter from
         a1 = 21.38
         a2 = 85.24
         a3 = 0  # http://nbn-resolving.de/urn/resolver.pl?urn=urn:nbn:de:bsz:16-opus-9622
@@ -40,10 +40,10 @@ def height2bump(heightBand, filter="Scharr" ):  # normal[0..2] band-array
         b2 = 61.81
         b3 = 120.46
     else:
-        raise ValueError( "Unknown 'filter' argument '" + filter + "'" )
+        raise ValueError("Unknown 'filter' argument '" + in_filter + "'")
 
     if verbose:
-        print "Filter: ", filter
+        print "Filter: ", in_filter
 
     a4 = -a2
     a5 = -a1
@@ -122,13 +122,13 @@ Usage: height2bump.py [-<options>] <input_file> <output_file>
 def readHeight2Bump(infn, outfn, options="tqa"):
     # ===== PROCESS OPTIONS ====
     if options.find("s") >= 0:
-        usekernel="Sobel"
+        usekernel = "Sobel"
     else:
-        usekernel="Scharr"
+        usekernel = "Scharr"
 
     checktime = options.find("t") >= 0
     alphaheight = options.find("a") >= 0
-    verbose = options.find("v") >= 0
+    l_verbose = options.find("v") >= 0
     quiet = options.find("q") >= 0
 
     if outfn.find(".") < 0:
@@ -148,9 +148,9 @@ def readHeight2Bump(infn, outfn, options="tqa"):
         except:
             outfile_stamp = 0
 
-        if verbose:
+        if l_verbose:
             print "Infile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(infile_stamp)), " (Epoch: ", infile_stamp, ")"
-        if verbose:
+        if l_verbose:
             print "Outfile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(outfile_stamp)), " (Epoch: ", outfile_stamp, ")"
 
         if infile_stamp < outfile_stamp:
@@ -158,7 +158,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
                 if quiet:
                     sys.exit()
                 else:
-                    sys.exit( "Infile is older than outfile or does not exist - nothing done" )
+                    sys.exit("Infile is older than outfile or does not exist - nothing done")
             else:  # lib call - return expected result
                 im = Image.open(outfn)
 
@@ -167,7 +167,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
         if infile_stamp == 0 and outfile_stamp == 0:
             raise IOError("Neither infile nor outfile exist")
 
-    if verbose:
+    if l_verbose:
         print "Read ", infn, "..."
 
     try:
@@ -184,7 +184,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
     else:
         im = Image.merge("RGB", normal)
 
-    if verbose:
+    if l_verbose:
         print "Write ", outfn, "..."
 
     try:
@@ -192,7 +192,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
     except:
         sys.exit("Could not save " + outfn)
 
-    if verbose:
+    if l_verbose:
         print "Function completed !"
 
     if __name__ != "__main__":

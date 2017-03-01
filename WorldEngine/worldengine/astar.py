@@ -212,7 +212,7 @@ class PathFinder:
         path = []
         height, width = height_map.shape
 
-        graph = height_map.flatten('C') #flatten array (row-major)
+        graph = height_map.flatten('C')  # flatten array (row-major)
 
         pathfinder = AStar(SQMapHandler(graph, width, height))
         start = SQLocation(sx, sy)

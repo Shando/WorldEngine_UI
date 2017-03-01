@@ -17,20 +17,20 @@ class WatermapSimulation(object):
 
     @staticmethod
     def _watermap(self, world, n):
-        def droplet(world, pos, q, _watermap):
+        def droplet(in_world, pos, q, _watermap):
             if q < 0:
                 return
 
             x, y = pos
-            pos_elev = world.layers['elevation'].data[y, x] + _watermap[y, x]
+            pos_elev = in_world.layers['elevation'].data[y, x] + _watermap[y, x]
             lowers = []
             min_higher = None
             min_lower = None
             tot_lowers = 0
 
-            for p in world.tiles_around((x, y)):  # TODO: switch to numpy
+            for p in in_world.tiles_around((x, y)):  # TODO: switch to numpy
                 px, py = p
-                e = world.layers['elevation'].data[py, px] + _watermap[py, px]
+                e = in_world.layers['elevation'].data[py, px] + _watermap[py, px]
 
                 if e < pos_elev:
                     dq = int(pos_elev - e) << 2
@@ -53,7 +53,7 @@ class WatermapSimulation(object):
                 for l in lowers:
                     s, p = l
 
-                    if not world.is_ocean(p):
+                    if not in_world.is_ocean(p):
                         px, py = p
                         ql = f * s
                         # ql = q

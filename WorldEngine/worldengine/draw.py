@@ -7,22 +7,22 @@ from image_io import PNGWriter
 # Helper values
 # -------------
 
-### For draw_satellite ###
-NOISE_RANGE = 15 # a random value between -NOISE_RANGE and NOISE_RANGE will be added to the rgb of each pixel
+# For draw_satellite ###
+NOISE_RANGE = 15  # a random value between -NOISE_RANGE and NOISE_RANGE will be added to the rgb of each pixel
 
 # These are arbitrarily-chosen elevation cutoffs for 4 different height levels. 
 # Some color modifiers will be applied at each level
 HIGH_MOUNTAIN_ELEV = 215
-MOUNTAIN_ELEV      = 175
-HIGH_HILL_ELEV     = 160
-HILL_ELEV          = 145
+MOUNTAIN_ELEV = 175
+HIGH_HILL_ELEV = 160
+HILL_ELEV = 145
 
 # These are rgb color values which will be added to the noise, if the elevation is greater than the height specified
 # These are not cumulative
 HIGH_MOUNTAIN_NOISE_MODIFIER = (10, 6,   10)
-MOUNTAIN_NOISE_MODIFIER =      (-4, -12, -4)
-HIGH_HILL_NOISE_MODIFIER =     (-3, -10, -3)
-HILL_NOISE_MODIFIER =          (-2, -6,  -2)
+MOUNTAIN_NOISE_MODIFIER = (-4, -12, -4)
+HIGH_HILL_NOISE_MODIFIER = (-3, -10, -3)
+HILL_NOISE_MODIFIER = (-2, -6,  -2)
 
 # This is the base "mountain color". Elevations above this size will have their colors interpolated with this 
 # color in order to give a more mountainous appearance
@@ -41,7 +41,7 @@ SAT_SHADOW_SIZE = 5
 # Higher will result in starker contrast between high and low areas.
 SAT_SHADOW_DISTANCE_MULTIPLIER = 9
 
-### end values for draw_satellite ###
+# end values for draw_satellite ###
 
 
 _biome_colors = {
@@ -150,8 +150,10 @@ def _elevation_color(elevation, sea_level=1.0):
     :return:
     """
     color_step = 1.5
+
     if sea_level is None:
         sea_level = -1
+
     if elevation < sea_level/2:
         elevation /= sea_level
         return 0.0, 0.0, 0.75 + 0.5 * elevation
@@ -168,24 +170,16 @@ def _elevation_color(elevation, sea_level=1.0):
         elif elevation < 2.0 * color_step:
             return 1.0, 1.0 - (elevation - 1.5 * color_step) / color_step, 0
         elif elevation < 3.0 * color_step:
-            return (1.0 - 0.5 * (elevation - 2.0 *
-                                 color_step) / color_step,
-                    0.5 - 0.25 * (elevation - 2.0 *
-                                  color_step) / color_step, 0)
+            return (1.0 - 0.5 * (elevation - 2.0 * color_step) / color_step,
+                    0.5 - 0.25 * (elevation - 2.0 * color_step) / color_step, 0)
         elif elevation < 5.0 * color_step:
-            return (0.5 - 0.125 * (elevation - 3.0 *
-                                   color_step) / (2 * color_step),
-                    0.25 + 0.125 * (elevation - 3.0 *
-                                    color_step) / (2 * color_step),
-                    0.375 * (elevation - 3.0 *
-                             color_step) / (2 * color_step))
+            return (0.5 - 0.125 * (elevation - 3.0 * color_step) / (2 * color_step),
+                    0.25 + 0.125 * (elevation - 3.0 * color_step) / (2 * color_step),
+                    0.375 * (elevation - 3.0 * color_step) / (2 * color_step))
         elif elevation < 8.0 * color_step:
-            return (0.375 + 0.625 * (elevation - 5.0 *
-                                     color_step) / (3 * color_step),
-                    0.375 + 0.625 * (elevation - 5.0 *
-                                     color_step) / (3 * color_step),
-                    0.375 + 0.625 * (elevation - 5.0 *
-                                     color_step) / (3 * color_step))
+            return (0.375 + 0.625 * (elevation - 5.0 * color_step) / (3 * color_step),
+                    0.375 + 0.625 * (elevation - 5.0 * color_step) / (3 * color_step),
+                    0.375 + 0.625 * (elevation - 5.0 * color_step) / (3 * color_step))
         else:
             elevation -= 8.0 * color_step
             while elevation > 2.0 * color_step:
@@ -195,18 +189,25 @@ def _elevation_color(elevation, sea_level=1.0):
 
 def _sature_color(color):
     r, g, b = color
+
     if r < 0:
         r = 0.0
+
     if r > 1.0:
         r = 1.0
+
     if g < 0:
         g = 0.0
+
     if g > 1.0:
         g = 1.0
+
     if b < 0:
         b = 0.0
+
     if b > 1.0:
         b = 1.0
+
     return r, g, b
 
 
@@ -233,7 +234,6 @@ def average_colors(c1, c2):
 def get_normalized_elevation_array(world):
     """ Convert raw elevation into normalized values between 0 and 255,
         and return a numpy array of these values """
-
     e = world.layers['elevation'].data
     ocean = world.layers['ocean'].data
 
@@ -279,32 +279,31 @@ def get_biome_color_based_on_elevation(world, elev, x, y, rng):
     noise = (0, 0, 0)
 
     if world.is_land((x, y)):
-        ## Generate some random noise to apply to this pixel
+        #  Generate some random noise to apply to this pixel
         #  There is noise for each element of the rgb value
         #  This noise will be further modified by the height of this tile
-
         noise = rng.randint(-NOISE_RANGE, NOISE_RANGE, size=3)  # draw three random numbers at once
 
-        ####### Case 1 - elevation is very high ########
-        if elev > HIGH_MOUNTAIN_ELEV:     
+        # Case 1 - elevation is very high ########
+        if elev > HIGH_MOUNTAIN_ELEV:
             # Modify the noise to make the area slightly brighter to simulate snow-topped mountains.
             noise = add_colors(noise, HIGH_MOUNTAIN_NOISE_MODIFIER)
             # Average the biome's color with the MOUNTAIN_COLOR to tint the terrain
             biome_color = average_colors(biome_color, MOUNTAIN_COLOR)
 
-        ####### Case 2 - elevation is high ########
-        elif elev > MOUNTAIN_ELEV:   
+        # Case 2 - elevation is high ########
+        elif elev > MOUNTAIN_ELEV:
             # Modify the noise to make this tile slightly darker, especially draining the green
             noise = add_colors(noise, MOUNTAIN_NOISE_MODIFIER)
             # Average the biome's color with the MOUNTAIN_COLOR to tint the terrain
             biome_color = average_colors(biome_color, MOUNTAIN_COLOR)
 
-        ####### Case 3 - elevation is somewhat high ########
+        # Case 3 - elevation is somewhat high ########
         elif elev > HIGH_HILL_ELEV:   
             noise = add_colors(noise, HIGH_HILL_NOISE_MODIFIER)
 
-        ####### Case 4 - elevation is a little bit high ########
-        elif elev > HILL_ELEV:   
+        # Case 4 - elevation is a little bit high ########
+        elif elev > HILL_ELEV:
             noise = add_colors(noise, HILL_NOISE_MODIFIER)
 
     # There is also a minor base modifier to the pixel's rgb value based on height
@@ -312,6 +311,7 @@ def get_biome_color_based_on_elevation(world, elev, x, y, rng):
     base_elevation_modifier = (modification_amount, modification_amount, modification_amount)
 
     this_tile_color = add_colors(biome_color, noise, base_elevation_modifier)
+
     return this_tile_color
 
 
@@ -348,8 +348,7 @@ def draw_simple_elevation(world, sea_level, target):
     for y in range(world.height):
         for x in range(world.width):
             r, g, b = elevation_color(c[y, x], sea_level)
-            target.set_pixel(x, y, (int(r * 255), int(g * 255),
-                                    int(b * 255), 255))
+            target.set_pixel(x, y, (int(r * 255), int(g * 255), int(b * 255), 255))
 
 
 def draw_riversmap(world, target):
@@ -360,7 +359,7 @@ def draw_riversmap(world, target):
         for x in range(world.width):
             target.set_pixel(x, y, sea_color if world.is_ocean((x, y)) else land_color)
 
-    draw_rivers_on_image(world, target, factor = 1)
+    draw_rivers_on_image(world, target, factor=1)
 
 
 def draw_grayscale_heightmap(world, target):
@@ -373,15 +372,13 @@ def draw_grayscale_heightmap(world, target):
 
 def draw_satellite(world, target):
     """ This draws a "satellite map" - a view of the generated planet as it may look from space """
-
     # Get an elevation mask where heights are normalized between 0 and 255
     elevation_mask = get_normalized_elevation_array(world)
     smooth_mask = numpy.invert(world.layers['ocean'].data)  # all land shall be smoothed (other tiles can be included by setting them to True)
-
     rng = numpy.random.RandomState(world.seed)  # create our own random generator; necessary for now to make the tests reproducible, even though it is a bit ugly
 
-    ## The first loop sets each pixel's color based on colors defined in _biome_satellite_colors
-    #  and additional "business logic" defined in get_biome_color_based_on_elevation
+    # The first loop sets each pixel's color based on colors defined in _biome_satellite_colors
+    # and additional "business logic" defined in get_biome_color_based_on_elevation
     for y in range(world.height):
         for x in range(world.width):
             # Get the normalized elevation at this pixel
@@ -406,7 +403,7 @@ def draw_satellite(world, target):
     # Loop through and average a pixel with its neighbors to smooth transitions between biomes
     for y in range(1, world.height-1):
         for x in range(1, world.width-1):
-            ## Only smooth land tiles
+            # Only smooth land tiles
             if smooth_mask[y, x]:
                 # Lists to hold the separated rgb values of the neighboring pixels
                 all_r = []
@@ -430,20 +427,20 @@ def draw_satellite(world, target):
                     avg_g = int(sum(all_g) / len(all_g))
                     avg_b = int(sum(all_b) / len(all_b))
 
-                    ## Setting color of the pixel again - this will be once more modified by the shading algorithm
+                    # Setting color of the pixel again - this will be once more modified by the shading algorithm
                     target.set_pixel(x, y, (avg_r, avg_g, avg_b, 255))
 
-    ## After smoothing, draw rivers
+    # After smoothing, draw rivers
     for y in range(world.height):
         for x in range(world.width):
-            ## Color rivers
+            # Color rivers
             if world.is_land((x, y)) and (world.layers['river_map'].data[y, x] > 0.0):
                 base_color = target[y, x]
 
                 r, g, b = add_colors(base_color, RIVER_COLOR_CHANGE)
                 target.set_pixel(x, y, (r, g, b, 255))
 
-            ## Color lakes
+            # Color lakes
             if world.is_land((x, y)) and (world.layers['lake_map'].data[y, x] != 0):
                 base_color = target[y, x]
 
@@ -458,10 +455,10 @@ def draw_satellite(world, target):
                 
                 # Build up list of elevations in the previous n tiles, where n is the shadow size.
                 # This goes northwest to southeast
-                prev_elevs = [ world.layers['elevation'].data[y-n, x-n] for n in range(1, SAT_SHADOW_SIZE+1) ]
+                prev_elevs = [world.layers['elevation'].data[y-n, x-n] for n in range(1, SAT_SHADOW_SIZE+1)]
 
                 # Take the average of the height of the previous n tiles
-                avg_prev_elev = int( sum(prev_elevs) / len(prev_elevs) )
+                avg_prev_elev = int(sum(prev_elevs) / len(prev_elevs))
 
                 # Find the difference between this tile's elevation, and the average of the previous elevations
                 difference = int(world.layers['elevation'].data[y, x] - avg_prev_elev)
@@ -500,18 +497,18 @@ def draw_elevation(world, shadow, target):
             else:
                 e = data[y, x]
                 c = 255 - int(((e - min_elev) * 255) / elev_delta)
+
                 if shadow and y > 2 and x > 2:
                     if data[y - 1, x - 1] > e:
                         c -= 15
-                    if data[y - 2, x - 2] > e \
-                            and data[y - 2, x - 2] > data[y - 1, x - 1]:
+                    if data[y - 2, x - 2] > e and data[y - 2, x - 2] > data[y - 1, x - 1]:
                         c -= 10
-                    if data[y - 3, x - 3] > e \
-                            and data[y - 3, x - 3] > data[y - 1, x - 1] \
+                    if data[y - 3, x - 3] > e and data[y - 3, x - 3] > data[y - 1, x - 1] \
                             and data[y - 3, x - 3] > data[y - 2, x - 2]:
                         c -= 5
                     if c < 0:
                         c = 0
+
                 target.set_pixel(x, y, (c, c, c, 255))
 
 
@@ -525,21 +522,22 @@ def draw_ocean(ocean, target):
             else:
                 target.set_pixel(x, y, (0, 255, 255, 255))
 
+
 def draw_wind(world, target):
     WEST_COLOR = (255, 0, 0)
     NORTH_COLOR = (0, 255, 0)
     EAST_COLOR = (0, 0, 255)
     SOUTH_COLOR = (255, 255, 0)
 
-    def _wind_color(dir):
+    def _wind_color(in_dir):
         if dir > 0.75:
-            return gradient(dir, 0.75, 1.00, WEST_COLOR, NORTH_COLOR)
+            return gradient(in_dir, 0.75, 1.00, WEST_COLOR, NORTH_COLOR)
         elif dir > 0.5:
-            return gradient(dir, 0.50, 0.75, SOUTH_COLOR, WEST_COLOR)
+            return gradient(in_dir, 0.50, 0.75, SOUTH_COLOR, WEST_COLOR)
         elif dir > 0.25:
-            return gradient(dir, 0.25, 0.50, EAST_COLOR, SOUTH_COLOR)
+            return gradient(in_dir, 0.25, 0.50, EAST_COLOR, SOUTH_COLOR)
         else:
-            return gradient(dir, 0.00, 0.25, NORTH_COLOR, EAST_COLOR)
+            return gradient(in_dir, 0.00, 0.25, NORTH_COLOR, EAST_COLOR)
 
     width = world.width
     height = world.height
@@ -547,6 +545,7 @@ def draw_wind(world, target):
     for y in range(height):
         for x in range(width):
             target.set_pixel(x, y, _wind_color(world.layers['wind_direction'].data[y, x]))
+
 
 def draw_humidity(world, target, black_and_white=False):
     width = world.width
@@ -591,6 +590,7 @@ def draw_humidity(world, target, black_and_white=False):
                 elif world.is_humidity_superhumid((x, y)):
                     target.set_pixel(x, y, (0, 255, 255, 255))
 
+
 def draw_precipitation(world, target, black_and_white=False):
     width = world.width
     height = world.height
@@ -603,6 +603,7 @@ def draw_precipitation(world, target, black_and_white=False):
 
         colors = numpy.interp(world.layers['precipitation'].data, [low, high], [floor, ceiling])
         colors = numpy.rint(colors).astype(dtype=numpy.int32)  # proper rounding
+
         for y in range(height):
             for x in range(width):
                 target.set_pixel(x, y, (colors[y, x], colors[y, x], colors[y, x], 255))
@@ -614,6 +615,7 @@ def draw_precipitation(world, target, black_and_white=False):
             for x in range(width):
                 pos = (x, y)
                 target.set_pixel(x, y, gradient(world.precipitations_at(pos), low, high, lowColor, highColor))
+
 
 def draw_world(world, target):
     width = world.width
@@ -641,6 +643,7 @@ def draw_temperature_levels(world, target, black_and_white=False):
 
         colors = numpy.interp(world.temperature['data'], [low, high], [floor, ceiling])
         colors = numpy.rint(colors).astype(dtype=numpy.int32)  # proper rounding
+
         for y in range(height):
             for x in range(width):
                 target.set_pixel(x, y, (colors[y, x], colors[y, x], colors[y, x], 255))
@@ -680,9 +683,8 @@ def draw_scatter_plot(world, size, target):
     """ This function can be used on a generic canvas (either an image to save
         on disk or a canvas part of a GUI)
     """
-
-    #Find min and max values of humidity and temperature on land so we can
-    #normalize temperature and humidity to the chart
+    # Find min and max values of humidity and temperature on land so we can
+    # normalize temperature and humidity to the chart
     humid = numpy.ma.masked_array(world.layers['humidity'].data, mask=world.layers['ocean'].data)
     temp = numpy.ma.masked_array(world.layers['temperature'].data, mask=world.layers['ocean'].data)
     min_humidity = humid.min()
@@ -692,27 +694,34 @@ def draw_scatter_plot(world, size, target):
     temperature_delta = max_temperature - min_temperature
     humidity_delta = max_humidity - min_humidity
     
-    #set all pixels white
+    # set all pixels white
     for y in range(0, size):
         for x in range(0, size):
             target.set_pixel(x, y, (255, 255, 255, 255))
 
-    #fill in 'bad' boxes with grey
+    # fill in 'bad' boxes with grey
     h_values = ['62', '50', '37', '25', '12']
-    t_values = [   0,    1,    2,   3,    5 ]
+    t_values = [0, 1, 2, 3, 5]
+
     for loop in range(0, 5):
         h_min = (size - 1) * ((world.layers['humidity'].quantiles[h_values[loop]] - min_humidity) / humidity_delta)
+
         if loop != 4:
             h_max = (size - 1) * ((world.layers['humidity'].quantiles[h_values[loop + 1]] - min_humidity) / humidity_delta)
         else:
             h_max = size
+
         v_max = (size - 1) * ((world.layers['temperature'].thresholds[t_values[loop]][1] - min_temperature) / temperature_delta)
+
         if h_min < 0:
             h_min = 0
+
         if h_max > size:
             h_max = size
+
         if v_max < 0:
             v_max = 0
+
         if v_max > (size - 1):
             v_max = size - 1
             
@@ -721,20 +730,24 @@ def draw_scatter_plot(world, size, target):
                 for x in range(0, int(v_max)):
                     target.set_pixel(x, (size - 1) - y, (128, 128, 128, 255))
                     
-    #draw lines based on thresholds
+    # draw lines based on thresholds
     for t in range(0, 6):
         v = (size - 1) * ((world.layers['temperature'].thresholds[t][1] - min_temperature) / temperature_delta)
+
         if 0 < v < size:
             for y in range(0, size):
                 target.set_pixel(int(v), (size - 1) - y, (0, 0, 0, 255))
+
     ranges = ['87', '75', '62', '50', '37', '25', '12']
+
     for p in ranges:
         h = (size - 1) * ((world.layers['humidity'].quantiles[p] - min_humidity) / humidity_delta)
+
         if 0 < h < size:
             for x in range(0, size):
                 target.set_pixel(x, (size - 1) - int(h), (0, 0, 0, 255))
 
-    #draw gamma curve
+    # draw gamma curve
     curve_gamma = world.gamma_curve
     curve_bonus = world.curve_offset
     
@@ -742,15 +755,15 @@ def draw_scatter_plot(world, size, target):
         y = (size - 1) * ((numpy.power((float(x) / (size - 1)), curve_gamma) * (1 - curve_bonus)) + curve_bonus)
         target.set_pixel(x, (size - 1) - int(y), (255, 0, 0, 255))
 
-    #examine all cells in the map and if it is land get the temperature and
-    #humidity for the cell.
+    # examine all cells in the map and if it is land get the temperature and
+    # humidity for the cell.
     for y in range(world.height):
         for x in range(world.width):
             if world.is_land((x, y)):
                 t = world.temperature_at((x, y))
                 p = world.humidity_at((x, y))
 
-    #get red and blue values depending on temperature and humidity                
+    # get red and blue values depending on temperature and humidity
                 if world.is_temperature_polar((x, y)):
                     r = 0
                 elif world.is_temperature_alpine((x, y)):
@@ -782,11 +795,12 @@ def draw_scatter_plot(world, size, target):
                 elif world.is_humidity_superhumid((x, y)):
                     b = 255
 
-    #calculate x and y position based on normalized temperature and humidity
+                # calculate x and y position based on normalized temperature and humidity
                 nx = (size - 1) * ((t - min_temperature) / temperature_delta)
                 ny = (size - 1) * ((p - min_humidity) / humidity_delta)
                     
                 target.set_pixel(int(nx), (size - 1) - int(ny), (r, 128, b, 255))
+
 
 def draw_permeability(world, target):
     width = world.width
@@ -877,12 +891,12 @@ def draw_biome_on_file(world, filename):
 
 
 def draw_ancientmap_on_file(obj, world, filename, resize_factor=1, sea_color=(212, 198, 169, 255),
-                            draw_biome=True, draw_rivers=True, draw_mountains=True, 
+                            draw_biomes=True, draw_rivers=True, draw_mountains=True,
                             draw_outer_land_border=False, verbose=False):
     wWidth = int(world.width * resize_factor)
     wHeight = int(world.height * resize_factor)
     img = PNGWriter.rgba_from_dimensions(wWidth, wHeight, filename)
-    draw_ancientmap(obj, world, img, resize_factor, sea_color, draw_biome, draw_rivers, draw_mountains,
+    draw_ancientmap(obj, world, img, resize_factor, sea_color, draw_biomes, draw_rivers, draw_mountains,
                     draw_outer_land_border, verbose)
     img.complete()
 
@@ -903,9 +917,9 @@ def draw_icecaps_on_file(world, filename):
     img = PNGWriter.grayscale_from_array(world.layers["icecap"].data, filename, scale_to_range=True)
     img.complete()
 
-#NEW FUNCTIONS 200217
+
+# NEW FUNCTIONS 200217
 def draw_permeability_on_file(world, filename):
     img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_permeability(world, img)
     img.complete()
-

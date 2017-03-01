@@ -13,16 +13,12 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-
-
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='World.proto',
   package='World',
   serialized_pb=_b('\n\x0bWorld.proto\x12\x05World\"\x9f\x0e\n\x05World\x12\x17\n\x0fworldengine_tag\x18\x01 \x02(\x05\x12\x1b\n\x13worldengine_version\x18\x02 \x02(\x05\x12\x0c\n\x04name\x18\x03 \x02(\t\x12\r\n\x05width\x18\x04 \x02(\x05\x12\x0e\n\x06height\x18\x05 \x02(\x05\x12\x30\n\rheightMapData\x18\x06 \x02(\x0b\x32\x19.World.World.DoubleMatrix\x12\x17\n\x0fheightMapTh_sea\x18\x07 \x02(\x01\x12\x19\n\x11heightMapTh_plain\x18\x08 \x02(\x01\x12\x18\n\x10heightMapTh_hill\x18\t \x02(\x01\x12*\n\x06plates\x18\n \x02(\x0b\x32\x1a.World.World.IntegerMatrix\x12)\n\x05ocean\x18\x0b \x02(\x0b\x32\x1a.World.World.BooleanMatrix\x12,\n\tsea_depth\x18\x0c \x02(\x0b\x32\x19.World.World.DoubleMatrix\x12)\n\x05\x62iome\x18\r \x01(\x0b\x32\x1a.World.World.IntegerMatrix\x12\x38\n\x08humidity\x18\x0e \x01(\x0b\x32&.World.World.DoubleMatrixWithQuantiles\x12-\n\nirrigation\x18\x0f \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\x33\n\x10permeabilityData\x18\x10 \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\x18\n\x10permeability_low\x18\x11 \x01(\x01\x12\x18\n\x10permeability_med\x18\x12 \x01(\x01\x12/\n\x0cwatermapData\x18\x13 \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\x16\n\x0ewatermap_creek\x18\x14 \x01(\x01\x12\x16\n\x0ewatermap_river\x18\x15 \x01(\x01\x12\x1a\n\x12watermap_mainriver\x18\x16 \x01(\x01\x12\x34\n\x11precipitationData\x18\x17 \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\x19\n\x11precipitation_low\x18\x18 \x01(\x01\x12\x19\n\x11precipitation_med\x18\x19 \x01(\x01\x12\x32\n\x0ftemperatureData\x18\x1a \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\x19\n\x11temperature_polar\x18\x1b \x01(\x01\x12\x1a\n\x12temperature_alpine\x18\x1c \x01(\x01\x12\x1a\n\x12temperature_boreal\x18\x1d \x01(\x01\x12\x18\n\x10temperature_cool\x18\x1e \x01(\x01\x12\x18\n\x10temperature_warm\x18\x1f \x01(\x01\x12\x1f\n\x17temperature_subtropical\x18  \x01(\x01\x12\x33\n\x0egenerationData\x18! \x01(\x0b\x32\x1b.World.World.GenerationData\x12*\n\x07lakemap\x18\" \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12+\n\x08rivermap\x18# \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12)\n\x06icecap\x18$ \x01(\x0b\x32\x19.World.World.DoubleMatrix\x12\'\n\x04wind\x18% \x01(\x0b\x32\x19.World.World.DoubleMatrix\x1a\x1a\n\tDoubleRow\x12\r\n\x05\x63\x65lls\x18\x01 \x03(\x01\x1a\x1b\n\nBooleanRow\x12\r\n\x05\x63\x65lls\x18\x01 \x03(\x08\x1a\x1b\n\nIntegerRow\x12\r\n\x05\x63\x65lls\x18\x01 \x03(\x05\x1a\x18\n\x07\x42yteRow\x12\r\n\x05\x63\x65lls\x18\x01 \x03(\x05\x1a\x34\n\x0c\x44oubleMatrix\x12$\n\x04rows\x18\x01 \x03(\x0b\x32\x16.World.World.DoubleRow\x1a\x36\n\rBooleanMatrix\x12%\n\x04rows\x18\x01 \x03(\x0b\x32\x17.World.World.BooleanRow\x1a\x36\n\rIntegerMatrix\x12%\n\x04rows\x18\x01 \x03(\x0b\x32\x17.World.World.IntegerRow\x1a,\n\x0e\x44oubleQuantile\x12\x0b\n\x03key\x18\x01 \x02(\x05\x12\r\n\x05value\x18\x02 \x02(\x01\x1aq\n\x19\x44oubleMatrixWithQuantiles\x12.\n\tquantiles\x18\x01 \x03(\x0b\x32\x1b.World.World.DoubleQuantile\x12$\n\x04rows\x18\x02 \x03(\x0b\x32\x16.World.World.DoubleRow\x1aS\n\x0eGenerationData\x12\x0c\n\x04seed\x18\x01 \x01(\x05\x12\x10\n\x08n_plates\x18\x02 \x01(\x05\x12\x13\n\x0bocean_level\x18\x03 \x01(\x02\x12\x0c\n\x04step\x18\x04 \x01(\t')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
-
-
 
 
 _WORLD_DOUBLEROW = _descriptor.Descriptor(
@@ -666,77 +662,77 @@ DESCRIPTOR.message_types_by_name['World'] = _WORLD
 
 World = _reflection.GeneratedProtocolMessageType('World', (_message.Message,), dict(
 
-  DoubleRow = _reflection.GeneratedProtocolMessageType('DoubleRow', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_DOUBLEROW,
-    __module__ = 'World_pb2'
+  DoubleRow=_reflection.GeneratedProtocolMessageType('DoubleRow', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_DOUBLEROW,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.DoubleRow)
     ))
   ,
 
-  BooleanRow = _reflection.GeneratedProtocolMessageType('BooleanRow', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_BOOLEANROW,
-    __module__ = 'World_pb2'
+  BooleanRow=_reflection.GeneratedProtocolMessageType('BooleanRow', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_BOOLEANROW,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.BooleanRow)
     ))
   ,
 
-  IntegerRow = _reflection.GeneratedProtocolMessageType('IntegerRow', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_INTEGERROW,
-    __module__ = 'World_pb2'
+  IntegerRow=_reflection.GeneratedProtocolMessageType('IntegerRow', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_INTEGERROW,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.IntegerRow)
     ))
   ,
 
-  ByteRow = _reflection.GeneratedProtocolMessageType('ByteRow', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_BYTEROW,
-    __module__ = 'World_pb2'
+  ByteRow=_reflection.GeneratedProtocolMessageType('ByteRow', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_BYTEROW,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.ByteRow)
     ))
   ,
 
-  DoubleMatrix = _reflection.GeneratedProtocolMessageType('DoubleMatrix', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_DOUBLEMATRIX,
-    __module__ = 'World_pb2'
+  DoubleMatrix=_reflection.GeneratedProtocolMessageType('DoubleMatrix', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_DOUBLEMATRIX,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.DoubleMatrix)
     ))
   ,
 
-  BooleanMatrix = _reflection.GeneratedProtocolMessageType('BooleanMatrix', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_BOOLEANMATRIX,
-    __module__ = 'World_pb2'
+  BooleanMatrix=_reflection.GeneratedProtocolMessageType('BooleanMatrix', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_BOOLEANMATRIX,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.BooleanMatrix)
     ))
   ,
 
-  IntegerMatrix = _reflection.GeneratedProtocolMessageType('IntegerMatrix', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_INTEGERMATRIX,
-    __module__ = 'World_pb2'
+  IntegerMatrix=_reflection.GeneratedProtocolMessageType('IntegerMatrix', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_INTEGERMATRIX,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.IntegerMatrix)
     ))
   ,
 
-  DoubleQuantile = _reflection.GeneratedProtocolMessageType('DoubleQuantile', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_DOUBLEQUANTILE,
-    __module__ = 'World_pb2'
+  DoubleQuantile=_reflection.GeneratedProtocolMessageType('DoubleQuantile', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_DOUBLEQUANTILE,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.DoubleQuantile)
     ))
   ,
 
-  DoubleMatrixWithQuantiles = _reflection.GeneratedProtocolMessageType('DoubleMatrixWithQuantiles', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_DOUBLEMATRIXWITHQUANTILES,
-    __module__ = 'World_pb2'
+  DoubleMatrixWithQuantiles=_reflection.GeneratedProtocolMessageType('DoubleMatrixWithQuantiles', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_DOUBLEMATRIXWITHQUANTILES,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.DoubleMatrixWithQuantiles)
     ))
   ,
 
-  GenerationData = _reflection.GeneratedProtocolMessageType('GenerationData', (_message.Message,), dict(
-    DESCRIPTOR = _WORLD_GENERATIONDATA,
-    __module__ = 'World_pb2'
+  GenerationData=_reflection.GeneratedProtocolMessageType('GenerationData', (_message.Message,), dict(
+    DESCRIPTOR=_WORLD_GENERATIONDATA,
+    __module__='World_pb2'
     # @@protoc_insertion_point(class_scope:World.World.GenerationData)
     ))
   ,
-  DESCRIPTOR = _WORLD,
-  __module__ = 'World_pb2'
+  DESCRIPTOR=_WORLD,
+  __module__='World_pb2'
   # @@protoc_insertion_point(class_scope:World.World)
   ))
 _sym_db.RegisterMessage(World)

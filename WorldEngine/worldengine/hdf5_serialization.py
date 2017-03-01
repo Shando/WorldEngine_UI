@@ -5,6 +5,7 @@ from version import __version__
 import biome
 import model.world as modWorld
 
+
 def save_world_to_hdf5(world, filename):
     f = h5py.File(filename, libver='latest', mode='w')
 
@@ -123,11 +124,11 @@ def load_world_to_hdf5(filename):
     f = h5py.File(filename, libver='latest', mode='r')
 
     w = modWorld.World(f['general/name'].value,
-              modWorld.Size(f['general/width'].value, f['general/height'].value),
-              f['generation_params/seed'].value,
-              modWorld.GenerationParameters(f['generation_params/n_plates'].value,
-                                   f['generation_params/ocean_level'].value,
-                                   modWorld.Step.get_by_name(f['generation_params/step'].value)))
+                       modWorld.Size(f['general/width'].value, f['general/height'].value),
+                       f['generation_params/seed'].value,
+                       modWorld.GenerationParameters(f['generation_params/n_plates'].value,
+                       f['generation_params/ocean_level'].value,
+                       modWorld.Step.get_by_name(f['generation_params/step'].value)))
 
     # Elevation
     e = numpy.array(f['elevation/data'])

@@ -1,25 +1,26 @@
 #!/usr/bin/python
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-#This code is based on Amazing.py from the Pi3D Demo Library
+# This code is based on Amazing.py from the Pi3D Demo Library
 
 import math
 import pi3d
 
+
 def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
-    rads = 0.017453292512 # degrees to radians
+    rads = 0.017453292512  # degrees to radians
 
     # helpful messages
     # Esc to quit, W to go forward, Mouse to steer
     # At the edge you will turn into a ghost and be able to fly and pass through rocks!
 
     # Setup display and initialise pi3d
-    DISPLAY = pi3d.Display.create(x = 100, y = 100, background = (0.4, 0.8, 0.8, 1), use_pygame = True)
+    DISPLAY = pi3d.Display.create(x=100, y=100, background=(0.4, 0.8, 0.8, 1), use_pygame=True)
 
     shader = pi3d.Shader("uv_bump")
     flatsh = pi3d.Shader("uv_flat")
     light = pi3d.Light((1, 1, 1), (400.0, 400.0, 350.0), (0.03, 0.03, 0.05), True)
-    #sun = pi3d.Light((0.0, 1000.0, 0.0), (0.5, 1.0, 0.7), (0.3, 0.1, 0.1), is_point=True)
+    # sun = pi3d.Light((0.0, 1000.0, 0.0), (0.5, 1.0, 0.7), (0.3, 0.1, 0.1), is_point=True)
     
     # load Textures
     rockimg1 = pi3d.Texture("textures/techy1.jpg")
@@ -28,7 +29,7 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
     
     # environment cube
     ectex = pi3d.Texture("textures/ecubes/skybox_stormydays.jpg")
-    myecube = pi3d.EnvironmentCube(size = 900.0, maptype = "CROSS")
+    myecube = pi3d.EnvironmentCube(size=900.0, maptype="CROSS")
     myecube.set_draw_details(flatsh, ectex)
     
     # Create elevation map
@@ -42,11 +43,12 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
     
     # inHeightmap = Maps/seed_XXXXX_grayscale.png
     # inTextureMap = Maps/seed_XXXXX_elevation.png
-    mymap = pi3d.ElevationMap(inHeightmap, width = mapwidth, depth = mapdepth, height = mapheight, divx = 199, divy = 199, name = "sub")
+    # inBumpMap = Maps/seed_XXXXX_normal.png
+    mymap = pi3d.ElevationMap(inHeightmap, width=mapwidth, depth=mapdepth, height=mapheight, divx=199, divy=199, name="sub")
     mymap.set_draw_details(shader, [rockimg1, rockimg2, shineimg], 128.0, 0.05)
     redplanet = pi3d.Texture(inTextureMap)
     bumpimg = pi3d.Texture(inBumpMap)
-    mymap.set_draw_details(bumpsh,[redplanet, bumpimg], 128.0, 0.0)
+    mymap.set_draw_details(bumpsh, [redplanet, bumpimg], 128.0, 0.0)
     mymap.set_fog((0.3, 0.15, 0.1, 0.0), 1000.0)
     
     rot = 0.0
@@ -58,7 +60,7 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
     
     # Fetch key presses
     mykeys = pi3d.Keyboard()
-    mymouse = pi3d.Mouse(restrict = False)
+    mymouse = pi3d.Mouse(restrict=False)
     mymouse.start()
     
     omx, omy = mymouse.position()
@@ -87,13 +89,13 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
             else:
                 dy = mymap.calcHeight(xm + dx * 1.5, zm + dz * 1.5) + avhgt - ym
 
-            if dy < 1.2: # limit steepness so can't climb up walls
+            if dy < 1.2:  # limit steepness so can't climb up walls
                 xm += dx * 0.5
                 zm += dz * 0.5
                 ym += dy * 0.5
         
             if xm < -490 or xm > 490 or zm < -490 or zm > 490:
-                fly = True # reached the edge
+                fly = True  # reached the edge
       
         if not (mx == omx and my == omy and oxm == xm and ozm == zm):
             CAMERA.reset()
@@ -118,9 +120,9 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
         k = mykeys.read()
 
         if k > -1:
-            if k == 119: # W Key toggle
+            if k == 119:  # W Key toggle
                 walk = not walk
-            elif k == 115: # S Key
+            elif k == 115:  # S Key
                 walk = False
                 dy = -(mymap.calcHeight(xm - dx, zm - dz) + avhgt) - ym
           
@@ -128,7 +130,7 @@ def pi_3d(inHeightmap, inWidth, inDepth, inHeight, inTextureMap, inBumpMap):
                     xm -= dx
                     zm -= dz
                     ym += dy
-            elif k == 27: # ESCAPE key
+            elif k == 27:  # ESCAPE key
                 DISPLAY.destroy()
                 mykeys.close()
                 mymouse.stop()

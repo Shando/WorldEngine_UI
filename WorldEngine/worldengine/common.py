@@ -1,6 +1,6 @@
 import sys
 import copy
-import numpy #for the _equal method only
+import numpy  # for the _equal method only
 
 # ----------------
 # Global variables
@@ -59,11 +59,11 @@ class Counter(object):
         sys.stdout.write(self.to_str)
 
 
-def anti_alias(map, steps):  #TODO: There is probably a bit of numpy-optimization that can be done here.
+def anti_alias(in_map, steps):  # TODO: There is probably a bit of numpy-optimization that can be done here.
     """
     Execute the anti_alias operation steps times on the given map
     """
-    height, width = map.shape
+    height, width = in_map.shape
 
     def _anti_alias_step(original):
         anti_aliased = copy.deepcopy(original)
@@ -74,7 +74,7 @@ def anti_alias(map, steps):  #TODO: There is probably a bit of numpy-optimizatio
 
     def anti_alias_point(original, x, y):
         n = 2
-        tot = map[y, x] * 2
+        tot = in_map[y, x] * 2
         for dy in range(-1, +2):
             py = (y + dy) % height
             for dx in range(-1, +2):
@@ -83,7 +83,7 @@ def anti_alias(map, steps):  #TODO: There is probably a bit of numpy-optimizatio
                 tot += original[py, px]
         return tot / n
 
-    current = map
+    current = in_map
     
     for i in range(steps):
         current = _anti_alias_step(current)
@@ -92,12 +92,12 @@ def anti_alias(map, steps):  #TODO: There is probably a bit of numpy-optimizatio
 
 
 def _equal(a, b):
-    #recursion on subclasses of types: tuple, list, dict
-    #specifically checks             : float, ndarray
-    if type(a) is float and type(b) is float:#float
+    # recursion on subclasses of types: tuple, list, dict
+    # specifically checks             : float, ndarray
+    if type(a) is float and type(b) is float:
         return numpy.allclose(a, b)
-    elif type(a) is numpy.ndarray and type(b) is numpy.ndarray:#ndarray
-        return numpy.array_equiv(a, b)  #alternative for float-arrays: numpy.allclose(a, b[, rtol, atol])
+    elif type(a) is numpy.ndarray and type(b) is numpy.ndarray:
+        return numpy.array_equiv(a, b)  # alternative for float-arrays: numpy.allclose(a, b[, rtol, atol])
     elif isinstance(a, dict) and isinstance(b, dict):#dict
         if len(a) != len(b):
             return False
@@ -109,7 +109,7 @@ def _equal(a, b):
             if not t:
                 return False
         return t
-    elif (isinstance(a, list) and isinstance(b, list)) or (isinstance(a, tuple) and isinstance(b, tuple)):#list, tuples
+    elif (isinstance(a, list) and isinstance(b, list)) or (isinstance(a, tuple) and isinstance(b, tuple)): # list, tuples
         if len(a) != len(b):
             return False
         t = True
@@ -118,5 +118,5 @@ def _equal(a, b):
             if not t:
                 return False
         return t
-    else:#fallback
+    else: # fallback
         return a == b

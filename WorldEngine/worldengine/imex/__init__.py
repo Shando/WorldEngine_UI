@@ -24,23 +24,23 @@ All other formats (>100) currently end up with their respective GDAL short-forma
 converted to lower-case and might need to be renamed by the user.
 '''
 gdal_mapper = {  # TODO: Find a way to make GDAL provide this mapping.
-    "aig"     : "adf",
-    "bsb"     : "kap",
-    "doq1"    : "doq",
-    "doq2"    : "doq",
-    "esat"    : "n1",
-    "grib"    : "grb",
-    "gtiff"   : "tif",
-    "hfa"     : "img",
-    "jdem"    : "mem",
-    "jpeg"    : "jpg",
-    "msgn"    : "nat",
+    "aig": "adf",
+    "bsb": "kap",
+    "doq1": "doq",
+    "doq2": "doq",
+    "esat": "n1",
+    "grib": "grb",
+    "gtiff": "tif",
+    "hfa": "img",
+    "jdem": "mem",
+    "jpeg": "jpg",
+    "msgn": "nat",
     "terragen": "ter",
-    "usgsdem" : "dem",
+    "usgsdem": "dem",
 }
 
 
-def export(world, export_filetype = 'GTiff', export_datatype = 'float32', path = 'seed_output'):
+def export(world, export_filetype='GTiff', export_datatype='float32', path='seed_output'):
     try:
         gdal
     except NameError:
@@ -75,35 +75,35 @@ def export(world, export_filetype = 'GTiff', export_datatype = 'float32', path =
     # Note: GDAL will throw informative errors on its own whenever file type and data type cannot be matched.
 
     # translate export_datatype; http://www.gdal.org/gdal_8h.html#a22e22ce0a55036a96f652765793fb7a4
-    export_datatype = export_datatype.toLower()
+    export_datatype = export_datatype.lower()
     if export_datatype in ['gdt_byte', 'uint8', 'int8', 'byte', 'char']:  # GDAL does not support int8
         bpp, signed, normalize = (8, False, True)
         numpy_type = numpy.uint8
-        gdal_type  = gdal.GDT_Byte
+        gdal_type = gdal.GDT_Byte
     elif export_datatype in ['gdt_uint16', 'uint16']:
         bpp, signed, normalize = (16, False, True)
         numpy_type = numpy.uint16
-        gdal_type  = gdal.GDT_UInt16
+        gdal_type = gdal.GDT_UInt16
     elif export_datatype in ['gdt_uint32', 'uint32']:
         bpp, signed, normalize = (32, False, True)
         numpy_type = numpy.uint32
-        gdal_type  = gdal.GDT_UInt32
+        gdal_type = gdal.GDT_UInt32
     elif export_datatype in ['gdt_int16', 'int16']:
         bpp, signed, normalize = (16, True, True)
         numpy_type = numpy.int16
-        gdal_type  = gdal.GDT_Int16
+        gdal_type = gdal.GDT_Int16
     elif export_datatype in ['gdt_int32', 'int32', 'int']:  # fallback for 'int'
         bpp, signed, normalize = (32, True, True)
         numpy_type = numpy.int32
-        gdal_type  = gdal.GDT_Int32
+        gdal_type = gdal.GDT_Int32
     elif export_datatype in ['gdt_float32', 'float32', 'float']:  # fallback for 'float'
         bpp, signed, normalize = (32, True, False)
         numpy_type = numpy.float32
-        gdal_type  = gdal.GDT_Float32
+        gdal_type = gdal.GDT_Float32
     elif export_datatype in ['gdt_float64', 'float64']:
         bpp, signed, normalize = (64, True, False)
         numpy_type = numpy.float64
-        gdal_type  = gdal.GDT_Float64
+        gdal_type = gdal.GDT_Float64
     else:
         raise TypeError("Type of data not recognized or not supported by GDAL: %s" % export_datatype)
 

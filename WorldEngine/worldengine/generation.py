@@ -2,7 +2,6 @@ import numpy
 import time
 import noise
 
-from model.world import Step
 import simulations.basic as basic
 import simulations.hydrology as hydro
 import simulations.irrigation as irri
@@ -15,10 +14,12 @@ import simulations.biome as biome
 import simulations.icecap as icecap
 import simulations.wind as wind
 from common import anti_alias, get_verbose
+from model.world import Step
 
 # ------------------
 # Initial generation
 # ------------------
+
 
 def center_land(world):
     """Translate the map horizontally and vertically to put as much ocean as
@@ -33,6 +34,7 @@ def center_land(world):
     latshift = 0
     world.layers['elevation'].data = numpy.roll(numpy.roll(world.layers['elevation'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
     world.layers['plates'].data = numpy.roll(numpy.roll(world.layers['plates'].data, -y_with_min_sum + latshift, axis=0), - x_with_min_sum, axis=1)
+
 
 def place_oceans_at_map_borders(world):
     """
@@ -55,6 +57,7 @@ def place_oceans_at_map_borders(world):
             place_ocean(i, y, i)
             place_ocean(world.width - i - 1, y, i)
 
+
 def add_noise_to_elevation(world, seed):
     octaves = 8
     freq = 16.0 * octaves
@@ -64,20 +67,21 @@ def add_noise_to_elevation(world, seed):
             n = noise.snoise2(x / freq * 2, y / freq * 2, octaves, base=seed)
             world.layers['elevation'].data[y, x] += n
 
+
 def fill_ocean(elevation, sea_level):#TODO: Make more use of numpy?
     height, width = elevation.shape
 
     ocean = numpy.zeros(elevation.shape, dtype=bool)
     to_expand = []
     
-    for x in range(width):#handle top and bottom border of the map
+    for x in range(width):  # handle top and bottom border of the map
         if elevation[0, x] <= sea_level:
             to_expand.append((x, 0))
     
         if elevation[height - 1, x] <= sea_level:
             to_expand.append((x, height - 1))
     
-    for y in range(height):#handle left- and rightmost border of the map
+    for y in range(height):  # handle left- and rightmost border of the map
         if elevation[y, 0] <= sea_level:
             to_expand.append((0, y))
     
@@ -118,6 +122,7 @@ def initialize_ocean_and_thresholds(world, ocean_level=1.0):
     world.set_elevation(e, e_th)
     world.set_sea_depth(sea_depth(world, ocean_level))
 
+
 def harmonize_ocean(ocean, elevation, ocean_level):
     """
     The goal of this function is to make the ocean floor less noisy.
@@ -138,6 +143,7 @@ def harmonize_ocean(ocean, elevation, ocean_level):
 # ----
 # Misc
 # ----
+
 
 def sea_depth(world, sea_level):
     sea_depth = sea_level - world.layers['elevation'].data
@@ -163,6 +169,7 @@ def sea_depth(world, sea_level):
     
     return sea_depth
 
+
 def _around(x, y, width, height):
     ps = []
 
@@ -177,6 +184,7 @@ def _around(x, y, width, height):
                     ps.append((nx, ny))
     
     return ps
+
 
 def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
                    erosion_max_radius, erosion_maxRadius, erosion_radius,
@@ -193,26 +201,26 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup(' ')
         obj.updatePopup('Generating World ...')
 
-    if isinstance(step, str):
-        step = step.Step.get_by_name(step)
+    # if isinstance(step, str):
+    #    step = step..get_by_name(step)
 
-#    if not step.include_precipitations:
-#        return w
+    # if not step.include_precipitations:
+    #    return w
 
     # Prepare sufficient seeds for the different steps of the generation
     rng = numpy.random.RandomState(w.seed)  # create a fresh RNG in case the global RNG is compromised (i.e. has been queried an indefinite amount of times before generate_world() was called)
     sub_seeds = rng.randint(0, numpy.iinfo(numpy.int32).max, size=100)  # choose lowest common denominator (32 bit Windows numpy cannot handle a larger value)
     seed_dict = {
-                 'PrecipitationSimulation': sub_seeds[ 0],  # after 0.19.0 do not ever switch out the seeds here to maximize seed-compatibility
-                 'ErosionSimulation':       sub_seeds[ 1],
-                 'WatermapSimulation':      sub_seeds[ 2],
-                 'IrrigationSimulation':    sub_seeds[ 3],
-                 'TemperatureSimulation':   sub_seeds[ 4],
-                 'HumiditySimulation':      sub_seeds[ 5],
-                 'PermeabilitySimulation':  sub_seeds[ 6],
-                 'BiomeSimulation':         sub_seeds[ 7],
-                 'IcecapSimulation':        sub_seeds[ 8],
-                 'WindSimulation':          sub_seeds[ 9],
+                 'PrecipitationSimulation': sub_seeds[0],  # after 0.19.0 do not ever switch out the seeds here to maximize seed-compatibility
+                 'ErosionSimulation':       sub_seeds[1],
+                 'WatermapSimulation':      sub_seeds[2],
+                 'IrrigationSimulation':    sub_seeds[3],
+                 'TemperatureSimulation':   sub_seeds[4],
+                 'HumiditySimulation':      sub_seeds[5],
+                 'PermeabilitySimulation':  sub_seeds[6],
+                 'BiomeSimulation':         sub_seeds[7],
+                 'IcecapSimulation':        sub_seeds[8],
+                 'WindSimulation':          sub_seeds[9],
                  '':                        sub_seeds[99]
     }
 
@@ -225,16 +233,15 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup('    Temperature Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # Precipitation with thresholds
-    precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'], precipitation_freq, precipitation_octaves,
-                                            precipitation_ths_low, precipitation_ths_med)
+    precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'], precipitation_freq, precipitation_octaves, precipitation_ths_low, precipitation_ths_med)
 
     if get_verbose():
         elapsed_time = time.time() - start_time
         start_time = time.time()
         obj.updatePopup('    Precipitation Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-#    if not step.include_erosion:
-#        return w
+    # if not step.include_erosion:
+    #   return w
     
     erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'], hydrology_river, erosion_max_radius,
                                         erosion_maxRadius, erosion_radius, erosion_curve1, erosion_curve2, erosion_curve3)  # seed not currently used
