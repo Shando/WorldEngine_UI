@@ -2140,7 +2140,7 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('')
         self.updatePopup('')
         self.updatePopup(' WorldEngine GUI is (c) SpinalSoft (AU) 2016-2017')
-        self.updatePopup(' and is available under the MIT Licence.'
+        self.updatePopup(' and is available under the MIT Licence.')
         self.updatePopup('')
         self.updatePopup('')
         self.updatePopup(' Icons are from "cc mono icon set" by Gentleface.com:')
