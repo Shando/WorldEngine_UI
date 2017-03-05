@@ -35,8 +35,10 @@ def generate_plates_simulation(obj, seed, width, height, sea_level=0.65,
 def _plates_simulation(obj, name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
                        humids=[.941, .778, .507, .236, 0.073, .014, .002], gamma_curve=1.25,
                        curve_offset=.2, num_plates=10, ocean_level=1.0,
-                       step=Step.full()):
-    e_as_array, p_as_array = generate_plates_simulation(obj, seed, width, height, num_plates=num_plates)
+                       step=Step.full(), sea_level=0.65, erosion_period=60, folding_ratio=0.02, agg_abs=1000000,
+                       agg_rel=0.33, num_cycles=2):
+    e_as_array, p_as_array = generate_plates_simulation(obj, seed, width, height, sea_level, erosion_period,
+                                                        folding_ratio, agg_abs, agg_rel, num_cycles, num_plates)
 
     world = modWorld.World(name, modWorld.Size(width, height), seed,
                            modWorld.GenerationParameters(num_plates, ocean_level, step),
@@ -50,7 +52,8 @@ def _plates_simulation(obj, name, width, height, seed, temps=[.874, .765, .594, 
 def world_gen(obj, name, width, height, seed, temps=[.874, .765, .594, .439, .366, .124],
               humids=[.941, .778, .507, .236, 0.073, .014, .002], num_plates=10,
               ocean_level=1.0, step=Step.full(), gamma_curve=1.25, curve_offset=.2,
-              fade_borders=True, erosion_curve1=0.0, erosion_curve2=0.0, erosion_curve3=0.0,
+              fade_borders=True, sea_level=0.65, erosion_period=60, folding_ratio=0.02, agg_abs=1000000,
+              agg_rel=0.33, num_cycles=2, erosion_curve1=0.0, erosion_curve2=0.0, erosion_curve3=0.0,
               erosion_max_radius=0, erosion_maxRadius=0, erosion_radius=0, humidity_irrigationWeight=0.0, humidity_precipitation_weight=0.0,
               hydrology_creek=0.0, hydrology_main_river=0.0, hydrology_river=0.0, irrigation_radius=0,
               icecap_freeze_chance_window=0.0, icecap_max_freeze_percentage=0.0, icecap_surrounding_tile_influence=0.0,
@@ -66,7 +69,8 @@ def world_gen(obj, name, width, height, seed, temps=[.874, .765, .594, .439, .36
         obj.updatePopup(' ')
         obj.updatePopup('Generating Plates ...')
 
-    world = _plates_simulation(obj, name, width, height, seed, temps, humids, gamma_curve, curve_offset, num_plates, ocean_level, step)
+    world = _plates_simulation(obj, name, width, height, seed, temps, humids, gamma_curve, curve_offset, num_plates,
+                               ocean_level, step, sea_level, erosion_period, folding_ratio, agg_abs, agg_rel,num_cycles)
 
     center_land(world)
         

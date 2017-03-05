@@ -43,7 +43,7 @@ def height2bump(heightBand, in_filter="Scharr"):  # normal[0..2] band-array
         raise ValueError("Unknown 'filter' argument '" + in_filter + "'")
 
     if verbose:
-        print "Filter: ", in_filter
+        print ("Filter: ", in_filter)
 
     a4 = -a2
     a5 = -a1
@@ -68,11 +68,10 @@ def height2bump(heightBand, in_filter="Scharr"):  # normal[0..2] band-array
         if i % 5 < 5//2:
             scale += 255.0 * val
 
-    print('Scale: %s' % scale)
     scale /= 128.0
 
     if verbose:
-        print "Scale = ", scale
+        print ("Scale = ", scale)
     
     heightBand.mode = 'I'
     heightBand = heightBand.point(lambda i:i*(1./256)).convert('L')
@@ -149,9 +148,9 @@ def readHeight2Bump(infn, outfn, options="tqa"):
             outfile_stamp = 0
 
         if l_verbose:
-            print "Infile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(infile_stamp)), " (Epoch: ", infile_stamp, ")"
+            print ("Infile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(infile_stamp)), " (Epoch: ", infile_stamp, ")")
         if l_verbose:
-            print "Outfile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(outfile_stamp)), " (Epoch: ", outfile_stamp, ")"
+            print ("Outfile Time: ", time.strftime("%m/%d/%Y %I:%M:%S %p", time.localtime(outfile_stamp)), " (Epoch: ", outfile_stamp, ")")
 
         if infile_stamp < outfile_stamp:
             if __name__ == "__main__":
@@ -168,7 +167,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
             raise IOError("Neither infile nor outfile exist")
 
     if l_verbose:
-        print "Read ", infn, "..."
+        print ("Read ", infn, "...")
 
     try:
         im = Image.open(infn)
@@ -176,7 +175,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
         sys.exit("Could not open " + infn)
 
     height = im.split()[0]
-    normal = height2bump(height, filter=usekernel)
+    normal = height2bump(height, in_filter=usekernel)
 
     if alphaheight:
         normal.extend([height])
@@ -185,7 +184,7 @@ def readHeight2Bump(infn, outfn, options="tqa"):
         im = Image.merge("RGB", normal)
 
     if l_verbose:
-        print "Write ", outfn, "..."
+        print ("Write ", outfn, "...")
 
     try:
         im.save(outfn)
@@ -193,10 +192,11 @@ def readHeight2Bump(infn, outfn, options="tqa"):
         sys.exit("Could not save " + outfn)
 
     if l_verbose:
-        print "Function completed !"
+        print ("Function completed !")
 
     if __name__ != "__main__":
         return im
+
 
 if __name__ == "__main__":
     # ===== READ OPTIONS (should really use getopts() !)=====

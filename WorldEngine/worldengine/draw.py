@@ -530,11 +530,11 @@ def draw_wind(world, target):
     SOUTH_COLOR = (255, 255, 0)
 
     def _wind_color(in_dir):
-        if dir > 0.75:
+        if in_dir > 0.75:
             return gradient(in_dir, 0.75, 1.00, WEST_COLOR, NORTH_COLOR)
-        elif dir > 0.5:
+        elif in_dir > 0.5:
             return gradient(in_dir, 0.50, 0.75, SOUTH_COLOR, WEST_COLOR)
-        elif dir > 0.25:
+        elif in_dir > 0.25:
             return gradient(in_dir, 0.25, 0.50, EAST_COLOR, SOUTH_COLOR)
         else:
             return gradient(in_dir, 0.00, 0.25, NORTH_COLOR, EAST_COLOR)

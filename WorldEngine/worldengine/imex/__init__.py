@@ -44,7 +44,7 @@ def export(world, export_filetype='GTiff', export_datatype='float32', path='seed
     try:
         gdal
     except NameError:
-        print("Cannot export: please install pygdal.")
+        print ("Cannot export: please install pygdal.")
         sys.exit(1)
 
     gdal.AllRegister()
@@ -58,13 +58,13 @@ def export(world, export_filetype='GTiff', export_datatype='float32', path='seed
     metadata = final_driver.GetMetadata()
     
     if metadata.has_key(gdal.DCAP_CREATE) and metadata[gdal.DCAP_CREATE] == 'YES':
-        print 'Driver %s supports Create() method.' % final_driver
+        print ('Driver %s supports Create() method.' % final_driver)
     
     if metadata.has_key(gdal.DCAP_CREATECOPY) and metadata[gdal.DCAP_CREATECOPY] == 'YES':
-        print 'Driver %s supports CreateCopy() method.' % final_driver
+        print ('Driver %s supports CreateCopy() method.' % final_driver)
 
     if final_driver is None:
-        print("%s driver not registered." % export_filetype)
+        print ("%s driver not registered." % export_filetype)
         sys.exit(1)
 
     # try to find the proper file-suffix

@@ -38,7 +38,7 @@ from OpenGL.GLUT import *
 
 from height2bump import readHeight2Bump
 
-FORM_1, BASE_1 = uic.loadUiType('new_gui_2.ui')
+FORM_1, BASE_1 = uic.loadUiType('new_gui_3.ui')
 FORM_2, BASE_2 = uic.loadUiType('popup.ui')
 FORM_3, BASE_3 = uic.loadUiType('dialog.ui')
 FORM_4, BASE_4 = uic.loadUiType('3d.ui')
@@ -99,7 +99,6 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.btnUpdate, QtCore.SIGNAL('released()'), self.btnUpdate_Clicked)
         self.connect(self.btnRandomise, QtCore.SIGNAL('released()'), self.btnRandomise_Clicked)
         self.connect(self.btnGenWorld, QtCore.SIGNAL('released()'), self.onActionGenerate)
-        self.connect(self.btnGenWorld_2, QtCore.SIGNAL('released()'), self.onActionGenerate)
         self.connect(self.btnGenWorld_3, QtCore.SIGNAL('released()'), self.onActionAncient)
 
         self.connect(self.actionNew, QtCore.SIGNAL('triggered()'), self.onActionNew)
@@ -162,7 +161,11 @@ class MyApp(FORM_1, BASE_1):
         self.sWorld = ''
         self.world = None
         self.sOutputDirectory, _ = os.path.split(sys.argv[0])
-        self.sDefaultDirectory, _ = os.path.split(sys.argv[0])
+
+        if self.sOutputDirectory == "":
+            self.sOutputDirectory = "."
+
+        self.sDefaultDirectory = self.sOutputDirectory
         self.sSeed = ''
         self.iSeed = 11111
         self.iDrag = 0
@@ -199,9 +202,9 @@ class MyApp(FORM_1, BASE_1):
         self.spnSeed.setValue(11111)
         self.spnWidth.setValue(1024)
         self.spnHeight.setValue(1024)
-        self.spnPlates.setValue(50)
+        self.spnPlates.setValue(10)
         self.spnRecursion.setValue(2000)
-        self.cboFormat.setCurrentIndex(0)
+        self.cboFormat.setCurrentIndex(1)
         self.cboData.setCurrentIndex(0)
 
         self.sFormat = self.cboFormat.currentText()
@@ -235,6 +238,12 @@ class MyApp(FORM_1, BASE_1):
         self.spnPrecip7.setValue(0.998)
         self.spnGamma.setValue(1.250)
         self.spnOffset.setValue(0.200)
+        self.spnSeaLevel.setValue(0.65)
+        self.spnErosionPeriod.setValue(60)
+        self.spnFoldingRatio.setValue(0.02)
+        self.spnAggAbs.setValue(1000000)
+        self.spnAggRel.setValue(0.33)
+        self.spnNumCycles.setValue(2)
 
         self.spnSeed.setEnabled(True)
         self.btnRandomise.setEnabled(True)
@@ -265,6 +274,12 @@ class MyApp(FORM_1, BASE_1):
         self.spnPrecip7.setEnabled(True)
         self.spnGamma.setEnabled(True)
         self.spnOffset.setEnabled(True)
+        self.spnSeaLevel.setEnabled(True)
+        self.spnErosionPeriod.setEnabled(True)
+        self.spnFoldingRatio.setEnabled(True)
+        self.spnAggAbs.setEnabled(True)
+        self.spnAggRel.setEnabled(True)
+        self.spnNumCycles.setEnabled(True)
 
         self.defaultMapOptions()
 
@@ -294,7 +309,7 @@ class MyApp(FORM_1, BASE_1):
             sVM = config.get('world', 'rdoVM')
             sPB = config.get('world', 'rdoPB')
             sFade = config.get('world', 'rdoFade')
-            sSea = config.get('world', 'spnSea')
+            sSeaLevel = config.get('world', 'spnSea')
             sTemp1 = config.get('world', 'spnTemp1')
             sTemp2 = config.get('world', 'spnTemp2')
             sTemp3 = config.get('world', 'spnTemp3')
@@ -310,6 +325,12 @@ class MyApp(FORM_1, BASE_1):
             sPrecip7 = config.get('world', 'spnPrecip7')
             sGamma = config.get('world', 'spnGamma')
             sOffset = config.get('world', 'spnOffset')
+            sOceanLevel = config.get('world', 'spnSeaLevel')
+            sErosionPeriod = config.get('world', 'spnErosionPeriod')
+            sFoldingRatio = config.get('world', 'spnFoldingRatio')
+            sAggAbs = config.get('world', 'spnAggAbs')
+            sAggRel = config.get('world', 'spnAggRel')
+            sNumCycles = config.get('world', 'spnNumCycles')
 
             self.erosion_max_radius = config.get('map', 'erosion_max_radius')
             self.erosion_maxRadius = config.get('map', 'erosion_maxRadius')
@@ -362,7 +383,7 @@ class MyApp(FORM_1, BASE_1):
             sVM = 'False'
             sPB = 'True'
             sFade = 'True'
-            sSea = str(self.world.ocean_level)
+            sSeaLevel = str(self.world.ocean_level)
             sTemp1 = self.world.temps[0]
             sTemp2 = self.world.temps[1]
             sTemp3 = self.world.temps[2]
@@ -378,6 +399,12 @@ class MyApp(FORM_1, BASE_1):
             sPrecip7 = self.world.humids[6]
             sGamma = str(self.world.gamma_curve)
             sOffset = str(self.world.curve_offset)
+            sOceanLevel = '0.65'
+            sErosionPeriod = '60'
+            sFoldingRatio = '0.02'
+            sAggAbs = '1000000'
+            sAggRel = '0.33'
+            sNumCycles = '2'
 
             self.setDefaultMapOptions()
 
@@ -459,7 +486,7 @@ class MyApp(FORM_1, BASE_1):
         else:
             self.rdoFadeYes.setChecked(False)
 
-        self.spnSea.setValue(float(sSea))
+        self.spnSea.setValue(float(sSeaLevel))
         self.spnTemp1.setValue(float(sTemp1))
         self.spnTemp2.setValue(float(sTemp2))
         self.spnTemp3.setValue(float(sTemp3))
@@ -475,6 +502,12 @@ class MyApp(FORM_1, BASE_1):
         self.spnPrecip7.setValue(float(sPrecip7))
         self.spnGamma.setValue(float(sGamma))
         self.spnOffset.setValue(float(sOffset))
+        self.spnSeaLevel.setValue(float(sOceanLevel))
+        self.spnErosionPeriod.setValue(int(sErosionPeriod))
+        self.spnFoldingRatio.setValue(float(sFoldingRatio))
+        self.sAggAbs.setValue(int(sAggAbs))
+        self.sAggRel.setValue(float(sAggRel))
+        self.sNumCycles.setValue(int(sNumCycles))
 
         self.enableButtons(True)
 
@@ -1138,6 +1171,12 @@ class MyApp(FORM_1, BASE_1):
         tPrecip7 = self.spnPrecip7.value()
         tGamma = self.spnGamma.value()
         tOffset = self.spnOffset.value()
+        tSeaLevel = self.spnSeaLevel.value()
+        tErosionPeriod = self.spnErosionPeriod.value()
+        tFoldingRatio = self.spnFoldingRatio.value()
+        tAggAbs = self.spnAggAbs.value()
+        tAggRel = self.spnAggRel.value()
+        tNumCycles = self.spnNumCycles.value()
 
         config['world'] = {'spnSeed': tSeed, 'spnWidth': tWidth, 'spnHeight': tHeight,
                            'spnPlates': tPlates, 'spnRecursion': tRecursion, 'cboFormat': tFormat,
@@ -1147,7 +1186,9 @@ class MyApp(FORM_1, BASE_1):
                            'spnTemp5': tTemp5, 'spnTemp6': tTemp6, 'spnPrecip1': tPrecip1,
                            'spnPrecip2': tPrecip2, 'spnPrecip3': tPrecip3, 'spnPrecip4': tPrecip4,
                            'spnPrecip5': tPrecip5, 'spnPrecip6': tPrecip6, 'spnPrecip7': tPrecip7,
-                           'spnGamma': tGamma, 'spnOffset': tOffset}
+                           'spnGamma': tGamma, 'spnOffset': tOffset, 'spnSeaLevel': tSeaLevel,
+                           'spnErosionPeriod': tErosionPeriod, 'spnFoldingRatio': tFoldingRatio,
+                           'spnAggAbs': tAggAbs, 'spAggRel': tAggRel, 'spnNumCycles': tNumCycles}
 
         config['map'] = {'erosion_max_radius': self.erosion_max_radius, 'erosion_maxRadius': self.erosion_maxRadius,
                          'erosion_radius': self.erosion_radius, 'erosion_curve1': self.erosion_curve1,
@@ -1472,6 +1513,12 @@ class MyApp(FORM_1, BASE_1):
         self.dPrecip7 = self.spnPrecip7.value()
         self.dGammaVal = self.spnGamma.value()
         self.dGammaOff = self.spnOffset.value()
+        self.dSeaLevel = self.spnSeaLevel.value()
+        self.dErosionPeriod = self.spnErosionPeriod.value()
+        self.dFoldingRatio = self.spnFoldingRatio.value()
+        self.dAggAbs = self.spnAggAbs.value()
+        self.dAggRel = self.spnAggRel.value()
+        self.dNumCycles = self.spnNumCycles.value()
         self.dAncResize = self.spnResize.value()
         self.bAncSeaColour = self.rdoSeaBlue_3.isChecked()
         self.bAncBiomes = self.rdoBiomesYes_3.isChecked()
@@ -1699,6 +1746,8 @@ class MyApp(FORM_1, BASE_1):
                                [self.dPrecip1, self.dPrecip2, self.dPrecip3, self.dPrecip4, self.dPrecip5,
                                 self.dPrecip6, self.dPrecip7],
                                self.iPlates, self.dSea, step, self.dGammaVal, self.dGammaOff, self.bFB,
+                               self.dSeaLevel,
+                               self.dErosionPeriod, self.dFoldingRatio, self.dAggAbs, self.dAggRel, self.dNumCycles,
                                self.erosion_curve1, self.erosion_curve2, self.erosion_curve3, self.erosion_max_radius,
                                self.erosion_maxRadius,
                                self.erosion_radius, self.humidity_irrigation_weight, self.humidity_precipitation_weight,
@@ -1763,6 +1812,10 @@ class MyApp(FORM_1, BASE_1):
         self.bPNG = False
 
     def onActionMapsBiome(self):
+        if self.sFormat == '':
+            self.sFormat = 'png'
+            self.bPNG = False
+
         filename = '%s/Maps/seed_%s_biome.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         draw_biome_on_file(self.world, filename)
 
@@ -1837,7 +1890,7 @@ class MyApp(FORM_1, BASE_1):
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_ocean.png" % (self.sDefaultDirectory, self.iSeed)
-            draw_ocean_on_file(self.world, filename)
+            draw_ocean_on_file(self.world.layers['ocean'].data, filename)
 
         iCount = self.updateAvail()
 
@@ -2135,12 +2188,13 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup(' WorldEngine - a world generator (v. %s)' % VERSION)
         self.updatePopup('')
         self.updatePopup('')
-        self.updatePopup(' WorldEngine is (c) Federico Tomassetti and Bret Curtis, 2011-2016')
-        self.updatePopup(' and is available under the MIT Licence.')
+        self.updatePopup(' WorldEngine itself is (c) Federico Tomassetti and Bret Curtis, 2011-2016')
         self.updatePopup('')
         self.updatePopup('')
-        self.updatePopup(' WorldEngine GUI is (c) SpinalSoft (AU) 2016-2017')
-        self.updatePopup(' and is available under the MIT Licence.')
+        self.updatePopup(' This WorldEngine GUI is (c) SpinalSoft (AU) 2016-2017')
+        self.updatePopup('')
+        self.updatePopup('')
+        self.updatePopup(' Pi3D is (c) Tim Skillman, Paddy Gaunt, Tom Ritchford  2012 - 2017')
         self.updatePopup('')
         self.updatePopup('')
         self.updatePopup(' Icons are from "cc mono icon set" by Gentleface.com:')
