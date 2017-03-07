@@ -622,27 +622,27 @@ class World(object):
         return t >= th
 
     def is_humidity_superarid(self, pos):
-        th_max = self.layers['humidity'].quantiles['87']
+        th_max = self.layers['humidity'].quantiles['12']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return t < th_max
 
     def is_humidity_perarid(self, pos):
-        th_min = self.layers['humidity'].quantiles['87']
-        th_max = self.layers['humidity'].quantiles['75']
+        th_min = self.layers['humidity'].quantiles['12']
+        th_max = self.layers['humidity'].quantiles['25']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return th_max > t >= th_min
 
     def is_humidity_arid(self, pos):
-        th_min = self.layers['humidity'].quantiles['75']
-        th_max = self.layers['humidity'].quantiles['62']
+        th_min = self.layers['humidity'].quantiles['25']
+        th_max = self.layers['humidity'].quantiles['37']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return th_max > t >= th_min
 
     def is_humidity_semiarid(self, pos):
-        th_min = self.layers['humidity'].quantiles['62']
+        th_min = self.layers['humidity'].quantiles['37']
         th_max = self.layers['humidity'].quantiles['50']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
@@ -650,27 +650,27 @@ class World(object):
 
     def is_humidity_subhumid(self, pos):
         th_min = self.layers['humidity'].quantiles['50']
-        th_max = self.layers['humidity'].quantiles['37']
+        th_max = self.layers['humidity'].quantiles['62']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return th_max > t >= th_min
 
     def is_humidity_humid(self, pos):
-        th_min = self.layers['humidity'].quantiles['37']
-        th_max = self.layers['humidity'].quantiles['25']
+        th_min = self.layers['humidity'].quantiles['62']
+        th_max = self.layers['humidity'].quantiles['75']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return th_max > t >= th_min
 
     def is_humidity_perhumid(self, pos):
-        th_min = self.layers['humidity'].quantiles['25']
-        th_max = self.layers['humidity'].quantiles['12']
+        th_min = self.layers['humidity'].quantiles['75']
+        th_max = self.layers['humidity'].quantiles['87']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return th_max > t >= th_min
 
     def is_humidity_superhumid(self, pos):
-        th_min = self.layers['humidity'].quantiles['12']
+        th_min = self.layers['humidity'].quantiles['87']
         x, y = pos
         t = self.layers['humidity'].data[y, x]
         return t >= th_min

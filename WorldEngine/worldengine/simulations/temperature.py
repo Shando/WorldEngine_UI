@@ -9,16 +9,11 @@ class TemperatureSimulation(object):
         return not world.has_temperature()
 
     def execute(self, world, seed, distance_to_sun, axial_tilt, frequency, octaves):
-        self.distance_to_sun_hwhm = distance_to_sun
-        self.axial_tilt_hwhm = axial_tilt
-        self.frequency = frequency
-        self.octaves = octaves
-
         e = world.layers['elevation'].data
         ml = world.start_mountain_th()  # returns how many percent of the world are mountains
         ocean = world.layers['ocean'].data
 
-        t = self._calculate(self, world, seed, e, ml)
+        t = self._calculate(world, seed, e, ml, distance_to_sun, axial_tilt, frequency, octaves)
 
         t_th = [
             ('polar', basic.find_threshold_f(t, world.temps[5], ocean)),
@@ -32,8 +27,10 @@ class TemperatureSimulation(object):
 
         world.set_temperature(t, t_th)
 
+        return world
+
     @staticmethod
-    def _calculate(self, world, seed, elevation, mountain_level):
+    def _calculate(world, seed, elevation, mountain_level, distance_to_sun, axial_tilt, frequency, octaves):
         width = world.width
         height = world.height
 
@@ -62,15 +59,15 @@ class TemperatureSimulation(object):
                           -this value should usually be in the range -0.15 < axial_tilt < 0.15 for a habitable planet
         '''
         # derive parameters
-        distance_to_sun = rng.normal(loc=1.0, scale=self.distance_to_sun_hwhm / 1.177410023)
+        distance_to_sun = rng.normal(loc=1.0, scale=distance_to_sun / 1.177410023)
         distance_to_sun = max(0.1, distance_to_sun)  # clamp value; no planets inside the star allowed
         distance_to_sun *= distance_to_sun  # prepare for later usage; use inverse-square law
         # TODO: an atmosphere would soften the effect of distance_to_sun by *some* factor
-        axial_tilt = rng.normal(scale=self.axial_tilt_hwhm / 1.177410023)
+        axial_tilt = rng.normal(scale=axial_tilt / 1.177410023)
         axial_tilt = min(max(-0.5, axial_tilt), 0.5)  # cut off Gaussian
 
         border = width / 4
-        freq = self.frequency * self.octaves
+        freq = frequency * octaves
         n_scale = 1024 / float(height)
 
         for y in range(0, height):  # TODO: Check for possible numpy optimizations.
@@ -81,13 +78,13 @@ class TemperatureSimulation(object):
                                            [0.0, 1.0, 0.0], left=0.0, right=0.0)
 
             for x in range(0, width):
-                n = noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base)
+                n = noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves, base=base)
 
                 # Added to allow noise pattern to wrap around right and left.
                 if x <= border:
-                    n = (noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves,
+                    n = (noise.snoise2((x * n_scale) / freq, (y * n_scale) / freq, octaves,
                                        base=base) * x / border) \
-                        + (noise.snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, self.octaves,
+                        + (noise.snoise2(((x * n_scale) + width) / freq, (y * n_scale) / freq, octaves,
                                          base=base) * (border - x) / border)
 
                 t = (latitude_factor * 12 + n * 1) / 13.0 / distance_to_sun

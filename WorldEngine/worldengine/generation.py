@@ -68,7 +68,7 @@ def add_noise_to_elevation(world, seed):
             world.layers['elevation'].data[y, x] += n
 
 
-def fill_ocean(elevation, sea_level):#TODO: Make more use of numpy?
+def fill_ocean(elevation, sea_level):  # TODO: Make more use of numpy?
     height, width = elevation.shape
 
     ocean = numpy.zeros(elevation.shape, dtype=bool)
@@ -146,28 +146,28 @@ def harmonize_ocean(ocean, elevation, ocean_level):
 
 
 def sea_depth(world, sea_level):
-    sea_depth = sea_level - world.layers['elevation'].data
+    sea_depth1 = sea_level - world.layers['elevation'].data
 
     for y in range(world.height):
         for x in range(world.width):
             if world.tiles_around((x, y), radius=1, predicate=world.is_land):
-                sea_depth[y, x] = 0
+                sea_depth1[y, x] = 0
             elif world.tiles_around((x, y), radius=2, predicate=world.is_land):
-                sea_depth[y, x] *= 0.3
+                sea_depth1[y, x] *= 0.3
             elif world.tiles_around((x, y), radius=3, predicate=world.is_land):
-                sea_depth[y, x] *= 0.5
+                sea_depth1[y, x] *= 0.5
             elif world.tiles_around((x, y), radius=4, predicate=world.is_land):
-                sea_depth[y, x] *= 0.7
+                sea_depth1[y, x] *= 0.7
             elif world.tiles_around((x, y), radius=5, predicate=world.is_land):
-                sea_depth[y, x] *= 0.9
+                sea_depth1[y, x] *= 0.9
     
-    sea_depth = anti_alias(sea_depth, 10)
+    sea_depth1 = anti_alias(sea_depth1, 10)
 
-    min_depth = sea_depth.min()
-    max_depth = sea_depth.max()
-    sea_depth = (sea_depth - min_depth) / (max_depth - min_depth)
+    min_depth = sea_depth1.min()
+    max_depth = sea_depth1.max()
+    sea_depth1 = (sea_depth1 - min_depth) / (max_depth - min_depth)
     
-    return sea_depth
+    return sea_depth1
 
 
 def _around(x, y, width, height):
@@ -224,8 +224,8 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
                  '':                        sub_seeds[99]
     }
 
-    temp.TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'], temperature_distance_to_sun_hwhm,
-                                         temperature_axial_tilt_hwhm, temperature_frequency, temperature_octaves)
+    w = temp.TemperatureSimulation().execute(w, seed_dict['TemperatureSimulation'], temperature_distance_to_sun_hwhm,
+                                             temperature_axial_tilt_hwhm, temperature_frequency, temperature_octaves)
 
     if get_verbose():
         elapsed_time = time.time() - start_time
@@ -233,7 +233,7 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup('    Temperature Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # Precipitation with thresholds
-    precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'], precipitation_freq, precipitation_octaves, precipitation_ths_low, precipitation_ths_med)
+    w = precip.PrecipitationSimulation().execute(w, seed_dict['PrecipitationSimulation'], precipitation_freq, precipitation_octaves, precipitation_ths_low, precipitation_ths_med)
 
     if get_verbose():
         elapsed_time = time.time() - start_time
@@ -243,15 +243,15 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
     # if not step.include_erosion:
     #   return w
     
-    erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'], hydrology_river, erosion_max_radius,
-                                        erosion_maxRadius, erosion_radius, erosion_curve1, erosion_curve2, erosion_curve3)  # seed not currently used
+    w = erosion.ErosionSimulation().execute(w, seed_dict['ErosionSimulation'], hydrology_river, erosion_max_radius,
+                                            erosion_maxRadius, erosion_radius, erosion_curve1, erosion_curve2, erosion_curve3)  # seed not currently used
 
     if get_verbose():
         elapsed_time = time.time() - start_time
         start_time = time.time()
         obj.updatePopup('    Erosion Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    hydro.WatermapSimulation().execute(w, seed_dict['WatermapSimulation'], hydrology_creek, hydrology_main_river, hydrology_river)  # seed not currently used
+    w = hydro.WatermapSimulation().execute(w, seed_dict['WatermapSimulation'], hydrology_creek, hydrology_main_river, hydrology_river)  # seed not currently used
 
     if get_verbose():
         elapsed_time = time.time() - start_time
@@ -259,22 +259,22 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup('    Watermap Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     # FIXME: create setters
-    irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'], irrigation_radius)  # seed not currently used
+    w = irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'], irrigation_radius)  # seed not currently used
 
     if get_verbose():
         elapsed_time = time.time() - start_time
         start_time = time.time()
         obj.updatePopup('    Irrigation Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    humid.HumiditySimulation().execute(w, seed_dict['HumiditySimulation'], humidity_irrigationWeight, humidity_precipitation_weight)  # seed not currently used
+    w = humid.HumiditySimulation().execute(w, seed_dict['HumiditySimulation'], humidity_irrigationWeight, humidity_precipitation_weight)  # seed not currently used
 
     if get_verbose():
         elapsed_time = time.time() - start_time
         start_time = time.time()
         obj.updatePopup('    Humidity Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    perm.PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'], permeability_freq, permeability_octaves,
-                                          permeability_perm_th_low, permeability_perm_th_med)
+    w = perm.PermeabilitySimulation().execute(w, seed_dict['PermeabilitySimulation'], permeability_freq, permeability_octaves,
+                                              permeability_perm_th_low, permeability_perm_th_med)
 
     if get_verbose():
         elapsed_time = time.time() - start_time
@@ -282,7 +282,7 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup('    Permeability Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
         obj.updatePopup(' ')
 
-    cm, biome_cm = biome.BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
+    w, cm, biome_cm = biome.BiomeSimulation().execute(w, seed_dict['BiomeSimulation'])  # seed not currently used
 
     for cl in cm.keys():
         count = cm[cl]
@@ -291,7 +291,7 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
             obj.updatePopup('        %s = %i' % (str(cl), count))
 
     if get_verbose():
-        obj.updatePopup('    Biome obtained:')
+        obj.updatePopup('    Biomes obtained:')
 
     for cl in biome_cm.keys():
         count = biome_cm[cl]
@@ -305,16 +305,15 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         obj.updatePopup(' ')
         obj.updatePopup('    Biome Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    icecap.IcecapSimulation().execute(w, seed_dict['IcecapSimulation'], icecap_freeze_chance_window,
-                                      icecap_max_freeze_percentage, icecap_surrounding_tile_influence)  # makes use of temperature-map
+    w = icecap.IcecapSimulation().execute(w, seed_dict['IcecapSimulation'], icecap_freeze_chance_window,
+                                          icecap_max_freeze_percentage, icecap_surrounding_tile_influence)  # makes use of temperature-map
     
     if get_verbose():
         elapsed_time = time.time() - start_time
         start_time = time.time()
-        obj.updatePopup(' ')
         obj.updatePopup('    Icecap Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    wind.WindSimulation().execute(w, seed_dict['WindSimulation'], wind_frequency, wind_octaves)
+    w = wind.WindSimulation().execute(w, seed_dict['WindSimulation'], wind_frequency, wind_octaves)
 
     if get_verbose():
         elapsed_time = time.time() - start_time

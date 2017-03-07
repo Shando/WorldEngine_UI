@@ -5,22 +5,20 @@ import numpy
 class HumiditySimulation(object):
     @staticmethod
     def is_applicable(world):
-        return world.has_precipitations() and world.has_irrigation() and (
-            not world.has_humidity())
+        return world.has_precipitations() and world.has_irrigation() and (not world.has_humidity())
 
     def execute(self, world, seed, irrigationWeight, precipitationWeight):
         assert seed is not None
-        self.irrigation_Weight = irrigationWeight
-        self.precipitation_Weight = precipitationWeight
-        data, quantiles = self._calculate(self, world)
+        data, quantiles = self._calculate(world, irrigationWeight, precipitationWeight)
         world.set_humidity(data, quantiles)
 
+        return world
+
     @staticmethod
-    def _calculate(self, world):
+    def _calculate(world, irrigationWeight, precipitationWeight):
         humids = world.humids
         data = numpy.zeros((world.height, world.width), dtype=float)
-        data = (world.layers['precipitation'].data * self.precipitation_Weight - world.layers[
-            'irrigation'].data * self.irrigation_Weight) / (self.precipitation_Weight + self.irrigation_Weight)
+        data = ((world.layers['precipitation'].data * precipitationWeight) - (world.layers['irrigation'].data * irrigationWeight)) / (precipitationWeight + irrigationWeight)
 
         # These were originally evenly spaced at 12.5% each but changing them
         # to a bell curve produced better results

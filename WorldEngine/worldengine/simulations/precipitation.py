@@ -1,8 +1,6 @@
-import time
 import numpy
 from noise import snoise2
 from simulations.basic import find_threshold_f
-from common import get_verbose
 
 
 class PrecipitationSimulation(object):
@@ -11,13 +9,8 @@ class PrecipitationSimulation(object):
         return not world.has_precipitations()
 
     def execute(self, world, seed, frequency, octaves, ths_low, ths_med):
-        myMsg = ""
-
         self.octaves = octaves
         self.frequency = frequency
-
-        if get_verbose():
-            start_time = time.time()
 
         pre_calculated = self._calculate(self, seed, world)
         ocean = world.layers['ocean'].data
@@ -30,11 +23,7 @@ class PrecipitationSimulation(object):
 
         world.set_precipitation(pre_calculated, ths)
 
-        if get_verbose():
-            elapsed_time = time.time() - start_time
-            myMsg = "...precipitations calculated. Elapsed time %f  seconds." % elapsed_time
-
-        return myMsg
+        return world
 
     @staticmethod
     def _calculate(self, seed, world):

@@ -118,9 +118,9 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.action_Help, QtCore.SIGNAL('triggered()'), self.onActionHelp)
         self.connect(self.actionAbout, QtCore.SIGNAL('triggered()'), self.onActionAbout)
         self.connect(self.actionGenerate_World, QtCore.SIGNAL('triggered()'), self.onActionGenerate)
-        self.connect(self.actionGrayscale_Heightmap, QtCore.SIGNAL('triggered()'), self.onActionMapsGrayscale)
-        self.connect(self.actionScatter_Plot, QtCore.SIGNAL('triggered()'), self.onActionMapsScatter)
-        self.connect(self.actionSatellite_View, QtCore.SIGNAL('triggered()'), self.onActionMapsSatellite)
+        self.connect(self.actionGrayscale_Heightmap, QtCore.SIGNAL('triggered()'), self.onActionMapsGrayscale1)
+        self.connect(self.actionScatter_Plot, QtCore.SIGNAL('triggered()'), self.onActionMapsScatter1)
+        self.connect(self.actionSatellite_View, QtCore.SIGNAL('triggered()'), self.onActionMapsSatellite1)
         self.connect(self.actionGenerate_Ancient_World, QtCore.SIGNAL('triggered()'), self.onActionAncient)
         self.connect(self.actionExport_World, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
         self.connect(self.action3D_View, QtCore.SIGNAL('triggered()'), self.onAction3DView)
@@ -505,9 +505,9 @@ class MyApp(FORM_1, BASE_1):
         self.spnSeaLevel.setValue(float(sOceanLevel))
         self.spnErosionPeriod.setValue(int(sErosionPeriod))
         self.spnFoldingRatio.setValue(float(sFoldingRatio))
-        self.sAggAbs.setValue(int(sAggAbs))
-        self.sAggRel.setValue(float(sAggRel))
-        self.sNumCycles.setValue(int(sNumCycles))
+        self.spnAggAbs.setValue(int(sAggAbs))
+        self.spnAggRel.setValue(float(sAggRel))
+        self.spnNumCycles.setValue(int(sNumCycles))
 
         self.enableButtons(True)
 
@@ -613,14 +613,16 @@ class MyApp(FORM_1, BASE_1):
 
     def updateOpacities(self):
         curRowCount = self.tblMapList.rowCount() - 1
-        sTemp = self.tblMapList.item(curRowCount, 0).text()
 
-        for k, v in self.mapDict.iteritems():
-            if k == sTemp:
-                self.mapDict[k] = 255
-            else:
-                if v == 255:
-                    self.mapDict[k] = 127
+        if curRowCount > 0:
+            sTemp = self.tblMapList.item(curRowCount, 0).text()
+
+            for k, v in self.mapDict.iteritems():
+                if k == sTemp:
+                    self.mapDict[k] = 255
+                else:
+                    if v == 255:
+                        self.mapDict[k] = 127
 
     def decodeMimeData(self, mimeData):
         result = {}
@@ -1188,7 +1190,7 @@ class MyApp(FORM_1, BASE_1):
                            'spnPrecip5': tPrecip5, 'spnPrecip6': tPrecip6, 'spnPrecip7': tPrecip7,
                            'spnGamma': tGamma, 'spnOffset': tOffset, 'spnSeaLevel': tSeaLevel,
                            'spnErosionPeriod': tErosionPeriod, 'spnFoldingRatio': tFoldingRatio,
-                           'spnAggAbs': tAggAbs, 'spAggRel': tAggRel, 'spnNumCycles': tNumCycles}
+                           'spnAggAbs': tAggAbs, 'spnAggRel': tAggRel, 'spnNumCycles': tNumCycles}
 
         config['map'] = {'erosion_max_radius': self.erosion_max_radius, 'erosion_maxRadius': self.erosion_maxRadius,
                          'erosion_radius': self.erosion_radius, 'erosion_curve1': self.erosion_curve1,
@@ -1579,6 +1581,9 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('')  # empty line
         self.updatePopup('starting ... ')
         self.updatePopup('NB: This could take a long time (10+ minutes) and the UI will become unresponsive.')
+        self.updatePopup('    For example, on a Core i7-4700MQ @ 2.4GHz, Plates Simulation takes over a minute,')
+        self.updatePopup('    Ocean Initialisation about 4 minutes and Watermap Simulation about 3 minutes.')
+        self.updatePopup('    So, approximately 8 minutes for these three parts alone!')
 
         self.generateWorld(step)
 
@@ -1616,11 +1621,11 @@ class MyApp(FORM_1, BASE_1):
         self.onActionMapsPrecipitation()
         self.updatePopup('    Generated Precipitation Map')
         self.onActionMapsRivers()
-        self.updatePopup('    Generated Rivers Map')
+        self.updatePopup('    Generated River Map')
         self.onActionMapsTemperature()
         self.updatePopup('    Generated Temperature Map')
         self.onActionMapsWinds()
-        self.updatePopup('    Generated Winds Map')
+        self.updatePopup('    Generated Wind Map')
         self.onActionMapsSatellite()
         self.updatePopup('    Generated Satellite Map')
         self.onActionMapsScatter()
@@ -1844,6 +1849,10 @@ class MyApp(FORM_1, BASE_1):
 
         iCount = self.updateAvail()
 
+    def onActionMapsGrayscale1(self):
+        self.onActionMapsGrayscale()
+        self.btnHeightmap_Clicked()
+
     def onActionMapsGrayscale(self):
         filename = '%s/Maps/seed_%s_grayscale.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         draw_grayscale_heightmap_on_file(self.world, filename)
@@ -1927,6 +1936,10 @@ class MyApp(FORM_1, BASE_1):
 
         iCount = self.updateAvail()
 
+    def onActionMapsScatter1(self):
+        self.onActionMapsScatter()
+        self.btnScatter_Clicked()
+
     def onActionMapsScatter(self):
         filename = '%s/Maps/seed_%s_scatter.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         # filename = '%s/Maps/seed_%s_scatter.png' % (self.sDefaultDirectory, self.iSeed)
@@ -1937,6 +1950,10 @@ class MyApp(FORM_1, BASE_1):
             draw_scatter_plot_on_file(self.world, filename)
 
         self.btnSP.setEnabled(True)
+
+    def onActionMapsSatellite1(self):
+        self.onActionMapsSatellite()
+        self.btnSatellite_Clicked()
 
     def onActionMapsSatellite(self):
         filename = '%s/Maps/seed_%s_satellite.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)

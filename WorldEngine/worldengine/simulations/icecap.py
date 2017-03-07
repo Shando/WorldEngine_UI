@@ -19,6 +19,8 @@ class IcecapSimulation(object):
         self.sti = surrounding_tile_influence
         world.set_icecap(self._calculate(self, world, seed))
 
+        return world
+
     @staticmethod
     def _calculate(self, world, seed):
         # Notes on performance:

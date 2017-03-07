@@ -352,8 +352,8 @@ def draw_simple_elevation(world, sea_level, target):
 
 
 def draw_riversmap(world, target):
-    sea_color = (255, 255, 255, 255)
-    land_color = (0, 0, 0, 255)
+    sea_color = (176, 224, 230, 255)
+    land_color = (144, 238, 144, 255)
 
     for y in range(world.height):
         for x in range(world.width):
@@ -694,42 +694,241 @@ def draw_scatter_plot(world, size, target):
     temperature_delta = max_temperature - min_temperature
     humidity_delta = max_humidity - min_humidity
     
-    # set all pixels white
+    # set all pixels to off white
     for y in range(0, size):
         for x in range(0, size):
-            target.set_pixel(x, y, (255, 255, 255, 255))
+            target.set_pixel(x, y, (253, 253, 253, 255))
+
+    # examine all cells in the map and if it is land get the temperature and
+    # humidity for the cell.
+    # HUMIDITY = 8 from SUPERARID (< '12') at BOTTOM to SUPERHUMID (>= '87') at TOP
+    # TEMPERATURE = 7 from POLAR (< [0][1]) at LEFT to TROPICAL (>= [5][1]) at RIGHT
+    badBox = numpy.zeros(shape=(8, 7))
+
+    for y in range(world.height):
+        for x in range(world.width):
+            if world.is_land((x, y)):
+                t = world.temperature_at((x, y))
+                p = world.humidity_at((x, y))
+
+                # get red and blue values depending on temperature and humidity
+                if world.is_temperature_polar((x, y)):
+                    r = 0
+                elif world.is_temperature_alpine((x, y)):
+                    r = 42
+                elif world.is_temperature_boreal((x, y)):
+                    r = 85
+                elif world.is_temperature_cool((x, y)):
+                    r = 128
+                elif world.is_temperature_warm((x, y)):
+                    r = 170
+                elif world.is_temperature_subtropical((x, y)):
+                    r = 213
+                elif world.is_temperature_tropical((x, y)):
+                    r = 255
+
+                if world.is_humidity_superarid((x, y)):
+                    b = 32
+
+                    if r == 0:
+                        badBox[0][0] = 1
+                    elif r == 42:
+                        badBox[0][1] = 1
+                    elif r == 85:
+                        badBox[0][2] = 1
+                    elif r == 128:
+                        badBox[0][3] = 1
+                    elif r == 170:
+                        badBox[0][4] = 1
+                    elif r == 213:
+                        badBox[0][5] = 1
+                    else:
+                        badBox[0][6] = 1
+                elif world.is_humidity_perarid((x, y)):
+                    b = 64
+
+                    if r == 0:
+                        badBox[1][0] = 1
+                    elif r == 42:
+                        badBox[1][1] = 1
+                    elif r == 85:
+                        badBox[1][2] = 1
+                    elif r == 128:
+                        badBox[1][3] = 1
+                    elif r == 170:
+                        badBox[1][4] = 1
+                    elif r == 213:
+                        badBox[1][5] = 1
+                    else:
+                        badBox[1][6] = 1
+                elif world.is_humidity_arid((x, y)):
+                    b = 96
+
+                    if r == 0:
+                        badBox[2][0] = 1
+                    elif r == 42:
+                        badBox[2][1] = 1
+                    elif r == 85:
+                        badBox[2][2] = 1
+                    elif r == 128:
+                        badBox[2][3] = 1
+                    elif r == 170:
+                        badBox[2][4] = 1
+                    elif r == 213:
+                        badBox[2][5] = 1
+                    else:
+                        badBox[2][6] = 1
+                elif world.is_humidity_semiarid((x, y)):
+                    b = 128
+
+                    if r == 0:
+                        badBox[3][0] = 1
+                    elif r == 42:
+                        badBox[3][1] = 1
+                    elif r == 85:
+                        badBox[3][2] = 1
+                    elif r == 128:
+                        badBox[3][3] = 1
+                    elif r == 170:
+                        badBox[3][4] = 1
+                    elif r == 213:
+                        badBox[3][5] = 1
+                    else:
+                        badBox[3][6] = 1
+                elif world.is_humidity_subhumid((x, y)):
+                    b = 160
+
+                    if r == 0:
+                        badBox[4][0] = 1
+                    elif r == 42:
+                        badBox[4][1] = 1
+                    elif r == 85:
+                        badBox[4][2] = 1
+                    elif r == 128:
+                        badBox[4][3] = 1
+                    elif r == 170:
+                        badBox[4][4] = 1
+                    elif r == 213:
+                        badBox[4][5] = 1
+                    else:
+                        badBox[4][6] = 1
+                elif world.is_humidity_humid((x, y)):
+                    b = 192
+
+                    if r == 0:
+                        badBox[5][0] = 1
+                    elif r == 42:
+                        badBox[5][1] = 1
+                    elif r == 85:
+                        badBox[5][2] = 1
+                    elif r == 128:
+                        badBox[5][3] = 1
+                    elif r == 170:
+                        badBox[5][4] = 1
+                    elif r == 213:
+                        badBox[5][5] = 1
+                    else:
+                        badBox[5][6] = 1
+                elif world.is_humidity_perhumid((x, y)):
+                    b = 224
+
+                    if r == 0:
+                        badBox[6][0] = 1
+                    elif r == 42:
+                        badBox[6][1] = 1
+                    elif r == 85:
+                        badBox[6][2] = 1
+                    elif r == 128:
+                        badBox[6][3] = 1
+                    elif r == 170:
+                        badBox[6][4] = 1
+                    elif r == 213:
+                        badBox[6][5] = 1
+                    else:
+                        badBox[6][6] = 1
+                elif world.is_humidity_superhumid((x, y)):
+                    b = 255
+
+                    if r == 0:
+                        badBox[7][0] = 1
+                    elif r == 42:
+                        badBox[7][1] = 1
+                    elif r == 85:
+                        badBox[7][2] = 1
+                    elif r == 128:
+                        badBox[7][3] = 1
+                    elif r == 170:
+                        badBox[7][4] = 1
+                    elif r == 213:
+                        badBox[7][5] = 1
+                    else:
+                        badBox[7][6] = 1
+
+                # calculate x and y position based on normalized temperature and humidity
+                nx = (size - 1) * ((t - min_temperature) / temperature_delta)
+                ny = (size - 1) * ((p - min_humidity) / humidity_delta)
+                    
+                target.set_pixel(int(nx), (size - 1) - int(ny), (r, 128, b, 255))
+
+    boxLinesV = numpy.zeros(shape=(7, 2))
+    boxLinesH = numpy.zeros(shape=(8, 2))
+
+    # Work out 'Bad' boxes
+    for t in range(0, 6):
+        v = (size - 1) * ((world.layers['temperature'].thresholds[t][1] - min_temperature) / temperature_delta)
+
+        if t == 0:
+            boxLinesV[t][0] = 0
+            boxLinesV[t][1] = v
+        elif t != 5:
+            boxLinesV[t][0] = boxLinesV[t - 1][1]
+            boxLinesV[t][1] = v
+        else:
+            boxLinesV[t][0] = boxLinesV[t - 1][1]
+            boxLinesV[t][1] = v
+            boxLinesV[6][0] = boxLinesV[5][1]
+            boxLinesV[6][1] = size
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['12'] - min_humidity) / humidity_delta)
+    boxLinesH[0][0] = 0
+    boxLinesH[0][1] = h
+    boxLinesH[1][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['25'] - min_humidity) / humidity_delta)
+    boxLinesH[1][1] = h
+    boxLinesH[2][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['37'] - min_humidity) / humidity_delta)
+    boxLinesH[2][1] = h
+    boxLinesH[3][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['50'] - min_humidity) / humidity_delta)
+    boxLinesH[3][1] = h
+    boxLinesH[4][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['62'] - min_humidity) / humidity_delta)
+    boxLinesH[4][1] = h
+    boxLinesH[5][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['75'] - min_humidity) / humidity_delta)
+    boxLinesH[5][1] = h
+    boxLinesH[6][0] = h
+
+    h = (size - 1) * ((world.layers['humidity'].quantiles['87'] - min_humidity) / humidity_delta)
+    boxLinesH[6][1] = h
+    boxLinesH[7][0] = h
+    boxLinesH[7][1] = size
 
     # fill in 'bad' boxes with grey
-    h_values = ['62', '50', '37', '25', '12']
-    t_values = [0, 1, 2, 3, 5]
+    # HUMIDITY = 8 from SUPERARID (< '12') at BOTTOM to SUPERHUMID (>= '87') at TOP
+    # TEMPERATURE = 7 from POLAR (< [0][1]) at LEFT to TROPICAL (>= [5][1]) at RIGHT
+    for t in range (0, 7):
+        for p in range (0, 8):
+            if badBox[p][t] == 0:
+                for y in range(int(boxLinesH[p][0]), int(boxLinesH[p][1])):
+                    for x in range(int(boxLinesV[t][0]), int(boxLinesV[t][1])):
+                        target.set_pixel(x, size - 1 - y, (192, 192, 192, 255))
 
-    for loop in range(0, 5):
-        h_min = (size - 1) * ((world.layers['humidity'].quantiles[h_values[loop]] - min_humidity) / humidity_delta)
-
-        if loop != 4:
-            h_max = (size - 1) * ((world.layers['humidity'].quantiles[h_values[loop + 1]] - min_humidity) / humidity_delta)
-        else:
-            h_max = size
-
-        v_max = (size - 1) * ((world.layers['temperature'].thresholds[t_values[loop]][1] - min_temperature) / temperature_delta)
-
-        if h_min < 0:
-            h_min = 0
-
-        if h_max > size:
-            h_max = size
-
-        if v_max < 0:
-            v_max = 0
-
-        if v_max > (size - 1):
-            v_max = size - 1
-            
-        if h_max > 0 and h_min < size and v_max > 0:
-            for y in range(int(h_min), int(h_max)):
-                for x in range(0, int(v_max)):
-                    target.set_pixel(x, (size - 1) - y, (128, 128, 128, 255))
-                    
     # draw lines based on thresholds
     for t in range(0, 6):
         v = (size - 1) * ((world.layers['temperature'].thresholds[t][1] - min_temperature) / temperature_delta)
@@ -745,61 +944,15 @@ def draw_scatter_plot(world, size, target):
 
         if 0 < h < size:
             for x in range(0, size):
-                target.set_pixel(x, (size - 1) - int(h), (0, 0, 0, 255))
+                target.set_pixel(x, size - int(h), (0, 0, 0, 255))
 
     # draw gamma curve
     curve_gamma = world.gamma_curve
     curve_bonus = world.curve_offset
-    
+
     for x in range(0, size):
         y = (size - 1) * ((numpy.power((float(x) / (size - 1)), curve_gamma) * (1 - curve_bonus)) + curve_bonus)
         target.set_pixel(x, (size - 1) - int(y), (255, 0, 0, 255))
-
-    # examine all cells in the map and if it is land get the temperature and
-    # humidity for the cell.
-    for y in range(world.height):
-        for x in range(world.width):
-            if world.is_land((x, y)):
-                t = world.temperature_at((x, y))
-                p = world.humidity_at((x, y))
-
-    # get red and blue values depending on temperature and humidity
-                if world.is_temperature_polar((x, y)):
-                    r = 0
-                elif world.is_temperature_alpine((x, y)):
-                    r = 42
-                elif world.is_temperature_boreal((x, y)):
-                    r = 85
-                elif world.is_temperature_cool((x, y)):
-                    r = 128
-                elif world.is_temperature_warm((x, y)):
-                    r = 170
-                elif world.is_temperature_subtropical((x, y)):
-                    r = 213
-                elif world.is_temperature_tropical((x, y)):
-                    r = 255
-                if world.is_humidity_superarid((x, y)):
-                    b = 32
-                elif world.is_humidity_perarid((x, y)):
-                    b = 64
-                elif world.is_humidity_arid((x, y)):
-                    b = 96
-                elif world.is_humidity_semiarid((x, y)):
-                    b = 128
-                elif world.is_humidity_subhumid((x, y)):
-                    b = 160
-                elif world.is_humidity_humid((x, y)):
-                    b = 192
-                elif world.is_humidity_perhumid((x, y)):
-                    b = 224
-                elif world.is_humidity_superhumid((x, y)):
-                    b = 255
-
-                # calculate x and y position based on normalized temperature and humidity
-                nx = (size - 1) * ((t - min_temperature) / temperature_delta)
-                ny = (size - 1) * ((p - min_humidity) / humidity_delta)
-                    
-                target.set_pixel(int(nx), (size - 1) - int(ny), (r, 128, b, 255))
 
 
 def draw_permeability(world, target):

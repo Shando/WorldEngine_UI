@@ -15,6 +15,8 @@ class WatermapSimulation(object):
         data, thresholds = self._watermap(self, world, 20000)
         world.set_watermap(data, thresholds)
 
+        return world
+
     @staticmethod
     def _watermap(self, world, n):
         def droplet(in_world, pos, q, _watermap):

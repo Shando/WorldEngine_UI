@@ -14,6 +14,8 @@ class WindSimulation(object):
         direction = self._calculate(self, world, 0.5, seed)
         world.set_wind_direction(direction)
 
+        return world
+
     @staticmethod
     def _calculate(self, world, distorsion_factor, seed):
         NORTH = 0.0

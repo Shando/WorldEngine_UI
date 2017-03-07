@@ -205,9 +205,13 @@ class TropicalRainForest(Biome):
     pass
 
 
+class BareRock(Biome):
+    pass
+
 # -------------
 # Serialization
 # -------------
+
 
 def biome_name_to_index(biome_name):
     names = sorted(_BiomeMetaclass.biomes.keys())

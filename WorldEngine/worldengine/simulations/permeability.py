@@ -20,6 +20,8 @@ class PermeabilitySimulation(object):
         ]
         world.set_permeability(perm, perm_th)
 
+        return world
+
     @staticmethod
     def _calculate(self, seed, width, height):
         rng = numpy.random.RandomState(seed)  # create our own random generator
