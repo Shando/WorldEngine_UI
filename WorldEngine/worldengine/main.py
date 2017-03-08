@@ -3,6 +3,7 @@ from shutil import copy
 
 import configparser2
 import numpy
+import os.path
 
 import common
 from draw import draw_ancientmap_on_file, draw_biome_on_file, draw_ocean_on_file, \
@@ -197,6 +198,23 @@ class MyApp(FORM_1, BASE_1):
         self.grpBorder.setEnabled(False)
         self.cboAncData.setEnabled(False)
         self.cboAncFormat.setEnabled(False)
+
+        self.bAncSeaColour = True
+        self.bAncBiomes = True
+        self.bAncRivers = True
+        self.bAncMountains = True
+        self.bAncBorders = True
+        self.sAncFormat = self.cboAncFormat.currentText()
+        self.sAncDataType = self.cboAncData.currentText()
+
+        self.sAncFormat = self.sAncFormat[-5:]
+
+        if self.sAncFormat[:1] == '(':
+            self.sAncFormat = self.sAncFormat[2:2]
+        elif self.sAncFormat[:1] == ' ':
+            self.sAncFormat = self.sAncFormat[1:3]
+        else:
+            self.sAncFormat = self.sAncFormat[:4]
 
         # These are the World Options
         self.spnSeed.setValue(11111)
@@ -704,10 +722,16 @@ class MyApp(FORM_1, BASE_1):
         self.action_Print_Current_Map_View.setEnabled(True)
         self.actionSave_Current_Map_View.setEnabled(True)
 
-        if self.sFormat == 'png' or self.sFormat == 'jpg' or self.sFormat == 'jpeg' or self.sFormat == 'bmp':
-            sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, inStr, self.sFormat)
+        if inStr != 'ancient_world':
+            if self.sFormat == 'png' or self.sFormat == 'jpg' or self.sFormat == 'jpeg' or self.sFormat == 'bmp':
+                sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, inStr, self.sFormat)
+            else:
+                sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
         else:
-            sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
+            if self.sAncFormat == 'png' or self.sAncFormat == 'jpg' or self.sAncFormat == 'jpeg' or self.sAncFormat == 'bmp':
+                sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, inStr, self.sAncFormat)
+            else:
+                sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
 
         self.pixmap = QtGui.QPixmap(sTmp)
         piPixItemLg = QtGui.QGraphicsPixmapItem()
@@ -1046,6 +1070,10 @@ class MyApp(FORM_1, BASE_1):
                         else:
                             self.btnSP.setEnabled(True)
                     else:
+                        self.btnAW.setEnabled(True)
+            elif sFile.endswith(self.sAncFormat):
+                if str(self.iSeed) in str(sFile):
+                    if 'ancient' in str(sFile):
                         self.btnAW.setEnabled(True)
 
         return iCount
