@@ -6,9 +6,6 @@ class IcecapSimulation(object):
     # a certain spot of the world.
     # Ice can appear wherever there is an ocean and the temperature is cold enough.
 
-    # TODO: Find out if a desert planet could still freeze or if the freeze-threshold is dynamic.
-    # TODO: Freeze rivers etc.
-
     @staticmethod
     def is_applicable(world):
         return world.has_ocean() and world.has_temperature()
@@ -40,11 +37,8 @@ class IcecapSimulation(object):
 
         # secondary constants
         temp_min = temperature.min()  # coldest spot in the world
-        freeze_threshold = world.layers['temperature'].thresholds[0][1]  # upper temperature-limit for freezing effects
-        # Cold biomes: TODO: find and pick most appropriate threshold for Cold Biomes
-        #    polar: self.temperature['thresholds'][0][1]
-        #   alpine: self.temperature['thresholds'][1][1]
-        #   boreal: self.temperature['thresholds'][2][1]
+        # upper temperature-limit for freezing effects
+        freeze_threshold = world.layers['temperature'].thresholds[2][1]
 
         # derived constants
         freeze_threshold = (freeze_threshold - temp_min) * self.mfp  # calculate freeze threshold above min
@@ -59,8 +53,8 @@ class IcecapSimulation(object):
 
         for y in range(world.height):
             for x in range(world.width):
-                if world.is_ocean((x,
-                                   y)):  # or world.river_map[y, x] > 0 or world.lake_map[y, x] > 0 or world.watermap['data'][y, x] > 0:
+                if world.is_ocean((x, y)) or world.river_map[y, x] > 0 or world.lake_map[y, x] > 0\
+                        or world.watermap['data'][y, x] > 0:
                     t = temperature[y, x]
 
                     if t - temp_min < freeze_threshold:

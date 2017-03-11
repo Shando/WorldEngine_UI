@@ -15,12 +15,8 @@ from imex import export
 from model.world import World
 from plates import world_gen
 from version import __version__
-
-# TODO: is this required??
-# #import world
 from PyQt4.QtCore import pyqtSlot
 from step import Step
-# from code3D import pi_3d
 from world3d import world3dA
 
 try:
@@ -183,6 +179,7 @@ class MyApp(FORM_1, BASE_1):
         # These are the Ancient Map Options
         self.spnResize.setValue(1.0)
         self.rdoSeaBrown_3.setChecked(True)
+        self.rdoLandBrown.setChecked(True)
         self.rdoBiomesYes_3.setChecked(True)
         self.rdoMountYes_3.setChecked(True)
         self.rdoRiverYes_3.setChecked(True)
@@ -192,14 +189,17 @@ class MyApp(FORM_1, BASE_1):
 
         self.spnResize.setEnabled(False)
         self.grpSea.setEnabled(False)
+        self.grpLand.setEnabled(False)
         self.grpBiomes.setEnabled(False)
         self.grpMountains.setEnabled(False)
         self.grpRivers.setEnabled(False)
         self.grpBorder.setEnabled(False)
         self.cboAncData.setEnabled(False)
         self.cboAncFormat.setEnabled(False)
+        self.btnAncient.setEnabled(False)
 
         self.bAncSeaColour = True
+        self.bAncLandColour = True
         self.bAncBiomes = True
         self.bAncRivers = True
         self.bAncMountains = True
@@ -310,6 +310,7 @@ class MyApp(FORM_1, BASE_1):
 
             sResize = config.get('ancient', 'spnResize')
             sSea = config.get('ancient', 'rdoSea')
+            sLandCol = config.get('ancient', 'rdoLandCol')
             sBiomes = config.get('ancient', 'rdoBiomes')
             sMount = config.get('ancient', 'rdoMount')
             sRivers = config.get('ancient', 'rdoRivers')
@@ -383,7 +384,8 @@ class MyApp(FORM_1, BASE_1):
             # set values from world file
             # Will probably need to set Ancient Map options to DEFAULTS
             sResize = '1'
-            sSea = 'Brown'
+            sSea = 'True'
+            sLandCol = 'True'
             sBiomes = 'True'
             sMount = 'True'
             sRivers = 'True'
@@ -434,6 +436,11 @@ class MyApp(FORM_1, BASE_1):
         else:
             self.rdoSeaBrown_3.setChecked(False)
 
+        if sLandCol == 'True':
+            self.rdoLandBrown.setChecked(True)
+        else:
+            self.rdoLandBrown.setChecked(False)
+
         if sBiomes == 'True':
             self.rdoBiomesYes_3.setChecked(True)
         else:
@@ -459,12 +466,14 @@ class MyApp(FORM_1, BASE_1):
 
         self.spnResize.setEnabled(True)
         self.grpSea.setEnabled(True)
+        self.grpLand.setEnabled(True)
         self.grpBiomes.setEnabled(True)
         self.grpMountains.setEnabled(True)
         self.grpRivers.setEnabled(True)
         self.grpBorder.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
+        self.btnAncient.setEnabled(True)
 
         # These are the World Options
         self.spnSeed.setValue(self.iSeed)
@@ -1158,7 +1167,8 @@ class MyApp(FORM_1, BASE_1):
 
         tResize = str(self.spnResize.value())
 
-        tSea = self.rdoSeaBlue_3.isChecked()
+        tSea = self.rdoSeaBrown_3.isChecked()
+        tLandCol = self.rdoLandBrown.isChecked()
         tBiomes = self.rdoBiomesYes_3.isChecked()
         tMount = self.rdoMountYes_3.isChecked()
         tRivers = self.rdoRiverYes_3.isChecked()
@@ -1166,7 +1176,7 @@ class MyApp(FORM_1, BASE_1):
         tData = self.cboAncData.currentIndex()
         tFormat = self.cboAncFormat.currentIndex()
 
-        config['ancient'] = {'spnResize': tResize, 'rdoSea': tSea,
+        config['ancient'] = {'spnResize': tResize, 'rdoSea': tSea, 'rdoLandCol': tLandCol,
                              'rdoBiomes': tBiomes, 'rdoMount': tMount,
                              'rdoRivers': tRivers, 'rdoLand': tLand,
                              'cboAncData': tData, 'cboAncFormat': tFormat}
@@ -1550,7 +1560,8 @@ class MyApp(FORM_1, BASE_1):
         self.dAggRel = self.spnAggRel.value()
         self.dNumCycles = self.spnNumCycles.value()
         self.dAncResize = self.spnResize.value()
-        self.bAncSeaColour = self.rdoSeaBlue_3.isChecked()
+        self.bAncSeaColour = self.rdoSeaBrown_3.isChecked()
+        self.bAncLandColour = self.rdoLandBrown.isChecked()
         self.bAncBiomes = self.rdoBiomesYes_3.isChecked()
         self.bAncRivers = self.rdoRiverYes_3.isChecked()
         self.bAncMountains = self.rdoMountYes_3.isChecked()
@@ -1675,25 +1686,18 @@ class MyApp(FORM_1, BASE_1):
 
         self.spnResize.setEnabled(True)
         self.grpSea.setEnabled(True)
+        self.grpLand.setEnabled(True)
         self.grpBiomes.setEnabled(True)
         self.grpMountains.setEnabled(True)
         self.grpRivers.setEnabled(True)
         self.grpBorder.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
+        self.btnAncient.setEnabled(True)
 
         self.sAll = 'all'
         self.copyMapsFrom()
         self.bPNG = False
-
-    #        elif operation == 'plates':
-    #            self.updatePopup('')  # empty line
-    #            self.updatePopup('Generating Plates...')
-    #            self.updatePopup('')  # empty line
-    #            self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
-    #            APP.processEvents()
-    #
-    #            self.generate_plates()
 
     def copyMapsTo(self):
         if not self.sOutputDirectory:
@@ -2024,12 +2028,19 @@ class MyApp(FORM_1, BASE_1):
         resizeFactor = self.spnResize.value()
         self.updatePopup(' resize factor          : %s' % resizeFactor)
 
-        if self.rdoSeaBlue_3.isChecked():
-            seaColour = (142, 162, 179, 255)
-            self.updatePopup(' sea color              : blue')
-        else:
+        if self.rdoSeaBrown_3.isChecked():
             seaColour = (212, 198, 169, 255)
-            self.updatePopup(' sea color              : brown')
+            self.updatePopup(' sea colour             : brown')
+        else:
+            seaColour = (142, 162, 179, 255)
+            self.updatePopup(' sea colour             : blue')
+
+        if self.rdoLandBrown.isChecked():
+            landColour = (181, 166, 127, 255)
+            self.updatePopup(' land colour            : brown')
+        else:
+            landColour = (127, 181, 139, 255)
+            self.updatePopup(' land colour            : green')
 
         if self.rdoBiomesYes_3.isChecked():
             self.updatePopup(' draw biomes            : Yes')
@@ -2081,20 +2092,17 @@ class MyApp(FORM_1, BASE_1):
         drawOuterLandBorder = self.rdoLandYes_3.isChecked()
         ancVerbose = self.rdoVerboseYes.isChecked()
 
-        draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, drawBiome, drawRivers,
+        draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome, drawRivers,
                                 drawMountains, drawOuterLandBorder, ancVerbose)
 
         generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_ancient_world.png" % (self.sDefaultDirectory, self.iSeed)
-            draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, drawBiome, drawRivers,
-                                    drawMountains, drawOuterLandBorder, ancVerbose)
+            draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome,
+                                    drawRivers, drawMountains, drawOuterLandBorder, ancVerbose)
 
             generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
-
-        # TODO: Is this required??
-        # self.operation_ancient_map(world)
 
         self.updatePopup('')
         self.updatePopup("ancient map %s generated" % generated_file)

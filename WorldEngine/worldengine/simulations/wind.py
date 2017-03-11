@@ -90,7 +90,7 @@ class WindSimulation(object):
         # different sizes will have similar patterns
         n_scale = 1024 / float(height)
 
-        for y in range(height):  # TODO: numpy
+        for y in range(height):
             for x in range(width):
                 n = snoise2((x * n_scale) / freq, (y * n_scale) / freq, self.octaves, base=base)
 

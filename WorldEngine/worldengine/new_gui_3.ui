@@ -4860,7 +4860,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>180</y>
+          <y>230</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -4913,7 +4913,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>70</y>
+          <y>60</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -4933,7 +4933,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>100</y>
+          <y>90</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -4983,7 +4983,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>170</x>
-          <y>610</y>
+          <y>630</y>
           <width>81</width>
           <height>31</height>
          </rect>
@@ -5052,7 +5052,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>150</y>
+          <y>200</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5072,7 +5072,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>540</y>
+          <y>560</y>
           <width>161</width>
           <height>31</height>
          </rect>
@@ -5092,7 +5092,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>390</y>
+          <y>410</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5112,7 +5112,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>260</y>
+          <y>300</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5165,7 +5165,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>340</y>
+          <y>370</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5218,7 +5218,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>230</y>
+          <y>270</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5264,7 +5264,7 @@ font-size: 16px;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>420</y>
+          <y>440</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5317,7 +5317,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>310</y>
+          <y>340</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5337,7 +5337,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>610</y>
+          <y>630</y>
           <width>151</width>
           <height>31</height>
          </rect>
@@ -5377,7 +5377,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>570</y>
+          <y>590</y>
           <width>241</width>
           <height>26</height>
          </rect>
@@ -5524,7 +5524,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>680</y>
+          <y>700</y>
           <width>241</width>
           <height>71</height>
          </rect>
@@ -5544,7 +5544,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>470</y>
+          <y>480</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5564,7 +5564,7 @@ border:0;</string>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>500</y>
+          <y>510</y>
           <width>241</width>
           <height>31</height>
          </rect>
@@ -5607,6 +5607,76 @@ border:0;</string>
          </property>
          <property name="text">
           <string>No</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QLabel" name="label_48">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>130</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Land Colour:</string>
+        </property>
+       </widget>
+       <widget class="QGroupBox" name="grpLand">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>160</y>
+          <width>241</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family: Open Sans;
+font-size: 16px;
+font-style: normal;
+font-variant: normal;
+font-weight: 500;
+border:0;</string>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <widget class="QRadioButton" name="rdoLandGreen">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Green</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="rdoLandBrown">
+         <property name="geometry">
+          <rect>
+           <x>140</x>
+           <y>0</y>
+           <width>86</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Brown</string>
          </property>
          <property name="checked">
           <bool>true</bool>

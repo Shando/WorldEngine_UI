@@ -1078,12 +1078,12 @@ def draw_biome_on_file(world, filename):
 
 
 def draw_ancientmap_on_file(obj, world, filename, resize_factor=1, sea_color=(212, 198, 169, 255),
-                            draw_biomes=True, draw_rivers=True, draw_mountains=True,
+                            land_color=(181, 166, 127, 255), draw_biomes=True, draw_rivers=True, draw_mountains=True,
                             draw_outer_land_border=False, verbose=False):
     wWidth = int(world.width * resize_factor)
     wHeight = int(world.height * resize_factor)
     img = PNGWriter.rgba_from_dimensions(wWidth, wHeight, filename)
-    draw_ancientmap(obj, world, img, resize_factor, sea_color, draw_biomes, draw_rivers, draw_mountains,
+    draw_ancientmap(obj, world, img, resize_factor, sea_color, land_color, draw_biomes, draw_rivers, draw_mountains,
                     draw_outer_land_border, verbose)
     img.complete()
 

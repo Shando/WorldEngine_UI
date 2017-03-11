@@ -319,7 +319,6 @@ class World(object):
             w.set_biome(numpy.array(World._from_protobuf_matrix(p_world.biome, biome.biome_index_to_name), dtype=object))
 
         # Humidity
-        # TODO: use setters
         if len(p_world.humidity.rows) > 0:
             data, quantiles = World._from_protobuf_matrix_with_quantiles(p_world.humidity)
             w.set_humidity(numpy.array(data), quantiles)
@@ -841,10 +840,8 @@ class World(object):
             return False
 
     def is_chaparral(self, pos):
-        """ Chaparral is a shrubland or heathland plant community.
-
-        For details see http://en.wikipedia.org/wiki/Chaparral.
-        """
+        # Chaparral is a shrubland or heathland plant community.
+        # For details see http://en.wikipedia.org/wiki/Chaparral.
         if isinstance(self.biome_at(pos), biome.WarmTemperateThornScrub):
             return True
         elif isinstance(self.biome_at(pos), biome.WarmTemperateDryForest):

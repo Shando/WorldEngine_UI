@@ -30,7 +30,7 @@ class WatermapSimulation(object):
             min_lower = None
             tot_lowers = 0
 
-            for p in in_world.tiles_around((x, y)):  # TODO: switch to numpy
+            for p in in_world.tiles_around((x, y)):
                 px, py = p
                 e = in_world.layers['elevation'].data[py, px] + _watermap[py, px]
 
