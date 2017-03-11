@@ -10,7 +10,7 @@ from draw import draw_ancientmap_on_file, draw_biome_on_file, draw_ocean_on_file
     draw_precipitation_on_file, draw_grayscale_heightmap_on_file, draw_simple_elevation_on_file, \
     draw_temperature_levels_on_file, draw_riversmap_on_file, draw_scatter_plot_on_file, \
     draw_satellite_on_file, draw_icecaps_on_file, draw_wind_on_file, draw_permeability_on_file, \
-    draw_humidity_on_file
+    draw_humidity_on_file, draw_plates_on_file
 from imex import export
 from model.world import World
 from plates import world_gen
@@ -1609,9 +1609,9 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('')  # empty line
         self.updatePopup('starting ... ')
         self.updatePopup('NB: This could take a long time (10+ minutes) and the UI will become unresponsive.')
-        self.updatePopup('    For example, on a Core i7-4700MQ @ 2.4GHz, Plates Simulation takes over a minute,')
-        self.updatePopup('    Ocean Initialisation about 4 minutes and Watermap Simulation about 3 minutes.')
-        self.updatePopup('    So, approximately 8 minutes for these three parts alone!')
+        self.updatePopup('    For example, on a Core i7-4700MQ @ 2.4GHz, Plates Simulation takes more than')
+        self.updatePopup('    a minute, Ocean Initialisation about 4 minutes and the Watermap Simulation')
+        self.updatePopup('    about 3 minutes. So, approximately 8 minutes for these three parts alone!')
 
         self.generateWorld(step)
 
@@ -1635,6 +1635,7 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('    Generated Biome Map')
         self.onActionMapsElevation()
         self.updatePopup('    Generated Elevation Map')
+        self.updatePopup('    Generated Plates Map')
         self.onActionMapsGrayscale()
         self.updatePopup('    Generated Grayscale Heightmap')
         self.updatePopup('    Generated Normal Map')
@@ -1858,22 +1859,18 @@ class MyApp(FORM_1, BASE_1):
 
         iCount = self.updateAvail()
 
-    #        sType = self.cboData.currentText()
-    #        sDir = self.sDefaultDirectory  + '/Maps/'
-    #
-    #        if self.sOutputDirectory == sDir and self.sFormat == 'png':
-    #            export(self.world, str(self.sFormat), sType, path = '%s/seed_%s_biome_x' % (self.sOutputDirectory, self.iSeed))
-    #        else:
-    #            export(self.world, str(self.sFormat), sType, path = '%s/seed_%s_biome' % (self.sOutputDirectory, self.iSeed))
-
     def onActionMapsElevation(self):
         filename = '%s/Maps/seed_%s_elevation.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         sea_level = self.world.sea_level()
         draw_simple_elevation_on_file(self.world, filename, sea_level=sea_level)
+        filename = '%s/Maps/seed_%s_plates.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
+        draw_plates_on_file(self.world, filename, self.bBW)
 
         if self.sFormat != 'png':
             filename = "%s/Maps/seed_%s_elevation.png" % (self.sDefaultDirectory, self.iSeed)
             draw_simple_elevation_on_file(self.world, filename, sea_level)
+            filename = '%s/Maps/seed_%s_plates.png' % (self.sDefaultDirectory, self.iSeed)
+            draw_plates_on_file(self.world, filename, self.bBW)
 
         iCount = self.updateAvail()
 
@@ -1901,11 +1898,11 @@ class MyApp(FORM_1, BASE_1):
     def onActionMapsHumidity(self):
         filename = '%s/Maps/seed_%s_humidity.%s' % (self.sDefaultDirectory, self.iSeed, self.sFormat)
         # filename = '%s/Maps/seed_%s_humidity.png' % (self.sDefaultDirectory, self.iSeed)
-        draw_humidity_on_file(self.world, filename)
+        draw_humidity_on_file(self.world, filename, self.bBW)
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_humidity.png" % (self.sDefaultDirectory, self.iSeed)
-            draw_humidity_on_file(self.world, filename)
+            draw_humidity_on_file(self.world, filename, self.bBW)
 
         iCount = self.updateAvail()
 
@@ -1949,7 +1946,7 @@ class MyApp(FORM_1, BASE_1):
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_precipitation.png" % (self.sDefaultDirectory, self.iSeed)
-            draw_precipitation_on_file(self.world, filename)
+            draw_precipitation_on_file(self.world, filename, self.bBW)
 
         iCount = self.updateAvail()
 

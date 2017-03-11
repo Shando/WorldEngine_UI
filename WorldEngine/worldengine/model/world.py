@@ -604,6 +604,10 @@ class World(object):
         x, y = pos
         return self.layers['temperature'].data[y, x]
 
+    def plates_at(self, pos):
+        x, y = pos
+        return self.layers['plates'].data[y, x]
+
     def temperature_thresholds(self):
         return self.layers['temperature'].thresholds
 

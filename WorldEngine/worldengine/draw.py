@@ -3,6 +3,8 @@ import numpy
 from drawing_functions import draw_ancientmap, draw_rivers_on_image, gradient
 from image_io import PNGWriter
 
+import randomcolour
+
 # -------------
 # Helper values
 # -------------
@@ -351,6 +353,32 @@ def draw_simple_elevation(world, sea_level, target):
             target.set_pixel(x, y, (int(r * 255), int(g * 255), int(b * 255), 255))
 
 
+def draw_plates(world, target, black_and_white=False):
+    width = world.width
+    height = world.height
+    num_plates = world.layers['plates'].data.max() + 1
+
+    if black_and_white:
+        low = world.layers['plates'].data.min()
+        high = world.layers['plates'].data.max()
+        lowColor = (0, 0, 0)
+        highColor = (255, 255, 255)
+
+        for y in range(height):
+            for x in range(width):
+                pos = (x, y)
+                target.set_pixel(x, y, gradient(world.plates_at(pos), low, high, lowColor, highColor))
+    else:
+        rand_color = randomcolour.RandomColor()
+        retCol = randomcolour.RandomColor.generate(rand_color, hue=None, luminosity=None, count=num_plates, format_='rgbArray')
+
+        for y in range(height):
+            for x in range(width):
+                pos = (x, y)
+                val = world.plates_at(pos)
+                target.set_pixel(x, y, retCol[val])
+
+
 def draw_riversmap(world, target):
     sea_color = (176, 224, 230, 255)
     land_color = (144, 238, 144, 255)
@@ -574,21 +602,21 @@ def draw_humidity(world, target, black_and_white=False):
         for y in range(height):
             for x in range(width):
                 if world.is_humidity_superarid((x, y)):
-                    target.set_pixel(x, y, (0, 32, 32, 255))
+                    target.set_pixel(x, y, (32, 0, 0, 255))
                 elif world.is_humidity_perarid((x, y)):
-                    target.set_pixel(x, y, (0, 64, 64, 255))
+                    target.set_pixel(x, y, (64, 0, 0, 255))
                 elif world.is_humidity_arid((x, y)):
-                    target.set_pixel(x, y, (0, 96, 96, 255))
+                    target.set_pixel(x, y, (96, 0, 0, 255))
                 elif world.is_humidity_semiarid((x, y)):
-                    target.set_pixel(x, y, (0, 128, 128, 255))
+                    target.set_pixel(x, y, (128, 0, 0, 255))
                 elif world.is_humidity_subhumid((x, y)):
-                    target.set_pixel(x, y, (0, 160, 160, 255))
+                    target.set_pixel(x, y, (160, 0, 0, 255))
                 elif world.is_humidity_humid((x, y)):
-                    target.set_pixel(x, y, (0, 192, 192, 255))
+                    target.set_pixel(x, y, (192, 0, 0, 255))
                 elif world.is_humidity_perhumid((x, y)):
-                    target.set_pixel(x, y, (0, 224, 224, 255))
+                    target.set_pixel(x, y, (224, 0, 0, 255))
                 elif world.is_humidity_superhumid((x, y)):
-                    target.set_pixel(x, y, (0, 255, 255, 255))
+                    target.set_pixel(x, y, (255, 0, 0, 255))
 
 
 def draw_precipitation(world, target, black_and_white=False):
@@ -609,7 +637,7 @@ def draw_precipitation(world, target, black_and_white=False):
                 target.set_pixel(x, y, (colors[y, x], colors[y, x], colors[y, x], 255))
     else:
         lowColor = (0, 0, 0)
-        highColor = (255, 255, 255)
+        highColor = (0, 0, 255)
 
         for y in range(height):
             for x in range(width):
@@ -980,6 +1008,12 @@ def draw_permeability(world, target):
 def draw_simple_elevation_on_file(world, filename, sea_level):
     img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
     draw_simple_elevation(world, sea_level, img)
+    img.complete()
+
+
+def draw_plates_on_file(world, filename, black_and_white=False):
+    img = PNGWriter.rgba_from_dimensions(world.width, world.height, filename)
+    draw_plates(world, img, black_and_white)
     img.complete()
 
 
