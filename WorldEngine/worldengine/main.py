@@ -185,7 +185,7 @@ class MyApp(FORM_1, BASE_1):
         self.rdoRiverYes_3.setChecked(True)
         self.rdoLandYes_3.setChecked(True)
         self.cboAncData.setCurrentIndex(0)
-        self.cboAncFormat.setCurrentIndex(0)
+        self.cboAncFormat.setCurrentIndex(1)
 
         self.spnResize.setEnabled(False)
         self.grpSea.setEnabled(False)
@@ -196,7 +196,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpBorder.setEnabled(False)
         self.cboAncData.setEnabled(False)
         self.cboAncFormat.setEnabled(False)
-        self.btnAncient.setEnabled(False)
+        self.btnGenWorld_3.setEnabled(False)
 
         self.bAncSeaColour = True
         self.bAncLandColour = True
@@ -391,13 +391,13 @@ class MyApp(FORM_1, BASE_1):
             sRivers = 'True'
             sLand = 'True'
             sAncData = '0'
-            sAncFormat = '0'
+            sAncFormat = '1'
 
             sWidth = str(self.world.width)
             sHeight = str(self.world.height)
             sPlates = str(self.world.n_plates)
             sRecursion = '2000'
-            sFormat1 = '0'
+            sFormat1 = '1'
             sData = '0'
             sBW = 'False'
             sVM = 'False'
@@ -473,7 +473,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpBorder.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
-        self.btnAncient.setEnabled(True)
+        self.btnGenWorld_3.setEnabled(True)
 
         # These are the World Options
         self.spnSeed.setValue(self.iSeed)
@@ -1693,7 +1693,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpBorder.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
-        self.btnAncient.setEnabled(True)
+        self.btnGenWorld_3.setEnabled(True)
 
         self.sAll = 'all'
         self.copyMapsFrom()
@@ -2043,47 +2043,49 @@ class MyApp(FORM_1, BASE_1):
             self.updatePopup(' land colour            : green')
 
         if self.rdoBiomesYes_3.isChecked():
-            self.updatePopup(' draw biomes            : Yes')
+            self.updatePopup(' draw biomes            : yes')
         else:
-            self.updatePopup(' draw biomes            : No')
+            self.updatePopup(' draw biomes            : no')
 
         if self.rdoRiverYes_3.isChecked():
-            self.updatePopup(' draw rivers            : Yes')
+            self.updatePopup(' draw rivers            : yes')
         else:
-            self.updatePopup(' draw rivers            : No')
+            self.updatePopup(' draw rivers            : no')
 
         if self.rdoMountYes_3.isChecked():
-            self.updatePopup(' draw mountains         : Yes')
+            self.updatePopup(' draw mountains         : yes')
         else:
-            self.updatePopup(' draw mountains         : No')
+            self.updatePopup(' draw mountains         : no')
 
         if self.rdoLandYes_3.isChecked():
-            self.updatePopup(' draw land outer border : Yes')
+            self.updatePopup(' draw land outer border : yes')
         else:
-            self.updatePopup(' draw land outer border : No')
+            self.updatePopup(' draw land outer border : no')
 
         if self.rdoVerboseYes.isChecked():
-            self.updatePopup(' verbose messages       : Yes')
+            self.updatePopup(' verbose messages       : yes')
         else:
-            self.updatePopup(' verbose messages       : No')
+            self.updatePopup(' verbose messages       : no')
 
         self.updatePopup('')  # empty line
         self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
 
-        ancFormat = self.cboAncFormat.currentText()
-        ancFormat = ancFormat[-5:]
+        self.sAncFormat = self.cboAncFormat.currentText()
+        self.sAncFormat = self.sAncFormat[-5:]
 
-        if ancFormat[:1] == '(':
-            ancFormat = ancFormat[2:2]
-        elif ancFormat[:1] == ' ':
-            ancFormat = ancFormat[1:3]
+        if self.sAncFormat[:1] == '(':
+            self.sAncFormat = self.sAncFormat[2:2]
+        elif self.sAncFormat[:1] == ' ':
+            self.sAncFormat = self.sAncFormat[1:3]
         else:
-            ancFormat = ancFormat[:4]
+            self.sAncFormat = self.sAncFormat[:4]
 
-        if self.sFormat != 'png' and self.sFormat != 'jpeg' and self.sFormat != 'jpg' and self.sFormat != 'bmp':
+        self.bPNG = False
+
+        if self.sAncFormat != 'png' and self.sAncFormat != 'jpeg' and self.sAncFormat != 'jpg' and self.sAncFormat != 'bmp':
             self.bPNG = True
 
-        filename = '%s/Maps/seed_%s_ancient_world.%s' % (self.sDefaultDirectory, self.iSeed, ancFormat)
+        filename = '%s/Maps/seed_%s_ancient_world.%s' % (self.sDefaultDirectory, self.iSeed, self.sAncFormat)
         # filename = '%s/Maps/seed_%s_ancient_world.png' % (self.sDefaultDirectory, self.iSeed)
 
         drawBiome = self.rdoBiomesYes_3.isChecked()
@@ -2095,14 +2097,14 @@ class MyApp(FORM_1, BASE_1):
         draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome, drawRivers,
                                 drawMountains, drawOuterLandBorder, ancVerbose)
 
-        generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
+        generated_file = "%s_ancient_world.%s" % (self.world.name, self.sAncFormat)
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_ancient_world.png" % (self.sDefaultDirectory, self.iSeed)
             draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome,
                                     drawRivers, drawMountains, drawOuterLandBorder, ancVerbose)
 
-            generated_file = "%s_ancient_world.%s" % (self.world.name, ancFormat)
+            generated_file = "%s_ancient_world.%s" % (self.world.name, self.sAncFormat)
 
         self.updatePopup('')
         self.updatePopup("ancient map %s generated" % generated_file)

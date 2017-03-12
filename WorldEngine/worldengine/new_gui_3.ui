@@ -754,6 +754,9 @@ QToolBox::tab:hover
           <height>31</height>
          </rect>
         </property>
+        <property name="toolTip">
+         <string>Display Grayscale Heightmap</string>
+        </property>
         <property name="text">
          <string>Grayscale Heightmap</string>
         </property>
@@ -819,6 +822,9 @@ QToolBox::tab:hover
           <width>241</width>
           <height>31</height>
          </rect>
+        </property>
+        <property name="toolTip">
+         <string>Display Scatter Plot</string>
         </property>
         <property name="text">
          <string>Scatter Plot</string>
@@ -947,6 +953,9 @@ QToolBox::tab:hover
           <width>241</width>
           <height>31</height>
          </rect>
+        </property>
+        <property name="toolTip">
+         <string>Display Satellitte View</string>
         </property>
         <property name="text">
          <string>Satellite View</string>
@@ -1099,6 +1108,9 @@ p, li { white-space: pre-wrap; }
           <width>241</width>
           <height>31</height>
          </rect>
+        </property>
+        <property name="toolTip">
+         <string>Display Ancient Map</string>
         </property>
         <property name="text">
          <string>Ancient Map</string>
@@ -2829,9 +2841,13 @@ p, li { white-space: pre-wrap; }
           <bold>true</bold>
          </font>
         </property>
+        <property name="toolTip">
+         <string>Generate World and All Maps (ex Ancient Map)</string>
+        </property>
         <property name="text">
          <string>Generate World
-and All Maps</string>
+and All Maps
+(ex Ancient Map)</string>
         </property>
        </widget>
        <widget class="QToolBox" name="toolBox_2">
@@ -2856,7 +2872,7 @@ and All Maps</string>
           </rect>
          </property>
          <attribute name="label">
-          <string>Basic World Options</string>
+          <string>Basic Options</string>
          </attribute>
          <widget class="QLabel" name="label_12">
           <property name="geometry">
@@ -2971,6 +2987,9 @@ and All Maps</string>
             <weight>75</weight>
             <bold>true</bold>
            </font>
+          </property>
+          <property name="toolTip">
+           <string>Generate Random World Seed</string>
           </property>
           <property name="text">
            <string>Randomise</string>
@@ -3295,8 +3314,8 @@ font-size: 16px;</string>
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>261</width>
+           <height>536</height>
           </rect>
          </property>
          <attribute name="label">
@@ -3614,8 +3633,8 @@ font-size: 16px;</string>
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>261</width>
+           <height>536</height>
           </rect>
          </property>
          <attribute name="label">
@@ -3927,8 +3946,8 @@ font-size: 16px;</string>
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>261</width>
+           <height>536</height>
           </rect>
          </property>
          <attribute name="label">
@@ -4290,12 +4309,12 @@ font-size: 16px;</string>
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>261</width>
+           <height>536</height>
           </rect>
          </property>
          <attribute name="label">
-          <string>Basic World Output Options</string>
+          <string>Output Options</string>
          </attribute>
          <widget class="QLabel" name="label_50">
           <property name="geometry">
@@ -5536,6 +5555,9 @@ border:0;</string>
           <bold>true</bold>
          </font>
         </property>
+        <property name="toolTip">
+         <string>Generate Ancient Map</string>
+        </property>
         <property name="text">
          <string>Generate Ancient Map</string>
         </property>
@@ -6123,6 +6145,9 @@ border:0;</string>
    </property>
    <property name="text">
     <string>&amp;Generate World and Maps</string>
+   </property>
+   <property name="toolTip">
+    <string>Generate World and Maps (ex Ancient Map)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>

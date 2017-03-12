@@ -595,7 +595,7 @@ def draw_ancientmap(obj, world, target, resize_factor=1, sea_color=(212, 198, 16
 
     if verbose:
         elapsed_time = time.time() - start_time
-        obj.updatePopup('    Init completed in %s seconds' % str(format(elapsed_time, '.3f')))
+        obj.updatePopup('    Initialisation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
     if verbose:
         start_time = time.time()

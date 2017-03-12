@@ -59,7 +59,7 @@ class Counter(object):
         sys.stdout.write(self.to_str)
 
 
-def anti_alias(in_map, steps):  # TODO: There is probably a bit of numpy-optimization that can be done here.
+def anti_alias(in_map, steps):
     """
     Execute the anti_alias operation steps times on the given map
     """

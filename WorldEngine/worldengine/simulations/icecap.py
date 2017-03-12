@@ -51,10 +51,26 @@ class IcecapSimulation(object):
         # map that is True whenever there is land or (certain) ice around
         solid_map = numpy.logical_or(temperature <= freeze_chance_threshold + temp_min, numpy.logical_not(ocean))
 
+        if world.has_rivermap():
+            bRiverMap = True
+        else:
+            bRiverMap = False
+
+        if world.has_lakemap():
+            bLakeMap = True
+        else:
+            bLakeMap = False
+
+        if world.has_watermap():
+            bWaterMap = True
+        else:
+            bWaterMap = False
+
         for y in range(world.height):
             for x in range(world.width):
-                if world.is_ocean((x, y)) or world.river_map[y, x] > 0 or world.lake_map[y, x] > 0\
-                        or world.watermap['data'][y, x] > 0:
+                if world.is_ocean((x, y)) or (bRiverMap and world.layers['river_map'].data[y, x] > 0) or \
+                        (bLakeMap and world.layers['lake_map'].data[y, x] > 0) or \
+                        (bWaterMap and world.layers['watermap'].data[y, x] > 0):
                     t = temperature[y, x]
 
                     if t - temp_min < freeze_threshold:

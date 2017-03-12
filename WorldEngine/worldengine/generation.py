@@ -68,7 +68,7 @@ def add_noise_to_elevation(world, seed):
             world.layers['elevation'].data[y, x] += n
 
 
-def fill_ocean(elevation, sea_level):  # TODO: Make more use of numpy?
+def fill_ocean(elevation, sea_level):
     height, width = elevation.shape
 
     ocean = numpy.zeros(elevation.shape, dtype=bool)
@@ -258,7 +258,6 @@ def generate_world(obj, w, step, erosion_curve1, erosion_curve2, erosion_curve3,
         start_time = time.time()
         obj.updatePopup('    Watermap Simulation completed in %s seconds' % str(format(elapsed_time, '.3f')))
 
-    # FIXME: create setters
     w = irri.IrrigationSimulation().execute(w, seed_dict['IrrigationSimulation'], irrigation_radius)  # seed not currently used
 
     if get_verbose():
