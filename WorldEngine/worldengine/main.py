@@ -35,7 +35,7 @@ from OpenGL.GLUT import *
 
 from height2bump import readHeight2Bump
 
-FORM_1, BASE_1 = uic.loadUiType('new_gui_3.ui')
+FORM_1, BASE_1 = uic.loadUiType('new_gui_4.ui')
 FORM_2, BASE_2 = uic.loadUiType('popup.ui')
 FORM_3, BASE_3 = uic.loadUiType('dialog.ui')
 FORM_4, BASE_4 = uic.loadUiType('3d.ui')
@@ -120,6 +120,7 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.actionSatellite_View, QtCore.SIGNAL('triggered()'), self.onActionMapsSatellite1)
         self.connect(self.actionGenerate_Ancient_World, QtCore.SIGNAL('triggered()'), self.onActionAncient)
         self.connect(self.actionExport_World, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
+        self.connect(self.btnExport, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
         self.connect(self.action3D_View, QtCore.SIGNAL('triggered()'), self.onAction3DView)
 
         self.connect(self.dialog.btnCentre, QtCore.SIGNAL('released()'), self.btnCentre_Clicked)
@@ -148,6 +149,9 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.gvLarge.horizontalScrollBar(), QtCore.SIGNAL('valueChanged(int)'), self.gvLargeSBHorChanged)
         self.connect(self.gvLarge.verticalScrollBar(), QtCore.SIGNAL('valueChanged(int)'), self.gvLargeSBVertChanged)
 
+        self.connect(self.spnWidth, QtCore.SIGNAL('valueChanged(int)'), self.spnWidthChanged)
+        self.connect(self.spnHeight, QtCore.SIGNAL('valueChanged(int)'), self.spnHeightChanged)
+
         self.changeScene('No World loaded')
 
         self.setDefaults()
@@ -173,7 +177,6 @@ class MyApp(FORM_1, BASE_1):
         self.bPNG = False
 
         self.actionGenerate_World.setEnabled(True)
-        self.actionExport_World.setEnabled(False)
         self.enableButtons(False)
 
         # These are the Ancient Map Options
@@ -262,6 +265,15 @@ class MyApp(FORM_1, BASE_1):
         self.spnAggAbs.setValue(1000000)
         self.spnAggRel.setValue(0.33)
         self.spnNumCycles.setValue(2)
+        self.spnExportWidth.setValue(1024)
+        self.spnExportHeight.setValue(1024)
+        self.spnExportNormMin.setValue(0)
+        self.spnExportNormMax.setValue(1024)
+        self.spnExportSubStartW.setValue(0)
+        self.spnExportSubStartH.setValue(0)
+        self.spnExportSubOffW.setValue(1024)
+        self.spnExportSubOffH.setValue(1024)
+        self.cboExportResample.setCurrentIndex(3)
 
         self.spnSeed.setEnabled(True)
         self.btnRandomise.setEnabled(True)
@@ -298,6 +310,16 @@ class MyApp(FORM_1, BASE_1):
         self.spnAggAbs.setEnabled(True)
         self.spnAggRel.setEnabled(True)
         self.spnNumCycles.setEnabled(True)
+
+        self.spnExportWidth.setEnabled(True)
+        self.spnExportHeight.setEnabled(True)
+        self.spnExportNormMin.setEnabled(True)
+        self.spnExportNormMax.setEnabled(True)
+        self.spnExportSubStartW.setEnabled(True)
+        self.spnExportSubStartH.setEnabled(True)
+        self.spnExportSubOffW.setEnabled(True)
+        self.spnExportSubOffH.setEnabled(True)
+        self.cboExportResample.setEnabled(True)
 
         self.defaultMapOptions()
 
@@ -350,6 +372,15 @@ class MyApp(FORM_1, BASE_1):
             sAggAbs = config.get('world', 'spnAggAbs')
             sAggRel = config.get('world', 'spnAggRel')
             sNumCycles = config.get('world', 'spnNumCycles')
+            sExportWidth = config.get('world', 'spnExportWidth')
+            sExportHeight = config.get('world', 'spnExportHeight')
+            sExportNormMin = config.get('world', 'spnExportNormMin')
+            sExportNormMax = config.get('world', 'spnExportNormMax')
+            sExportSubStartW = config.get('world', 'spnExportSubStartW')
+            sExportSubStartH = config.get('world', 'spnExportSubStartH')
+            sExportSubOffW = config.get('world', 'spnExportSubOffW')
+            sExportSubOffH = config.get('world', 'spnExportSubOffH')
+            sExportResample = config.get('world', 'cboExportResample')
 
             self.erosion_max_radius = config.get('map', 'erosion_max_radius')
             self.erosion_maxRadius = config.get('map', 'erosion_maxRadius')
@@ -425,6 +456,15 @@ class MyApp(FORM_1, BASE_1):
             sAggAbs = '1000000'
             sAggRel = '0.33'
             sNumCycles = '2'
+            sExportWidth = '1024'
+            sExportHeight = '1024'
+            sExportNormMin = '0'
+            sExportNormMax = '1024'
+            sExportSubStartW = '0'
+            sExportSubStartH = '0'
+            sExportSubOffW = '1024'
+            sExportSubOffH = '1024'
+            sExportResample = '3'
 
             self.setDefaultMapOptions()
 
@@ -535,6 +575,29 @@ class MyApp(FORM_1, BASE_1):
         self.spnAggAbs.setValue(int(sAggAbs))
         self.spnAggRel.setValue(float(sAggRel))
         self.spnNumCycles.setValue(int(sNumCycles))
+        self.spnExportWidth.setValue(int(sExportWidth))
+        self.spnExportHeight.setValue(int(sExportHeight))
+        self.spnExportNormMin.setValue(int(sExportNormMin))
+        self.spnExportNormMax.setValue(int(sExportNormMax))
+        self.spnExportSubStartW.setValue(int(sExportSubStartW))
+        self.spnExportSubStartH.setValue(int(sExportSubStartH))
+        self.spnExportSubOffW.setValue(int(sExportSubOffW))
+        self.spnExportSubOffH.setValue(int(sExportSubOffH))
+
+        if sExportResample == 'Nearest Neighbour':
+            self.cboExportResample.setCurrentIndex(0)
+        elif sExportResample == 'Bilinear':
+            self.cboExportResample.setCurrentIndex(1)
+        elif sExportResample == 'Cubic':
+            self.cboExportResample.setCurrentIndex(2)
+        elif sExportResample == 'Cubic Spline':
+            self.cboExportResample.setCurrentIndex(3)
+        elif sExportResample == 'Lanczos':
+            self.cboExportResample.setCurrentIndex(4)
+        elif sExportResample == 'Average':
+            self.cboExportResample.setCurrentIndex(5)
+        else:
+            self.cboExportResample.setCurrentIndex(6)
 
         self.enableButtons(True)
 
@@ -715,6 +778,20 @@ class MyApp(FORM_1, BASE_1):
 
     def btnScatter_Clicked(self):
         self.onMapBtnUpdate('scatter')
+
+    def spnWidthChanged(self):
+        self.spnExportWidth.setValue(self.spnWidth.value())
+        self.spnExportSubOffWidth.setValue(self.spnWidth.value())
+
+        if self.spnWidth.value() > self.spnHeight.value():
+            self.spnExportNormMax.setValue(self.spnWidth.value())
+
+    def spnHeightChanged(self):
+        self.spnExportHeight.setValue(self.spnHeight.value())
+        self.spnExportSubOffHeight.setValue(self.spnHeight.value())
+
+        if self.spnHeight.value() > self.spnWidth.value():
+            self.spnExportNormMax.setValue(self.spnHeight.value())
 
     def onMapBtnUpdate(self, inStr):
         self.gvSceneSm = QtGui.QGraphicsScene()
@@ -1033,6 +1110,7 @@ class MyApp(FORM_1, BASE_1):
         self.actionGenerate_Ancient_World.setEnabled(bIn)
         self.action3D_View.setEnabled(bIn)
         self.actionExport_World.setEnabled(bIn)
+        self.btnExport.setEnabled(bIn)
 
     def updateAvail(self):
         iCount = 0
@@ -1217,6 +1295,15 @@ class MyApp(FORM_1, BASE_1):
         tAggAbs = self.spnAggAbs.value()
         tAggRel = self.spnAggRel.value()
         tNumCycles = self.spnNumCycles.value()
+        tExportWidth = self.spnExportWidth.value()
+        tExportHeight = self.spnExportHeight.value()
+        tExportNormMin = self.spnExportNormMin.value()
+        tExportNormMax = self.spnExportNormMax.value()
+        tExportSubStartW = self.spnExportSubStartW.value()
+        tExportSubStartH = self.spnExportSubStartH.value()
+        tExportSubOffW = self.spnExportSubOffW.value()
+        tExportSubOffH = self.spnExportSubOffH.value()
+        tExportResample = self.cboExportResample.currentText()
 
         config['world'] = {'spnSeed': tSeed, 'spnWidth': tWidth, 'spnHeight': tHeight,
                            'spnPlates': tPlates, 'spnRecursion': tRecursion, 'cboFormat': tFormat,
@@ -1228,7 +1315,12 @@ class MyApp(FORM_1, BASE_1):
                            'spnPrecip5': tPrecip5, 'spnPrecip6': tPrecip6, 'spnPrecip7': tPrecip7,
                            'spnGamma': tGamma, 'spnOffset': tOffset, 'spnSeaLevel': tSeaLevel,
                            'spnErosionPeriod': tErosionPeriod, 'spnFoldingRatio': tFoldingRatio,
-                           'spnAggAbs': tAggAbs, 'spnAggRel': tAggRel, 'spnNumCycles': tNumCycles}
+                           'spnAggAbs': tAggAbs, 'spnAggRel': tAggRel, 'spnNumCycles': tNumCycles,
+                           'spnExportWidth': tExportWidth, 'spnExportHeight': tExportHeight,
+                           'spnExportNormMin': tExportNormMin, 'spnExportNormMax': tExportNormMax,
+                           'spnExportSubStartW': tExportSubStartW, 'spnExportSubStartH': tExportSubStartH,
+                           'spnExportSubOffW': tExportSubOffW, 'spnExportSubOffH': tExportSubOffH,
+                           'cboExportResample': tExportResample}
 
         config['map'] = {'erosion_max_radius': self.erosion_max_radius, 'erosion_maxRadius': self.erosion_maxRadius,
                          'erosion_radius': self.erosion_radius, 'erosion_curve1': self.erosion_curve1,
@@ -1497,13 +1589,67 @@ class MyApp(FORM_1, BASE_1):
         return iTmp
 
     def onActionExportWorld(self):
+        tempPath = '%s/%s' % (self.sOutputDirectory, self.sWorld)
+        self.getValues()
+
         self.popup.show()
         self.popup.textBrowser.setText('')
         self.print_world_info(self.world)
         self.updatePopup('')
-        self.updatePopup('Please wait while the World is exported...')
+        self.updatePopup('Please wait while the World is exported ...')
+        self.updatePopup('')
+        self.updatePopup('Using:')
+        self.updatePopup('    Format:                %s' % self.sFormat)
+        self.updatePopup('    Datatype:              %s' % self.sDataType)
 
-        export(self.world, self.sFormat, self.sDataType, path='%s/%s' % (self.sOutputDirectory, self.sWorld))
+        iWidth = self.spnWidth.value()
+        iHeight = self.spnHeight.value()
+        export_dim = None
+        export_norm = None
+        export_subset = None
+        iExportW = self.spnExportWidth.value()
+        iExportH = self.spnExportHeight.value()
+
+        if iExportW != iWidth or iExportH != iHeight:
+            export_dim = (iExportW, iExportH)
+
+        if self.spnExportNormMin.value() != 0:
+            if self.spnExportNormMax.value() != iExportW or self.spnExportNormMax.value() != iExportH:
+                export_norm = (self.spnExportNormMin.value(), self.spnExportNormMax.value())
+
+        if self.spnExportSubStartW.value() != 0 or self.spnExportSubStartH.value() != 0:
+            if self.spnExportSubOffW.value() != iExportW or self.spnExportSubOffH.value() != iExportH:
+                export_subset = (self.spnExportSubStartW.value(), self.spnExportSubStartH.value(), self.spnExportSubOffW.value(), self.spnExportSubOffH.value())
+
+        export_resample = self.cboExportResample.currentText()
+
+        if export_dim is None:
+            self.updatePopup('    Dimensions:            %s  x  %s' % (iWidth, iHeight))
+        else:
+            self.updatePopup('    Dimensions:            %s  x  %s' % (export_dim[0], export_dim[1]))
+
+        if export_norm is None:
+            self.updatePopup('    Normalised Between:    No Normalisation' % max(iWidth, iHeight))
+        else:
+            self.updatePopup('    Normalised Between:    %s and %s' % (export_norm[0], export_norm[1]))
+
+        if export_subset is None:
+            self.updatePopup('    Subset - Start:        No Subset')
+        else:
+            self.updatePopup('    Subset - Start:        %s  x  %s' % (export_subset[0], export_subset[1]))
+            self.updatePopup('    Subset - Offset:       %s  x  %s' % (export_subset[2], export_subset[3]))
+
+        self.updatePopup('    Resampling Algorithm:  %s' % export_resample)
+        self.updatePopup('    Path:                  %s' % tempPath)
+
+        export(self.world, self.sFormat, self.sDataType, export_dim, export_norm, export_subset, export_resample, path=tempPath)
+
+#   export_dim - (Width, Height) - Can be 'None' if using WORLD Width & Height
+#   export_norm - (Min, Max) - Can be 'None' if no Normalisation required
+#   export_subset - (Start_Width, Start_Height, Offset_Width, Offset_Height) - Can be 'None' if exporting entire map
+#   export_resample:
+        #   One of GRA_NearestNeighbour, GRA_Bilinear, GRA_Cubic, GRA_CubicSpline, GRA_Lanczos, GRA_Average, GRA_Mode
+        #   NB: will be gdal.GRA_CubicSpline etc.
 
         self.updatePopup('')
         self.updatePopup('...all done!')
@@ -1559,6 +1705,16 @@ class MyApp(FORM_1, BASE_1):
         self.dAggAbs = self.spnAggAbs.value()
         self.dAggRel = self.spnAggRel.value()
         self.dNumCycles = self.spnNumCycles.value()
+        self.dExportWidth = self.spnExportWidth.value()
+        self.dExportHeight = self.spnExportHeight.value()
+        self.dExportNormMin = self.spnExportNormMin.value()
+        self.dExportNormMax = self.spnExportNormMax.value()
+        self.dExportSubStartW = self.spnExportSubStartW.value()
+        self.dExportSubStartH = self.spnExportSubStartH.value()
+        self.dExportSubOffW = self.spnExportSubOffW.value()
+        self.dExportSubOffH = self.spnExportSubOffH.value()
+        self.sExportResample = self.cboExportResample.currentText()
+
         self.dAncResize = self.spnResize.value()
         self.bAncSeaColour = self.rdoSeaBrown_3.isChecked()
         self.bAncLandColour = self.rdoLandBrown.isChecked()
