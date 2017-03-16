@@ -179,7 +179,7 @@ def export(world, export_filetype='GTiff', export_datatype='float32', export_dim
     if export_subset is not None:
         intermediate_ds = gdal.Translate('', intermediate_ds, format='MEM', srcWin=export_subset)
 
-    final_driver.CreateCopy('%s-%d.%s' % (path, bpp, export_file), intermediate_ds)
+    final_driver.CreateCopy('%s-%d_export.%s' % (path, bpp, export_file), intermediate_ds)
 
     intermediate_ds = None  # dereference
 

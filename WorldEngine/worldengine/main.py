@@ -97,6 +97,7 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.btnRandomise, QtCore.SIGNAL('released()'), self.btnRandomise_Clicked)
         self.connect(self.btnGenWorld, QtCore.SIGNAL('released()'), self.onActionGenerate)
         self.connect(self.btnGenWorld_3, QtCore.SIGNAL('released()'), self.onActionAncient)
+        self.connect(self.btnExport, QtCore.SIGNAL('released()'), self.onActionExportWorld)
 
         self.connect(self.actionNew, QtCore.SIGNAL('triggered()'), self.onActionNew)
         self.connect(self.actionOpen, QtCore.SIGNAL('triggered()'), self.onActionOpen)
@@ -120,7 +121,6 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.actionSatellite_View, QtCore.SIGNAL('triggered()'), self.onActionMapsSatellite1)
         self.connect(self.actionGenerate_Ancient_World, QtCore.SIGNAL('triggered()'), self.onActionAncient)
         self.connect(self.actionExport_World, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
-        self.connect(self.btnExport, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
         self.connect(self.action3D_View, QtCore.SIGNAL('triggered()'), self.onAction3DView)
 
         self.connect(self.dialog.btnCentre, QtCore.SIGNAL('released()'), self.btnCentre_Clicked)
@@ -213,9 +213,9 @@ class MyApp(FORM_1, BASE_1):
         self.sAncFormat = self.sAncFormat[-5:]
 
         if self.sAncFormat[:1] == '(':
-            self.sAncFormat = self.sAncFormat[2:2]
+            self.sAncFormat = self.sAncFormat[1:4]
         elif self.sAncFormat[:1] == ' ':
-            self.sAncFormat = self.sAncFormat[1:3]
+            self.sAncFormat = self.sAncFormat[2:4]
         else:
             self.sAncFormat = self.sAncFormat[:4]
 
@@ -233,9 +233,9 @@ class MyApp(FORM_1, BASE_1):
         self.sFormat = self.sFormat[-5:]
 
         if self.sFormat[:1] == '(':
-            self.sFormat = self.sFormat[2:2]
+            self.sFormat = self.sFormat[1:4]
         elif self.sFormat[:1] == ' ':
-            self.sFormat = self.sFormat[1:3]
+            self.sFormat = self.sFormat[2:4]
         else:
             self.sFormat = self.sFormat[:4]
 
@@ -338,7 +338,7 @@ class MyApp(FORM_1, BASE_1):
             sRivers = config.get('ancient', 'rdoRivers')
             sLand = config.get('ancient', 'rdoLand')
             sAncData = config.get('ancient', 'cboAncData')
-            sAncFormat = config.get('ancient', 'cboAncFormat')
+            sAncFormat1 = config.get('ancient', 'cboAncFormat')
 
             sWidth = config.get('world', 'spnWidth')
             sHeight = config.get('world', 'spnHeight')
@@ -422,7 +422,7 @@ class MyApp(FORM_1, BASE_1):
             sRivers = 'True'
             sLand = 'True'
             sAncData = '0'
-            sAncFormat = '1'
+            sAncFormat1 = '1'
 
             sWidth = str(self.world.width)
             sHeight = str(self.world.height)
@@ -502,7 +502,16 @@ class MyApp(FORM_1, BASE_1):
             self.rdoLandYes_3.setChecked(False)
 
         self.cboAncData.setCurrentIndex(int(sAncData))
-        self.cboAncFormat.setCurrentIndex(int(sAncFormat))
+        self.cboAncFormat.setCurrentIndex(int(sAncFormat1))
+
+        if sAncFormat1 == '0':
+            self.sAncFormat = 'jpeg'
+        elif sAncFormat1 == '2':
+            self.sAncFormat = 'bmp'
+        elif sAncFormat1 == '3':
+            self.sAncFormat = 'gif'
+        else:
+            self.sAncFormat = 'png'
 
         self.spnResize.setEnabled(True)
         self.grpSea.setEnabled(True)
@@ -1142,14 +1151,15 @@ class MyApp(FORM_1, BASE_1):
 
                                                 iCount += 1
                                     else:
-                                        curRowCount = self.tblAvailable.rowCount()
-                                        self.tblAvailable.insertRow(curRowCount)
-                                        sTmp = sFile.split('_')
-                                        sTmp = sTmp[2].split('.')
-                                        iTemp = QtGui.QTableWidgetItem(sTmp[0])
-                                        self.tblAvailable.setItem(curRowCount, 0, iTemp)
+                                        if 'export' not in str(sFile):
+                                            curRowCount = self.tblAvailable.rowCount()
+                                            self.tblAvailable.insertRow(curRowCount)
+                                            sTmp = sFile.split('_')
+                                            sTmp = sTmp[2].split('.')
+                                            iTemp = QtGui.QTableWidgetItem(sTmp[0])
+                                            self.tblAvailable.setItem(curRowCount, 0, iTemp)
 
-                                        iCount += 1
+                                            iCount += 1
                                 else:
                                     self.btnGH.setEnabled(True)
                             else:
@@ -1358,9 +1368,9 @@ class MyApp(FORM_1, BASE_1):
         self.sFormat = self.sFormat[-5:]
 
         if self.sFormat[:1] == '(':
-            self.sFormat = self.sFormat[2:2]
+            self.sFormat = self.sFormat[1:4]
         elif self.sFormat[:1] == ' ':
-            self.sFormat = self.sFormat[1:3]
+            self.sFormat = self.sFormat[2:4]
         else:
             self.sFormat = self.sFormat[:4]
 
@@ -1589,7 +1599,6 @@ class MyApp(FORM_1, BASE_1):
         return iTmp
 
     def onActionExportWorld(self):
-        tempPath = '%s/%s' % (self.sOutputDirectory, self.sWorld)
         self.getValues()
 
         self.popup.show()
@@ -1599,8 +1608,15 @@ class MyApp(FORM_1, BASE_1):
         self.updatePopup('Please wait while the World is exported ...')
         self.updatePopup('')
         self.updatePopup('Using:')
-        self.updatePopup('    Format:                %s' % self.sFormat)
-        self.updatePopup('    Datatype:              %s' % self.sDataType)
+        self.updatePopup('  Format:                %s' % self.sFormat)
+        self.updatePopup('  Datatype:              %s' % self.sDataType)
+
+#   export_dim - (Width, Height) - Can be 'None' if using WORLD Width & Height
+#   export_norm - (Min, Max) - Can be 'None' if no Normalisation required
+#   export_subset - (Start_Width, Start_Height, Offset_Width, Offset_Height) - Can be 'None' if exporting entire map
+#   export_resample:
+#   One of GRA_NearestNeighbour, GRA_Bilinear, GRA_Cubic, GRA_CubicSpline, GRA_Lanczos, GRA_Average, GRA_Mode
+#       NB: will be gdal.GRA_CubicSpline etc.
 
         iWidth = self.spnWidth.value()
         iHeight = self.spnHeight.value()
@@ -1624,32 +1640,27 @@ class MyApp(FORM_1, BASE_1):
         export_resample = self.cboExportResample.currentText()
 
         if export_dim is None:
-            self.updatePopup('    Dimensions:            %s  x  %s' % (iWidth, iHeight))
+            self.updatePopup('  Dimensions:            %s  x  %s' % (iWidth, iHeight))
         else:
-            self.updatePopup('    Dimensions:            %s  x  %s' % (export_dim[0], export_dim[1]))
+            self.updatePopup('  Dimensions:            %s  x  %s' % (export_dim[0], export_dim[1]))
 
         if export_norm is None:
-            self.updatePopup('    Normalised Between:    No Normalisation' % max(iWidth, iHeight))
+            self.updatePopup('  Normalised Between:    No Normalisation')
         else:
-            self.updatePopup('    Normalised Between:    %s and %s' % (export_norm[0], export_norm[1]))
+            self.updatePopup('  Normalised Between:    %s and %s' % (export_norm[0], export_norm[1]))
 
         if export_subset is None:
-            self.updatePopup('    Subset - Start:        No Subset')
+            self.updatePopup('  Subset - Start:        No Subset')
         else:
-            self.updatePopup('    Subset - Start:        %s  x  %s' % (export_subset[0], export_subset[1]))
-            self.updatePopup('    Subset - Offset:       %s  x  %s' % (export_subset[2], export_subset[3]))
+            self.updatePopup('  Subset - Start:        %s  x  %s' % (export_subset[0], export_subset[1]))
+            self.updatePopup('  Subset - Offset:       %s  x  %s' % (export_subset[2], export_subset[3]))
 
-        self.updatePopup('    Resampling Algorithm:  %s' % export_resample)
-        self.updatePopup('    Path:                  %s' % tempPath)
+        self.updatePopup('  Resampling Algorithm:  %s' % export_resample)
+        self.updatePopup('  Path:                  %s' % self.sOutputDirectory)
+
+        tempPath = '%s/%s' % (self.sOutputDirectory, self.sWorld)
 
         export(self.world, self.sFormat, self.sDataType, export_dim, export_norm, export_subset, export_resample, path=tempPath)
-
-#   export_dim - (Width, Height) - Can be 'None' if using WORLD Width & Height
-#   export_norm - (Min, Max) - Can be 'None' if no Normalisation required
-#   export_subset - (Start_Width, Start_Height, Offset_Width, Offset_Height) - Can be 'None' if exporting entire map
-#   export_resample:
-        #   One of GRA_NearestNeighbour, GRA_Bilinear, GRA_Cubic, GRA_CubicSpline, GRA_Lanczos, GRA_Average, GRA_Mode
-        #   NB: will be gdal.GRA_CubicSpline etc.
 
         self.updatePopup('')
         self.updatePopup('...all done!')
@@ -1729,9 +1740,9 @@ class MyApp(FORM_1, BASE_1):
                 self.sAncFormat = self.sAncFormat[-5:]
 
                 if self.sAncFormat[:1] == '(':
-                    self.sAncFormat = self.sAncFormat[2:2]
+                    self.sAncFormat = self.sAncFormat[1:4]
                 elif self.sAncFormat[:1] == ' ':
-                    self.sAncFormat = self.sAncFormat[1:3]
+                    self.sAncFormat = self.sAncFormat[2:4]
                 else:
                     self.sAncFormat = self.sAncFormat[:4]
 
@@ -1789,9 +1800,9 @@ class MyApp(FORM_1, BASE_1):
         self.sFormat = self.sFormat[-5:]
 
         if self.sFormat[:1] == '(':
-            self.sFormat = self.sFormat[2:2]
+            self.sFormat = self.sFormat[1:4]
         elif self.sFormat[:1] == ' ':
-            self.sFormat = self.sFormat[1:3]
+            self.sFormat = self.sFormat[2:4]
         else:
             self.sFormat = self.sFormat[:4]
 
@@ -1977,9 +1988,9 @@ class MyApp(FORM_1, BASE_1):
         self.sFormat = self.sFormat[-5:]
 
         if self.sFormat[:1] == '(':
-            self.sFormat = self.sFormat[2:2]
+            self.sFormat = self.sFormat[1:4]
         elif self.sFormat[:1] == ' ':
-            self.sFormat = self.sFormat[1:3]
+            self.sFormat = self.sFormat[2:4]
         else:
             self.sFormat = self.sFormat[:4]
 
@@ -2230,9 +2241,9 @@ class MyApp(FORM_1, BASE_1):
         self.sAncFormat = self.sAncFormat[-5:]
 
         if self.sAncFormat[:1] == '(':
-            self.sAncFormat = self.sAncFormat[2:2]
+            self.sAncFormat = self.sAncFormat[1:4]
         elif self.sAncFormat[:1] == ' ':
-            self.sAncFormat = self.sAncFormat[1:3]
+            self.sAncFormat = self.sAncFormat[2:4]
         else:
             self.sAncFormat = self.sAncFormat[:4]
 
@@ -2253,14 +2264,12 @@ class MyApp(FORM_1, BASE_1):
         draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome, drawRivers,
                                 drawMountains, drawOuterLandBorder, ancVerbose)
 
-        generated_file = "%s_ancient_world.%s" % (self.world.name, self.sAncFormat)
+        generated_file = "seed_%s_ancient_world.%s" % (self.iSeed, self.sAncFormat)
 
         if self.bPNG:
             filename = "%s/Maps/seed_%s_ancient_world.png" % (self.sDefaultDirectory, self.iSeed)
             draw_ancientmap_on_file(self, self.world, filename, resizeFactor, seaColour, landColour, drawBiome,
                                     drawRivers, drawMountains, drawOuterLandBorder, ancVerbose)
-
-            generated_file = "%s_ancient_world.%s" % (self.world.name, self.sAncFormat)
 
         self.updatePopup('')
         self.updatePopup("ancient map %s generated" % generated_file)
