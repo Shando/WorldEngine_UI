@@ -33,6 +33,8 @@ from PyQt4 import QtCore
 from PyQt4 import uic
 from OpenGL.GLUT import *
 
+import new_gui_4_rc
+
 from height2bump import readHeight2Bump
 
 FORM_1, BASE_1 = uic.loadUiType('new_gui_4.ui')
@@ -435,19 +437,19 @@ class MyApp(FORM_1, BASE_1):
             sPB = 'True'
             sFade = 'True'
             sSeaLevel = str(self.world.ocean_level)
-            sTemp1 = self.world.temps[0]
-            sTemp2 = self.world.temps[1]
-            sTemp3 = self.world.temps[2]
-            sTemp4 = self.world.temps[3]
-            sTemp5 = self.world.temps[4]
-            sTemp6 = self.world.temps[5]
-            sPrecip1 = self.world.humids[0]
-            sPrecip2 = self.world.humids[1]
-            sPrecip3 = self.world.humids[2]
+            sTemp1 = self.world.temps[5]
+            sTemp2 = self.world.temps[4]
+            sTemp3 = self.world.temps[3]
+            sTemp4 = self.world.temps[2]
+            sTemp5 = self.world.temps[1]
+            sTemp6 = self.world.temps[0]
+            sPrecip1 = self.world.humids[6]
+            sPrecip2 = self.world.humids[5]
+            sPrecip3 = self.world.humids[4]
             sPrecip4 = self.world.humids[3]
-            sPrecip5 = self.world.humids[4]
-            sPrecip6 = self.world.humids[5]
-            sPrecip7 = self.world.humids[6]
+            sPrecip5 = self.world.humids[2]
+            sPrecip6 = self.world.humids[1]
+            sPrecip7 = self.world.humids[0]
             sGamma = str(self.world.gamma_curve)
             sOffset = str(self.world.curve_offset)
             sOceanLevel = '0.65'
@@ -1039,7 +1041,7 @@ class MyApp(FORM_1, BASE_1):
         self.sWorld = 'seed_%s.world' % str(self.iSeed)
 
     def onActionNew(self):
-        self.showDialog('Are you sure you want to reset all the Data?', 'Yes', 'No', True, 1, 'Images\question.png')
+        self.showDialog('Are you sure you want to reset all the Data?', 'Yes', 'No', True, 1, ':Images\question.png')
 
     def onActionOpen(self):
         tDialog = QtGui.QFileDialog()
@@ -1104,7 +1106,7 @@ class MyApp(FORM_1, BASE_1):
             self.enableButtons(False)
 
             self.showDialog('You have selected an invalid World file!\n\nPlease try again.', 'OK', '', False, 0,
-                            'Images\error.png')
+                            ':Images\error.png')
 
     def clearLists(self):
         self.tblMapList.clear()
@@ -1450,7 +1452,7 @@ class MyApp(FORM_1, BASE_1):
         tImage = QtGui.QPixmap()
 
     def onActionQuit(self):
-        self.showDialog('Are you sure you want to Quit?', 'Yes', 'No', True, 2, 'Images\question.png')
+        self.showDialog('Are you sure you want to Quit?', 'Yes', 'No', True, 2, ':Images\question.png')
 
     def onActionZoomIn(self):
         self.gvLarge.scale(1.25, 1.25)
@@ -1527,24 +1529,24 @@ class MyApp(FORM_1, BASE_1):
             self.enableButtons(True)
         elif iTmp == 1:
             self.showDialog('The Precipitation Range is not in ASCENDING Order!\n\nPlease try again.', 'OK', '', False,
-                            3, 'Images\error.png')
+                            3, ':Images\error.png')
         elif iTmp == 2:
             self.showDialog('The Temperature Range is not in ASCENDING Order!\n\nPlease try again.', 'OK', '', False, 3,
-                            'Images\error.png')
+                            ':Images\error.png')
         elif iTmp1 == 1:
             self.showDialog('The Erosion Curve Values in Map Options MUST be in DESCENDING Order!\n\nPlease try again.',
-                            'OK', '', False, 3, 'Images\error.png')
+                            'OK', '', False, 3, ':Images\error.png')
         elif iTmp1 == 2:
             self.showDialog('The Hydrology Values in Map Options MUST be in DESCENDING Order!\n\nPlease try again.',
-                            'OK', '', False, 3, 'Images\error.png')
+                            'OK', '', False, 3, ':Images\error.png')
         elif iTmp1 == 3:
             self.showDialog(
                 'The Permeability Threshold Values in Map Options MUST be in DESCENDING Order!\n\nPlease try again.',
-                'OK', '', False, 3, 'Images\error.png')
+                'OK', '', False, 3, ':Images\error.png')
         elif iTmp1 == 4:
             self.showDialog(
                 'The Precipitation Threshold Values in Map Options MUST be in DESCENDING Order!\n\nPlease try again.',
-                'OK', '', False, 3, 'Images\error.png')
+                'OK', '', False, 3, ':Images\error.png')
 
     def getMapOptions(self):
         iTmp = 0
@@ -1601,15 +1603,39 @@ class MyApp(FORM_1, BASE_1):
     def onActionExportWorld(self):
         self.getValues()
 
-        self.popup.show()
-        self.popup.textBrowser.setText('')
-        self.print_world_info(self.world)
-        self.updatePopup('')
-        self.updatePopup('Please wait while the World is exported ...')
-        self.updatePopup('')
-        self.updatePopup('Using:')
-        self.updatePopup('  Format:                %s' % self.sFormat)
-        self.updatePopup('  Datatype:              %s' % self.sDataType)
+        bError = False
+
+        if self.dExportNormMin >= self.dExportNormMax:
+            self.showDialog('Export Normalised Min MUST be less than Export Normalised Max!\n\nPlease try again.',
+                            'OK', '', False, 0, ':Images\error.png')
+            bError = True
+        elif self.dExportSubStartW >= self.dExportWidth:
+            self.showDialog('Export Subset Start Width MUST be less than Export Width!\n\nPlease try again.',
+                            'OK', '', False, 0, ':Images\error.png')
+            bError = True
+        elif self.dExportSubStartH >= self.dExportHeight:
+            self.showDialog('Export Subset Start Height MUST be less than Export Height!\n\nPlease try again.',
+                            'OK', '', False, 0, ':Images\error.png')
+            bError = True
+        elif self.dExportSubStartW + self.dExportSubOffW > self.dExportWidth:
+            self.showDialog('Total Subset Width MUST be less than or equal to Export Width!\n\nPlease try again.',
+                            'OK', '', False, 0, ':Images\error.png')
+            bError = True
+        elif self.dExportSubStartH + self.dExportSubOffH > self.dExportHeight:
+            self.showDialog('Total Subset Height MUST be less than or equal to Export Height!\n\nPlease try again.',
+                            'OK', '', False, 0, ':Images\error.png')
+            bError = True
+
+        if not bError:
+            self.popup.show()
+            self.popup.textBrowser.setText('')
+            self.print_world_info(self.world)
+            self.updatePopup('')
+            self.updatePopup('Please wait while the World is exported ...')
+            self.updatePopup('')
+            self.updatePopup('Using:')
+            self.updatePopup('  Format:                %s' % self.sFormat)
+            self.updatePopup('  Datatype:              %s' % self.sDataType)
 
 #   export_dim - (Width, Height) - Can be 'None' if using WORLD Width & Height
 #   export_norm - (Min, Max) - Can be 'None' if no Normalisation required
@@ -1618,54 +1644,54 @@ class MyApp(FORM_1, BASE_1):
 #   One of GRA_NearestNeighbour, GRA_Bilinear, GRA_Cubic, GRA_CubicSpline, GRA_Lanczos, GRA_Average, GRA_Mode
 #       NB: will be gdal.GRA_CubicSpline etc.
 
-        iWidth = self.spnWidth.value()
-        iHeight = self.spnHeight.value()
-        export_dim = None
-        export_norm = None
-        export_subset = None
-        iExportW = self.spnExportWidth.value()
-        iExportH = self.spnExportHeight.value()
+            iWidth = self.spnWidth.value()
+            iHeight = self.spnHeight.value()
+            export_dim = None
+            export_norm = None
+            export_subset = None
+            iExportW = self.spnExportWidth.value()
+            iExportH = self.spnExportHeight.value()
 
-        if iExportW != iWidth or iExportH != iHeight:
-            export_dim = (iExportW, iExportH)
+            if iExportW != iWidth or iExportH != iHeight:
+                export_dim = (iExportW, iExportH)
 
-        if self.spnExportNormMin.value() != 0:
-            if self.spnExportNormMax.value() != iExportW or self.spnExportNormMax.value() != iExportH:
-                export_norm = (self.spnExportNormMin.value(), self.spnExportNormMax.value())
+            if self.spnExportNormMin.value() != 0:
+                if self.spnExportNormMax.value() != iExportW or self.spnExportNormMax.value() != iExportH:
+                    export_norm = (self.spnExportNormMin.value(), self.spnExportNormMax.value())
 
-        if self.spnExportSubStartW.value() != 0 or self.spnExportSubStartH.value() != 0:
-            if self.spnExportSubOffW.value() != iExportW or self.spnExportSubOffH.value() != iExportH:
-                export_subset = (self.spnExportSubStartW.value(), self.spnExportSubStartH.value(), self.spnExportSubOffW.value(), self.spnExportSubOffH.value())
+            if self.spnExportSubStartW.value() != 0 or self.spnExportSubStartH.value() != 0:
+                if self.spnExportSubOffW.value() != iExportW or self.spnExportSubOffH.value() != iExportH:
+                    export_subset = (self.spnExportSubStartW.value(), self.spnExportSubStartH.value(), self.spnExportSubOffW.value(), self.spnExportSubOffH.value())
 
-        export_resample = self.cboExportResample.currentText()
+            export_resample = self.cboExportResample.currentText()
 
-        if export_dim is None:
-            self.updatePopup('  Dimensions:            %s  x  %s' % (iWidth, iHeight))
-        else:
-            self.updatePopup('  Dimensions:            %s  x  %s' % (export_dim[0], export_dim[1]))
+            if export_dim is None:
+                self.updatePopup('  Dimensions:            %s  x  %s' % (iWidth, iHeight))
+            else:
+                self.updatePopup('  Dimensions:            %s  x  %s' % (export_dim[0], export_dim[1]))
 
-        if export_norm is None:
-            self.updatePopup('  Normalised Between:    No Normalisation')
-        else:
-            self.updatePopup('  Normalised Between:    %s and %s' % (export_norm[0], export_norm[1]))
+            if export_norm is None:
+                self.updatePopup('  Normalised Between:    No Normalisation')
+            else:
+                self.updatePopup('  Normalised Between:    %s and %s' % (export_norm[0], export_norm[1]))
 
-        if export_subset is None:
-            self.updatePopup('  Subset - Start:        No Subset')
-        else:
-            self.updatePopup('  Subset - Start:        %s  x  %s' % (export_subset[0], export_subset[1]))
-            self.updatePopup('  Subset - Offset:       %s  x  %s' % (export_subset[2], export_subset[3]))
+            if export_subset is None:
+                self.updatePopup('  Subset - Start:        No Subset')
+            else:
+                self.updatePopup('  Subset - Start:        %s  x  %s' % (export_subset[0], export_subset[1]))
+                self.updatePopup('  Subset - Offset:       %s  x  %s' % (export_subset[2], export_subset[3]))
 
-        self.updatePopup('  Resampling Algorithm:  %s' % export_resample)
-        self.updatePopup('  Path:                  %s' % self.sOutputDirectory)
+            self.updatePopup('  Resampling Algorithm:  %s' % export_resample)
+            self.updatePopup('  Path:                  %s' % self.sOutputDirectory)
 
-        tempPath = '%s/%s' % (self.sOutputDirectory, self.sWorld)
+            tempPath = '%s/%s' % (self.sOutputDirectory, self.sWorld)
 
-        export(self.world, self.sFormat, self.sDataType, export_dim, export_norm, export_subset, export_resample, path=tempPath)
+            export(self.world, self.sFormat, self.sDataType, export_dim, export_norm, export_subset, export_resample, path=tempPath)
 
-        self.updatePopup('')
-        self.updatePopup('...all done!')
-        self.updatePopup('')
-        self.updatePopup('Please close this Window to return to the main UI.')
+            self.updatePopup('')
+            self.updatePopup('...all done!')
+            self.updatePopup('')
+            self.updatePopup('Please close this Window to return to the main UI.')
 
     # 0 = OK
     # 1 = Precips wrong
