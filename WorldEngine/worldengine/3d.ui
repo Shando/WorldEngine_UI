@@ -14,7 +14,7 @@
    <string>WorldEngine 3D Viewer</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="worldengine.qrc">
+   <iconset resource="new_gui_4.qrc">
     <normaloff>:/Images/icon.png</normaloff>:/Images/icon.png</iconset>
   </property>
   <property name="styleSheet">
@@ -518,7 +518,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="worldengine.qrc">:/Images/seed_48791_elevation.png</pixmap>
+    <pixmap resource="new_gui_4.qrc">:/Images/seed_48791_elevation.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -537,7 +537,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="worldengine.qrc">:/Images/seed_48791_elevation.png</pixmap>
+    <pixmap resource="new_gui_4.qrc">:/Images/seed_48791_elevation.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -569,8 +569,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
   </widget>
  </widget>
  <resources>
-  <include location="worldengine.qrc"/>
-  <include location="worldengine.qrc"/>
+  <include location="new_gui_4.qrc"/>
  </resources>
  <connections/>
 </ui>

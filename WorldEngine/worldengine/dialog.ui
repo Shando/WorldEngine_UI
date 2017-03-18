@@ -518,7 +518,7 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>Images/error.png</pixmap>
+    <pixmap resource="new_gui_4.qrc">:/Images/error.png</pixmap>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -565,6 +565,8 @@ QCheckBox::indicator:disabled, QRadioButton::indicator:disabled
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="new_gui_4.qrc"/>
+ </resources>
  <connections/>
 </ui>

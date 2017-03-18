@@ -1511,7 +1511,7 @@ class MyApp(FORM_1, BASE_1):
         self.addRedBox(x1, y1, x2, y2)
 
     def onActionHelp(self):
-        self.print_help()
+        os.startfile('.\Help Files\CHM\WorldEngine GUI.chm')
 
     def onActionAbout(self):
         self.print_version()
@@ -2390,36 +2390,6 @@ class MyApp(FORM_1, BASE_1):
 
         if not self.sOutputDirectory:
             self.sOutputDirectory, _ = os.path.split(sys.argv[0])
-
-    def print_help(self):
-        self.popup.show()
-        self.popup.textBrowser.setText('')
-        self.popup.label.setText('WorldEngine Help')
-
-        self.updatePopup('------------------------------------------------------------------------------------')
-        self.updatePopup('')
-        self.updatePopup(' This GUI for WorldEngine should be fairly easy to understand, but there are a few')
-        self.updatePopup(' things to be wary of:')
-        self.updatePopup('')
-        self.updatePopup(' 1. The GUI will ONLY display Images that are saved in one of the following formats:')
-        self.updatePopup('        BMP, JPG, JPEG or PNG')
-        self.updatePopup('')
-        self.updatePopup(' 2. Values in the TEMPERATURE and PRECIPITATION ranges MUST be in ASCENDING order')
-        self.updatePopup('')
-        self.updatePopup(' 3. Value in RECURSION LIMIT should only be changed if you are creating a large map')
-        self.updatePopup('')
-        self.updatePopup(' 4. Selecting NO for USE PROTOCOL BUFFER will use HDF5 encoding, which will result')
-        self.updatePopup('    in the generation of a smaller World file')
-        self.updatePopup('')
-        self.updatePopup(' 5. Internal SIMULATION values can be changed in the MAP OPTIONS tab')
-        self.updatePopup('')
-        self.updatePopup(' Thats about it, but please read the Manual for a full description of all of the')
-        self.updatePopup(' options available.')
-        self.updatePopup('')
-        self.updatePopup('')
-        self.updatePopup(' Please close this Window to return to the main UI')
-        self.updatePopup('')
-        self.updatePopup('------------------------------------------------------------------------------------')
 
     def print_version(self):
         self.popup.show()

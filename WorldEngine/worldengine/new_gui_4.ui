@@ -1573,8 +1573,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1666,8 +1666,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -1847,8 +1847,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -2007,8 +2007,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -2069,8 +2069,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -2290,8 +2290,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -2511,8 +2511,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -2714,8 +2714,8 @@ p, li { white-space: pre-wrap; }
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>100</width>
-           <height>30</height>
+           <width>239</width>
+           <height>175</height>
           </rect>
          </property>
          <attribute name="label">
@@ -6511,8 +6511,8 @@ border:0;</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/new.png</normaloff>Images/new.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/new.png</normaloff>:/Images/new.png</iconset>
    </property>
    <property name="text">
     <string>&amp;New</string>
@@ -6526,8 +6526,8 @@ border:0;</string>
   </action>
   <action name="actionOpen">
    <property name="icon">
-    <iconset>
-     <normaloff>Images/open.png</normaloff>Images/open.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/open.png</normaloff>:/Images/open.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Open</string>
@@ -6544,8 +6544,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/save-as.png</normaloff>Images/save-as.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/save-as.png</normaloff>:/Images/save-as.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Save</string>
@@ -6565,8 +6565,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/save-all.png</normaloff>Images/save-all.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/save-all.png</normaloff>:/Images/save-all.png</iconset>
    </property>
    <property name="text">
     <string>Save All Maps</string>
@@ -6580,8 +6580,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/print.png</normaloff>Images/print.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/print.png</normaloff>:/Images/print.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Print Current Map View</string>
@@ -6595,8 +6595,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/save-view.png</normaloff>Images/save-view.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/save-view.png</normaloff>:/Images/save-view.png</iconset>
    </property>
    <property name="text">
     <string>Save Current Map View</string>
@@ -6607,8 +6607,8 @@ border:0;</string>
   </action>
   <action name="action_Quit">
    <property name="icon">
-    <iconset>
-     <normaloff>Images/quit.png</normaloff>Images/quit.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/quit.png</normaloff>:/Images/quit.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Quit</string>
@@ -6622,8 +6622,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/zoom-in.png</normaloff>Images/zoom-in.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/zoom-in.png</normaloff>:/Images/zoom-in.png</iconset>
    </property>
    <property name="text">
     <string>Zoom In (25%)</string>
@@ -6637,8 +6637,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/zoom-out.png</normaloff>Images/zoom-out.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/zoom-out.png</normaloff>:/Images/zoom-out.png</iconset>
    </property>
    <property name="text">
     <string>Zoom Out (25%)</string>
@@ -6652,8 +6652,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/fit-width.png</normaloff>Images/fit-width.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/fit-width.png</normaloff>:/Images/fit-width.png</iconset>
    </property>
    <property name="text">
     <string>Fit to Width</string>
@@ -6667,8 +6667,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/fit-height.png</normaloff>Images/fit-height.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/fit-height.png</normaloff>:/Images/fit-height.png</iconset>
    </property>
    <property name="text">
     <string>Fit to Height</string>
@@ -6682,8 +6682,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/actual-size.png</normaloff>Images/actual-size.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/actual-size.png</normaloff>:/Images/actual-size.png</iconset>
    </property>
    <property name="text">
     <string>Actual Size</string>
@@ -6697,8 +6697,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/fit-screen.png</normaloff>Images/fit-screen.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/fit-screen.png</normaloff>:/Images/fit-screen.png</iconset>
    </property>
    <property name="text">
     <string>Fit to Window</string>
@@ -6712,8 +6712,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/elevation.png</normaloff>Images/elevation.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/elevation.png</normaloff>:/Images/elevation.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Generate World and Maps</string>
@@ -6727,8 +6727,8 @@ border:0;</string>
   </action>
   <action name="actionSet_Output_Directory">
    <property name="icon">
-    <iconset>
-     <normaloff>Images/set-op-dir.png</normaloff>Images/set-op-dir.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/set-op-dir.png</normaloff>:/Images/set-op-dir.png</iconset>
    </property>
    <property name="text">
     <string>Set Output Directory</string>
@@ -6742,8 +6742,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/grayscale.png</normaloff>Images/grayscale.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/grayscale.png</normaloff>:/Images/grayscale.png</iconset>
    </property>
    <property name="text">
     <string>Grayscale Heightmap</string>
@@ -6757,8 +6757,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/scatter.png</normaloff>Images/scatter.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/scatter.png</normaloff>:/Images/scatter.png</iconset>
    </property>
    <property name="text">
     <string>Scatter Plot</string>
@@ -6772,8 +6772,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/satellite.png</normaloff>Images/satellite.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/satellite.png</normaloff>:/Images/satellite.png</iconset>
    </property>
    <property name="text">
     <string>Satellite View</string>
@@ -6787,8 +6787,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/cinema.png</normaloff>Images/cinema.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/cinema.png</normaloff>:/Images/cinema.png</iconset>
    </property>
    <property name="text">
     <string>3D View</string>
@@ -6799,8 +6799,8 @@ border:0;</string>
   </action>
   <action name="actionGenerate_Ancient_World">
    <property name="icon">
-    <iconset>
-     <normaloff>Images/ancient_world.png</normaloff>Images/ancient_world.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/ancient_world.png</normaloff>:/Images/ancient_world.png</iconset>
    </property>
    <property name="text">
     <string>Generate Ancient World</string>
@@ -6817,8 +6817,8 @@ border:0;</string>
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/biome.png</normaloff>Images/biome.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/biome.png</normaloff>:/Images/biome.png</iconset>
    </property>
    <property name="text">
     <string>Export World</string>
@@ -6832,8 +6832,8 @@ border:0;</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/help.png</normaloff>Images/help.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/help.png</normaloff>:/Images/help.png</iconset>
    </property>
    <property name="text">
     <string>Help</string>
@@ -6847,8 +6847,8 @@ border:0;</string>
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
-     <normaloff>Images/about.png</normaloff>Images/about.png</iconset>
+    <iconset resource="new_gui_4.qrc">
+     <normaloff>:/Images/about.png</normaloff>:/Images/about.png</iconset>
    </property>
    <property name="text">
     <string>About</string>
@@ -6938,10 +6938,22 @@ border:0;</string>
   <tabstop>rdoFadeNo</tabstop>
   <tabstop>cboFormat</tabstop>
   <tabstop>cboData</tabstop>
+  <tabstop>spnExportWidth</tabstop>
+  <tabstop>spnExportHeight</tabstop>
+  <tabstop>spnExportNormMin</tabstop>
+  <tabstop>spnExportNormMax</tabstop>
+  <tabstop>spnExportSubStartW</tabstop>
+  <tabstop>spnExportSubStartH</tabstop>
+  <tabstop>spnExportSubOffW</tabstop>
+  <tabstop>spnExportSubOffH</tabstop>
+  <tabstop>cboExportResample</tabstop>
+  <tabstop>btnExport</tabstop>
   <tabstop>btnGenWorld</tabstop>
   <tabstop>spnResize</tabstop>
   <tabstop>rdoSeaBlue_3</tabstop>
   <tabstop>rdoSeaBrown_3</tabstop>
+  <tabstop>rdoLandGreen</tabstop>
+  <tabstop>rdoLandBrown</tabstop>
   <tabstop>rdoBiomesYes_3</tabstop>
   <tabstop>rdoBiomesNo_3</tabstop>
   <tabstop>rdoMountYes_3</tabstop>
@@ -6957,6 +6969,8 @@ border:0;</string>
   <tabstop>btnGenWorld_3</tabstop>
   <tabstop>gvLarge</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="new_gui_4.qrc"/>
+ </resources>
  <connections/>
 </ui>

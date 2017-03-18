@@ -14,7 +14,7 @@
    <string>WorldEngine Information Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="worldengine.qrc">
+   <iconset resource="new_gui_4.qrc">
     <normaloff>:/Images/icon.png</normaloff>:/Images/icon.png</iconset>
   </property>
   <property name="styleSheet">
@@ -547,7 +547,7 @@ p, li { white-space: pre-wrap; }
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="worldengine.qrc">:/Images/seed_48791_elevation.png</pixmap>
+    <pixmap resource="new_gui_4.qrc">:/Images/seed_48791_elevation.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -566,7 +566,7 @@ p, li { white-space: pre-wrap; }
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap resource="worldengine.qrc">:/Images/seed_48791_elevation.png</pixmap>
+    <pixmap resource="new_gui_4.qrc">:/Images/seed_48791_elevation.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -598,8 +598,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
-  <include location="worldengine.qrc"/>
-  <include location="worldengine.qrc"/>
+  <include location="new_gui_4.qrc"/>
  </resources>
  <connections/>
 </ui>
