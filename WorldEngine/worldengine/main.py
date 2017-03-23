@@ -33,11 +33,11 @@ from PyQt4 import QtCore
 from PyQt4 import uic
 from OpenGL.GLUT import *
 
-import new_gui_4_rc
+# import new_gui_4_rc
 
 from height2bump import readHeight2Bump
 
-FORM_1, BASE_1 = uic.loadUiType('new_gui_4.ui')
+FORM_1, BASE_1 = uic.loadUiType('new_gui_6.ui')
 FORM_2, BASE_2 = uic.loadUiType('popup.ui')
 FORM_3, BASE_3 = uic.loadUiType('dialog.ui')
 FORM_4, BASE_4 = uic.loadUiType('3d.ui')
@@ -65,20 +65,16 @@ class FORM4(BASE_4, FORM_4):
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon(':/Images/Icon.png'))
         self.setModal(QtCore.Qt.ApplicationModal)
-        # self.hmWidget = HeightmapWidget()
-        # hbox = QtGui.QHBoxLayout()
-        # hbox.addWidget(self.hmWidget)
-        # vbox = QtGui.QGridLayout()
-        # vbox.addStretch(1)
-        # vbox.addLayout(hbox)
-        # self.setLayout(vbox)
 
 
 class MyApp(FORM_1, BASE_1):
     def __init__(self, parent=None):
         super(MyApp, self).__init__(parent)
+        self.sshFile = ''
+
         self.setupUi(self)
 
+        self.tabWidget.setCurrentIndex(0)
         self.toolBox.setCurrentIndex(0)
         self.cboFormat.view().setMinimumWidth(430)
         self.cboAncFormat.view().setMinimumWidth(430)
@@ -125,6 +121,15 @@ class MyApp(FORM_1, BASE_1):
         self.connect(self.actionExport_World, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
         self.connect(self.action3D_View, QtCore.SIGNAL('triggered()'), self.onAction3DView)
 
+        self.connect(self.actionWindows, QtCore.SIGNAL('triggered()'), self.onActionWindows)
+        self.connect(self.actionWindows_XP, QtCore.SIGNAL('triggered()'), self.onActionWindowsXP)
+        self.connect(self.actionWindows_Vista, QtCore.SIGNAL('triggered()'), self.onActionWindowsVista)
+        self.connect(self.actionMotif, QtCore.SIGNAL('triggered()'), self.onActionMotif)
+        self.connect(self.actionCDE, QtCore.SIGNAL('triggered()'), self.onActionCDE)
+        self.connect(self.actionPlastique, QtCore.SIGNAL('triggered()'), self.onActionPlastique)
+        self.connect(self.actionClean_Looks, QtCore.SIGNAL('triggered()'), self.onActionCleanLooks)
+        self.connect(self.actionDark_Orange, QtCore.SIGNAL('triggered()'), self.onActionDarkOrange)
+
         self.connect(self.dialog.btnCentre, QtCore.SIGNAL('released()'), self.btnCentre_Clicked)
         self.connect(self.dialog.btnRight, QtCore.SIGNAL('released()'), self.btnRight_Clicked)
 
@@ -161,6 +166,7 @@ class MyApp(FORM_1, BASE_1):
         self.clearLists()
 
     def setDefaults(self):
+        self.setBlankStylesheet()
         self.sWorld = ''
         self.world = None
         self.sOutputDirectory, _ = os.path.split(sys.argv[0])
@@ -199,6 +205,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpMountains.setEnabled(False)
         self.grpRivers.setEnabled(False)
         self.grpBorder.setEnabled(False)
+        self.grpVerbose_2.setEnabled(False)
         self.cboAncData.setEnabled(False)
         self.cboAncFormat.setEnabled(False)
         self.btnGenWorld_3.setEnabled(False)
@@ -522,6 +529,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpMountains.setEnabled(True)
         self.grpRivers.setEnabled(True)
         self.grpBorder.setEnabled(True)
+        self.grpVerbose_2.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
         self.btnGenWorld_3.setEnabled(True)
@@ -792,14 +800,14 @@ class MyApp(FORM_1, BASE_1):
 
     def spnWidthChanged(self):
         self.spnExportWidth.setValue(self.spnWidth.value())
-        self.spnExportSubOffWidth.setValue(self.spnWidth.value())
+        self.spnExportSubOffW.setValue(self.spnWidth.value())
 
         if self.spnWidth.value() > self.spnHeight.value():
             self.spnExportNormMax.setValue(self.spnWidth.value())
 
     def spnHeightChanged(self):
         self.spnExportHeight.setValue(self.spnHeight.value())
-        self.spnExportSubOffHeight.setValue(self.spnHeight.value())
+        self.spnExportSubOffH.setValue(self.spnHeight.value())
 
         if self.spnHeight.value() > self.spnWidth.value():
             self.spnExportNormMax.setValue(self.spnHeight.value())
@@ -1000,14 +1008,6 @@ class MyApp(FORM_1, BASE_1):
     def defaultMapOptions(self):
         self.setDefaultMapOptions()
 
-        self.font = QtGui.QFont()
-        self.font.setFamily("Open Sans")
-        self.setFontSize(12)
-        self.font.setWeight(QtGui.QFont.Bold)
-
-    def setFontSize(self, inSize):
-        self.font.setPointSize(inSize)
-
     def addRedBox(self, x1, y1, x2, y2):
         items = [i for i in self.gvSceneSm.items() if issubclass(i.__class__, QtGui.QGraphicsLineItem)]
 
@@ -1047,7 +1047,7 @@ class MyApp(FORM_1, BASE_1):
         tDialog = QtGui.QFileDialog()
         tDialog.setDirectory(self.sDefaultDirectory)
 
-        sTmp = tDialog.getOpenFileName(self, 'Open World File', '.', 'World Files (*.world)')
+        sTmp = tDialog.getOpenFileName(self, 'Open World File', '.', 'World Files (*.world)', '', QtGui.QFileDialog.DontUseNativeDialog)
         fi = QtCore.QFileInfo(sTmp)
         self.sWorld = "%s.world" % fi.baseName()
 
@@ -1181,9 +1181,8 @@ class MyApp(FORM_1, BASE_1):
         self.gvSceneSm = QtGui.QGraphicsScene()
         self.gvSceneLg = QtGui.QGraphicsScene()
 
-        font = QtGui.QFont('Open Sans')
-        self.gvSceneSm.addText(inTxt, font)
         font = QtGui.QFont('Open Sans', 32)
+        self.gvSceneSm.addText(inTxt, font)
         self.gvSceneLg.addText(inTxt, font)
 
         self.gvSmall.setScene(self.gvSceneSm)
@@ -1884,6 +1883,7 @@ class MyApp(FORM_1, BASE_1):
         self.grpMountains.setEnabled(True)
         self.grpRivers.setEnabled(True)
         self.grpBorder.setEnabled(True)
+        self.grpVerbose_2.setEnabled(True)
         self.cboAncData.setEnabled(True)
         self.cboAncFormat.setEnabled(True)
         self.btnGenWorld_3.setEnabled(True)
@@ -2386,7 +2386,7 @@ class MyApp(FORM_1, BASE_1):
             raise Exception('The given worldfile does not seem to be a protobuf file')
 
     def onActionSetOutputDirectory(self):
-        self.sOutputDirectory = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory')
+        self.sOutputDirectory = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory', '.', QtGui.QFileDialog.DontUseNativeDialog)
 
         if not self.sOutputDirectory:
             self.sOutputDirectory, _ = os.path.split(sys.argv[0])
@@ -2438,6 +2438,7 @@ class MyApp(FORM_1, BASE_1):
             sys.exit(APP.exec_())
         elif self.iMsg == 3:
             self.toolBox.setCurrentIndex(3)
+            self.tabWidget.setCurrentIndex(1)
 
     def btnRight_Clicked(self):
         self.dialog.close()
@@ -2448,9 +2449,83 @@ class MyApp(FORM_1, BASE_1):
         self.popup.textBrowser.append(sText)
         APP.processEvents()
 
+    def onActionWindows(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('windows')
+
+    def onActionWindowsXP(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('windowsxp')
+
+    def onActionWindowsVista(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('windowsvista')
+
+    def onActionMotif(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('motif')
+
+    def onActionCDE(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('cde')
+
+    def onActionPlastique(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('plastique')
+
+    def onActionCleanLooks(self):
+        if self.sshFile != '':
+            self.setBlankStylesheet()
+            self.sshFile = ''
+
+        APP.setStyle('cleanlooks')
+
+    def setBlankStylesheet(self):
+        self.sshFile = 'blank.stylesheet'
+
+        with open(self.sshFile, "r") as fh:
+            self.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self.dialog.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self.popup.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self._3d.setStyleSheet(fh.read())
+
+    def onActionDarkOrange(self):
+        self.sshFile = 'darkorange.stylesheet'
+
+        with open(self.sshFile, "r") as fh:
+            self.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self.dialog.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self.popup.setStyleSheet(fh.read())
+        with open(self.sshFile, "r") as fh:
+            self._3d.setStyleSheet(fh.read())
+
 if __name__ == '__main__':
     APP = QtGui.QApplication(sys.argv)
     FORM = MyApp()
     APP.setWindowIcon(QtGui.QIcon(':/Images/icon.png'))
+    APP.setStyle('plastique')
     FORM.show()
     APP.exec_()
