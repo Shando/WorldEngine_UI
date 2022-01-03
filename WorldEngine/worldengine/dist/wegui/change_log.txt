@@ -1,0 +1,22 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/).
+
+
+## [0.0.2] - 2017-03-23
+### Added
+- New Menu Options and Shortcuts to allow User to change 'skin' of UI
+
+### Changed
+- Reworked GUI following feedback
+
+
+## [0.0.1] - 2017-03-18
+### Added
+- Updated 'Help' button/menu option to open the .chm file
+
+### Fixed
+- Added missing 'Maps' folder
+- Typos relating to spin boxes for Subset Offset Width & Height in 'Advanced Export Options' tab
+

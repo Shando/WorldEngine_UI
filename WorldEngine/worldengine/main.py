@@ -1,7 +1,9 @@
 import time
+import sys
+from functools import reduce
 from shutil import copy
 
-import configparser2
+from backports import configparser2
 import numpy
 import os.path
 
@@ -15,33 +17,35 @@ from imex import export
 from model.world import World
 from plates import world_gen
 from version import __version__
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtGui, QtCore, uic, QtWidgets, QtPrintSupport
+from PyQt5.QtCore import pyqtSlot, QTimer
+from PyQt5.QtWidgets import QGraphicsPixmapItem
+from PyQt5.QtWidgets import QStyleFactory
+from PyQt5.QtGui import QPainter
 from step import Step
-from world3d import world3dA
+from _overlapped import NULL
 
 try:
     from hdf5_serialization import save_world_to_hdf5
-
     HDF5_AVAILABLE = True
 except:
     HDF5_AVAILABLE = False
 
 VERSION = __version__
 
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4 import uic
 from OpenGL.GLUT import *
 
-# import new_gui_4_rc
+import resources
 
 from height2bump import readHeight2Bump
+from world3d import World3dA
+import win32gui
+import win32con
 
 FORM_1, BASE_1 = uic.loadUiType('new_gui_6.ui')
 FORM_2, BASE_2 = uic.loadUiType('popup.ui')
 FORM_3, BASE_3 = uic.loadUiType('dialog.ui')
 FORM_4, BASE_4 = uic.loadUiType('3d.ui')
-
 
 class FORM2(BASE_2, FORM_2):
     def __init__(self, parent=None):
@@ -50,7 +54,6 @@ class FORM2(BASE_2, FORM_2):
         self.setWindowIcon(QtGui.QIcon(':/Images/Icon.png'))
         self.setModal(QtCore.Qt.ApplicationModal)
 
-
 class FORM3(BASE_3, FORM_3):
     def __init__(self, parent=None):
         super(FORM3, self).__init__()
@@ -58,14 +61,12 @@ class FORM3(BASE_3, FORM_3):
         self.setWindowIcon(QtGui.QIcon(':/Images/Icon.png'))
         self.setModal(QtCore.Qt.ApplicationModal)
 
-
 class FORM4(BASE_4, FORM_4):
     def __init__(self, parent=None):
         super(FORM4, self).__init__()
         self.setupUi(self)
         self.setWindowIcon(QtGui.QIcon(':/Images/Icon.png'))
         self.setModal(QtCore.Qt.ApplicationModal)
-
 
 class MyApp(FORM_1, BASE_1):
     def __init__(self, parent=None):
@@ -85,88 +86,110 @@ class MyApp(FORM_1, BASE_1):
         self._3d = FORM4()
         self.sAll = 'all'
 
-        self.connect(self.btnDown, QtCore.SIGNAL('released()'), self.btnDown_Clicked)
-        self.connect(self.btnAW, QtCore.SIGNAL('released()'), self.btnAncient_Clicked)
-        self.connect(self.btnGH, QtCore.SIGNAL('released()'), self.btnHeightmap_Clicked)
-        self.connect(self.btnSM, QtCore.SIGNAL('released()'), self.btnSatellite_Clicked)
-        self.connect(self.btnSP, QtCore.SIGNAL('released()'), self.btnScatter_Clicked)
-        self.connect(self.btnUp, QtCore.SIGNAL('released()'), self.btnUp_Clicked)
-        self.connect(self.btnUpdate, QtCore.SIGNAL('released()'), self.btnUpdate_Clicked)
-        self.connect(self.btnRandomise, QtCore.SIGNAL('released()'), self.btnRandomise_Clicked)
-        self.connect(self.btnGenWorld, QtCore.SIGNAL('released()'), self.onActionGenerate)
-        self.connect(self.btnGenWorld_3, QtCore.SIGNAL('released()'), self.onActionAncient)
-        self.connect(self.btnExport, QtCore.SIGNAL('released()'), self.onActionExportWorld)
+        self.btnDown.released.connect(self.btnDown_Clicked)
+        self.btnAW.released.connect(self.btnAncient_Clicked)
+        self.btnGH.released.connect(self.btnHeightmap_Clicked)
+        self.btnSM.released.connect(self.btnSatellite_Clicked)
+        self.btnSP.released.connect(self.btnScatter_Clicked)
+        self.btnUp.released.connect(self.btnUp_Clicked)
+        self.btnUpdate.released.connect(self.btnUpdate_Clicked)
+        self.btnRandomise.released.connect(self.btnRandomise_Clicked)
+        self.btnGenWorld.released.connect(self.onActionGenerate)
+        self.btnGenWorld_3.released.connect(self.onActionAncient)
+        self.btnExport.released.connect(self.onActionExportWorld)
 
-        self.connect(self.actionNew, QtCore.SIGNAL('triggered()'), self.onActionNew)
-        self.connect(self.actionOpen, QtCore.SIGNAL('triggered()'), self.onActionOpen)
-        self.connect(self.action_Save, QtCore.SIGNAL('triggered()'), self.onActionSave)
-        self.connect(self.actionSave_All_Maps_As, QtCore.SIGNAL('triggered()'), self.onActionSaveAllAs)
-        self.connect(self.actionSet_Output_Directory, QtCore.SIGNAL('triggered()'), self.onActionSetOutputDirectory)
-        self.connect(self.action_Print_Current_Map_View, QtCore.SIGNAL('triggered()'), self.onActionPrint)
-        self.connect(self.actionSave_Current_Map_View, QtCore.SIGNAL('triggered()'), self.onActionSaveCurrentView)
-        self.connect(self.action_Quit, QtCore.SIGNAL('triggered()'), self.onActionQuit)
-        self.connect(self.actionZoom_In, QtCore.SIGNAL('triggered()'), self.onActionZoomIn)
-        self.connect(self.actionZoom_Out, QtCore.SIGNAL('triggered()'), self.onActionZoomOut)
-        self.connect(self.actionFit_to_Width, QtCore.SIGNAL('triggered()'), self.onActionFitWidth)
-        self.connect(self.actionFit_to_Height, QtCore.SIGNAL('triggered()'), self.onActionFitHeight)
-        self.connect(self.actionActual_Size, QtCore.SIGNAL('triggered()'), self.onActionFitActual)
-        self.connect(self.actionFit_to_Window, QtCore.SIGNAL('triggered()'), self.onActionFitWindow)
-        self.connect(self.action_Help, QtCore.SIGNAL('triggered()'), self.onActionHelp)
-        self.connect(self.actionAbout, QtCore.SIGNAL('triggered()'), self.onActionAbout)
-        self.connect(self.actionGenerate_World, QtCore.SIGNAL('triggered()'), self.onActionGenerate)
-        self.connect(self.actionGrayscale_Heightmap, QtCore.SIGNAL('triggered()'), self.onActionMapsGrayscale1)
-        self.connect(self.actionScatter_Plot, QtCore.SIGNAL('triggered()'), self.onActionMapsScatter1)
-        self.connect(self.actionSatellite_View, QtCore.SIGNAL('triggered()'), self.onActionMapsSatellite1)
-        self.connect(self.actionGenerate_Ancient_World, QtCore.SIGNAL('triggered()'), self.onActionAncient)
-        self.connect(self.actionExport_World, QtCore.SIGNAL('triggered()'), self.onActionExportWorld)
-        self.connect(self.action3D_View, QtCore.SIGNAL('triggered()'), self.onAction3DView)
+        self.actionNew.triggered.connect(self.onActionNew)
+        self.actionOpen.triggered.connect(self.onActionOpen)
+        self.action_Save.triggered.connect(self.onActionSave)
+        self.actionSave_All_Maps_As.triggered.connect(self.onActionSaveAllAs)
+        self.actionSet_Output_Directory.triggered.connect(self.onActionSetOutputDirectory)
+        self.action_Print_Current_Map_View.triggered.connect(self.onActionPrint)
+        self.actionSave_Current_Map_View.triggered.connect(self.onActionSaveCurrentView)
+        self.action_Quit.triggered.connect(self.onActionQuit)
+        self.actionZoom_In.triggered.connect(self.onActionZoomIn)
+        self.actionZoom_Out.triggered.connect(self.onActionZoomOut)
+        self.actionFit_to_Width.triggered.connect(self.onActionFitWidth)
+        self.actionFit_to_Height.triggered.connect(self.onActionFitHeight)
+        self.actionActual_Size.triggered.connect(self.onActionFitActual)
+        self.actionFit_to_Window.triggered.connect(self.onActionFitWindow)
+        self.action_Help.triggered.connect(self.onActionHelp)
+        self.actionAbout.triggered.connect(self.onActionAbout)
+        self.actionGenerate_World.triggered.connect(self.onActionGenerate)
+        self.actionGrayscale_Heightmap.triggered.connect(self.onActionMapsGrayscale1)
+        self.actionScatter_Plot.triggered.connect(self.onActionMapsScatter1)
+        self.actionSatellite_View.triggered.connect(self.onActionMapsSatellite1)
+        self.actionGenerate_Ancient_World.triggered.connect(self.onActionAncient)
+        self.actionExport_World.triggered.connect(self.onActionExportWorld)
+        self.action3D_View.triggered.connect(self.onAction3DView)
+        
+        self.actionWindows.triggered.connect(self.onActionWindows)
+        self.actionWindows_Vista.triggered.connect(self.onActionWindowsVista)
+        self.actionFusion.triggered.connect(self.onActionFusion)
+# Other Options for Look n Feel
+        self.actionDark_Orange.triggered.connect(self.onActionDarkOrange)
+        self.actionAqua.triggered.connect(self.onActionAqua)
+        self.actionMacOS.triggered.connect(self.onActionMacOS)
+        self.actionUbuntu.triggered.connect(self.onActionUbuntu)
 
-        self.connect(self.actionWindows, QtCore.SIGNAL('triggered()'), self.onActionWindows)
-        self.connect(self.actionWindows_XP, QtCore.SIGNAL('triggered()'), self.onActionWindowsXP)
-        self.connect(self.actionWindows_Vista, QtCore.SIGNAL('triggered()'), self.onActionWindowsVista)
-        self.connect(self.actionMotif, QtCore.SIGNAL('triggered()'), self.onActionMotif)
-        self.connect(self.actionCDE, QtCore.SIGNAL('triggered()'), self.onActionCDE)
-        self.connect(self.actionPlastique, QtCore.SIGNAL('triggered()'), self.onActionPlastique)
-        self.connect(self.actionClean_Looks, QtCore.SIGNAL('triggered()'), self.onActionCleanLooks)
-        self.connect(self.actionDark_Orange, QtCore.SIGNAL('triggered()'), self.onActionDarkOrange)
+        self.dialog.btnCentre.released.connect(self.btnCentre_Clicked)
+        self.dialog.btnRight.released.connect(self.btnRight_Clicked)
 
-        self.connect(self.dialog.btnCentre, QtCore.SIGNAL('released()'), self.btnCentre_Clicked)
-        self.connect(self.dialog.btnRight, QtCore.SIGNAL('released()'), self.btnRight_Clicked)
-
+        self.tblAvailable.setAcceptDrops(True)
         self.tblAvailable.setDragEnabled(True)
         self.tblAvailable.setDragDropOverwriteMode(False)
-        self.tblAvailable.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
+        self.tblAvailable.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.tblAvailable.setDefaultDropAction(QtCore.Qt.ActionMask)
-        self.tblAvailable.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.tblAvailable.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.tblAvailable.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tblAvailable.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
+        self.tblMapList.setAcceptDrops(True)
         self.tblMapList.setDragEnabled(True)
         self.tblMapList.setDragDropOverwriteMode(False)
-        self.tblMapList.setDragDropMode(QtGui.QAbstractItemView.DragDrop)
+        self.tblMapList.setDragDropMode(QtWidgets.QAbstractItemView.DragDrop)
         self.tblMapList.setDefaultDropAction(QtCore.Qt.ActionMask)
-        self.tblMapList.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
-        self.tblMapList.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
+        self.tblMapList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tblMapList.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
 
         self.tblMapList.viewport().installEventFilter(self)
         self.tblAvailable.viewport().installEventFilter(self)
 
-        self.connect(self.tblMapList, QtCore.SIGNAL('itemSelectionChanged()'), self.tblMapListChanged)
-        self.connect(self.spnOpacity, QtCore.SIGNAL('valueChanged(int)'), self.spnOpacityChanged)
+        self.tblMapList.itemSelectionChanged.connect(self.tblMapListChanged)
 
-        self.connect(self.gvLarge.horizontalScrollBar(), QtCore.SIGNAL('valueChanged(int)'), self.gvLargeSBHorChanged)
-        self.connect(self.gvLarge.verticalScrollBar(), QtCore.SIGNAL('valueChanged(int)'), self.gvLargeSBVertChanged)
+        self.tblMapList.itemPressed.connect(self.tblMapListPressed)
+        self.tblAvailable.itemPressed.connect(self.tblAvailablePressed)
 
-        self.connect(self.spnWidth, QtCore.SIGNAL('valueChanged(int)'), self.spnWidthChanged)
-        self.connect(self.spnHeight, QtCore.SIGNAL('valueChanged(int)'), self.spnHeightChanged)
+        self.spnOpacity.setKeyboardTracking(False)
+        self.spnOpacity.valueChanged.connect(self.spnOpacityChanged)
+
+        self.gvLarge.horizontalScrollBar().valueChanged.connect(self.gvLargeSBHorChanged)
+        self.gvLarge.verticalScrollBar().valueChanged.connect(self.gvLargeSBVertChanged)
+
+        self.spnWidth.valueChanged.connect(self.spnWidthChanged)
+        self.spnHeight.valueChanged.connect(self.spnHeightChanged)
+
+        self.dragSource = NULL
 
         self.changeScene('No World loaded')
 
         self.setDefaults()
 
         self.clearLists()
+        
+        self.world3D = World3dA('Maps/seed_11111_grayscale.png', 1024, 1024, 200, 'Maps/seed_11111_elevation.png', 'Maps/seed_11111_normal.png', 100)
+        
+        self.timer=QTimer()
+        self.timer.timeout.connect(self.checkRunning)
+        self.timer.start(20)
 
+    def tblMapListPressed(self):
+        self.dragSource = "MapList"
+        
+    def tblAvailablePressed(self):
+        self.dragSource = "Available"
+        
     def setDefaults(self):
-        self.setBlankStylesheet()
+        self.sshFile = './stylesheets/blank.stylesheet'
+        self.setStyle()
         self.sWorld = ''
         self.world = None
         self.sOutputDirectory, _ = os.path.split(sys.argv[0])
@@ -190,7 +213,7 @@ class MyApp(FORM_1, BASE_1):
         # These are the Ancient Map Options
         self.spnResize.setValue(1.0)
         self.rdoSeaBrown_3.setChecked(True)
-        self.rdoLandBrown.setChecked(True)
+        self.rdoLandGreen.setChecked(True)
         self.rdoBiomesYes_3.setChecked(True)
         self.rdoMountYes_3.setChecked(True)
         self.rdoRiverYes_3.setChecked(True)
@@ -216,9 +239,8 @@ class MyApp(FORM_1, BASE_1):
         self.bAncRivers = True
         self.bAncMountains = True
         self.bAncBorders = True
-        self.sAncFormat = self.cboAncFormat.currentText()
         self.sAncDataType = self.cboAncData.currentText()
-
+        self.sAncFormat = self.cboAncFormat.currentText()
         self.sAncFormat = self.sAncFormat[-5:]
 
         if self.sAncFormat[:1] == '(':
@@ -238,7 +260,6 @@ class MyApp(FORM_1, BASE_1):
         self.cboData.setCurrentIndex(0)
 
         self.sFormat = self.cboFormat.currentText()
-
         self.sFormat = self.sFormat[-5:]
 
         if self.sFormat[:1] == '(':
@@ -284,8 +305,8 @@ class MyApp(FORM_1, BASE_1):
         self.spnExportSubOffH.setValue(1024)
         self.cboExportResample.setCurrentIndex(3)
 
-        self.spnSeed.setEnabled(True)
         self.btnRandomise.setEnabled(True)
+        self.spnSeed.setEnabled(True)
         self.spnWidth.setEnabled(True)
         self.spnHeight.setEnabled(True)
         self.spnPlates.setEnabled(True)
@@ -486,9 +507,9 @@ class MyApp(FORM_1, BASE_1):
             self.rdoSeaBrown_3.setChecked(False)
 
         if sLandCol == 'True':
-            self.rdoLandBrown.setChecked(True)
+            self.rdoLandGreen.setChecked(True)
         else:
-            self.rdoLandBrown.setChecked(False)
+            self.rdoLandGreen.setChecked(False)
 
         if sBiomes == 'True':
             self.rdoBiomesYes_3.setChecked(True)
@@ -625,7 +646,7 @@ class MyApp(FORM_1, BASE_1):
 
     def gvLargeSBHorChanged(self, iInt):
         self.updateBox()
-
+    
     def eventFilter(self, source, event):
         if event.type() == QtCore.QEvent.Drop:
             mimeData = event.mimeData()
@@ -636,97 +657,96 @@ class MyApp(FORM_1, BASE_1):
 
                 data = self.decodeMimeData(mimeData.data(mimeFormat))
 
-                if source == self.tblMapList.viewport():
-                    if self.iDrag % 2 == 0:
-                        curRowCount = self.tblMapList.rowCount()
-                        self.tblMapList.insertRow(curRowCount)
-                        iTemp = QtGui.QTableWidgetItem(data)
-                        self.tblMapList.setItem(curRowCount, 0, iTemp)
-                        self.tblMapList.setCurrentCell(curRowCount, 0)
-
-                        sTemp = self.tblMapList.item(curRowCount, 0).text()
-
-                        if sTemp not in self.mapDict:
-                            self.mapDict[sTemp] = 255
-
-                            self.lblCurrentMap.setEnabled(True)
-                            self.spnOpacity.setEnabled(True)
-
-                            self.tblAvailable.removeRow(self.tblAvailable.currentRow())
-                            self.tblAvailable.setCurrentCell(0, 0)
-
-                            self.btnUpdate.setEnabled(True)
-
-                            if curRowCount > 0:
-                                self.btnUp.setEnabled(True)
-                                self.btnDown.setEnabled(True)
-                            else:
-                                self.btnUp.setEnabled(False)
-                                self.btnDown.setEnabled(False)
-
-                            self.spnOpacity.setValue(self.mapDict[sTemp])
-
-                            self.updateOpacities()
-                elif source == self.tblAvailable.viewport():
-                    if self.iDrag % 2 == 0:
-                        curRowCount = self.tblAvailable.rowCount()
-                        self.tblAvailable.insertRow(curRowCount)
-                        iTemp = QtGui.QTableWidgetItem(data)
-                        self.tblAvailable.setItem(curRowCount, 0, QtGui.QTableWidgetItem(iTemp))
-                        self.tblAvailable.setCurrentCell(curRowCount, 0)
-
-                        self.tblMapList.removeRow(self.tblMapList.currentRow())
-                        self.tblMapList.setCurrentCell(0, 0)
-
-                        curRowCount = self.tblMapList.rowCount()
-
+            if source == self.tblMapList.viewport():
+                if self.dragSource != "MapList":
+                    curRowCount = self.tblMapList.rowCount()
+                    self.tblMapList.insertRow(curRowCount)
+                    sTemp = data.value()
+                    self.tblMapList.setItem(curRowCount, 0, QtWidgets.QTableWidgetItem(sTemp))
+                    self.tblMapList.setCurrentCell(curRowCount, 0)
+    
+                    if sTemp not in self.mapDict:
+                        self.mapDict[sTemp] = 255
+            
+                        self.lblCurrentMap.setEnabled(True)
+                        self.spnOpacity.setEnabled(True)
+            
+                        self.tblAvailable.removeRow(self.tblAvailable.currentRow())
+                        self.tblAvailable.setCurrentCell(0, 0)
+            
+                        self.btnUpdate.setEnabled(True)
+            
                         if curRowCount > 0:
-                            self.btnUpdate.setEnabled(True)
-
-                            sTemp = self.tblMapList.item(0, 0).text()
-                            self.spnOpacity.setValue(self.mapDict[sTemp])
-                        else:
-                            self.btnUpdate.setEnabled(False)
-                            self.lblCurrentMap.setText('None')
-                            self.lblCurrentMap.setEnabled(False)
-                            self.spnOpacity.setValue(127)
-                            self.spnOpacity.setEnabled(False)
-
-                            self.actionZoom_In.setEnabled(False)
-                            self.actionZoom_Out.setEnabled(False)
-                            self.actionFit_to_Width.setEnabled(False)
-                            self.actionFit_to_Height.setEnabled(False)
-                            self.actionActual_Size.setEnabled(False)
-                            self.actionFit_to_Window.setEnabled(False)
-                            self.action_Save.setEnabled(False)
-                            self.actionSave_All_Maps_As.setEnabled(False)
-                            self.action_Print_Current_Map_View.setEnabled(False)
-                            self.actionSave_Current_Map_View.setEnabled(False)
-
-                        if curRowCount > 1:
                             self.btnUp.setEnabled(True)
                             self.btnDown.setEnabled(True)
                         else:
                             self.btnUp.setEnabled(False)
                             self.btnDown.setEnabled(False)
-
+            
+                        iTemp = self.mapDict[sTemp]
+                        self.spnOpacity.setValue(iTemp)
+            
                         self.updateOpacities()
-
-            self.iDrag = 0
+                        self.dragSource = ""
+            elif source == self.tblAvailable.viewport():
+                if self.dragSource != "Available":
+                    curRowCount = self.tblAvailable.rowCount()
+                    self.tblAvailable.insertRow(curRowCount)
+                    sTemp = data.value()
+                    self.tblAvailable.setItem(curRowCount, 0, QtWidgets.QTableWidgetItem(sTemp))
+                    self.tblAvailable.setCurrentCell(curRowCount, 0)
+                        
+                    self.tblMapList.removeRow(self.tblMapList.currentRow())
+                    self.tblMapList.setCurrentCell(0, 0)
+    
+                    curRowCount = self.tblMapList.rowCount()
+    
+                    if curRowCount > 0:
+                        self.btnUpdate.setEnabled(True)
+    
+                        sTemp = self.tblMapList.item(0, 0).text()
+                        self.spnOpacity.setValue(self.mapDict[sTemp])
+                    else:
+                        self.btnUpdate.setEnabled(False)
+                        self.lblCurrentMap.setText('None')
+                        self.lblCurrentMap.setEnabled(False)
+                        self.spnOpacity.setValue(127)
+                        self.spnOpacity.setEnabled(False)
+    
+                        self.actionZoom_In.setEnabled(False)
+                        self.actionZoom_Out.setEnabled(False)
+                        self.actionFit_to_Width.setEnabled(False)
+                        self.actionFit_to_Height.setEnabled(False)
+                        self.actionActual_Size.setEnabled(False)
+                        self.actionFit_to_Window.setEnabled(False)
+                        self.action_Save.setEnabled(False)
+                        self.actionSave_All_Maps_As.setEnabled(False)
+                        self.action_Print_Current_Map_View.setEnabled(False)
+                        self.actionSave_Current_Map_View.setEnabled(False)
+    
+                    if curRowCount > 1:
+                       self.btnUp.setEnabled(True)
+                       self.btnDown.setEnabled(True)
+                    else:
+                        self.btnUp.setEnabled(False)
+                        self.btnDown.setEnabled(False)
+    
+                    self.updateOpacities()
+                    self.dragSource = ""
         elif event.type() == QtCore.QEvent.DragEnter:
-            self.iDrag += 1
+            pass
         elif event.type() == QtCore.QEvent.DragLeave:
             pass
 
-        return QtGui.QMainWindow.eventFilter(self, source, event)
+        return QtWidgets.QMainWindow.eventFilter(self, source, event)
 
     def updateOpacities(self):
         curRowCount = self.tblMapList.rowCount() - 1
 
-        if curRowCount > 0:
+        if curRowCount > -1:
             sTemp = self.tblMapList.item(curRowCount, 0).text()
 
-            for k, v in self.mapDict.iteritems():
+            for k, v in self.mapDict.items():
                 if k == sTemp:
                     self.mapDict[k] = 255
                 else:
@@ -746,19 +766,22 @@ class MyApp(FORM_1, BASE_1):
             for role in range(stream.readInt32()):
                 key = QtCore.Qt.ItemDataRole(stream.readInt32())
                 stream >> value
-                item[key] = value.toPyObject()
+                item[key] = value
 
             return result[0][QtCore.Qt.DisplayRole]
 
     def tblMapListChanged(self):
         iRow = self.tblMapList.currentRow()
-        sTmp = self.tblMapList.item(iRow, 0).text()
-        self.lblCurrentMap.setText(sTmp)
-        self.updateOpacities()
 
-        for k, v in self.mapDict.iteritems():
-            if k == sTmp:
-                self.spnOpacity.setValue(v)
+        if iRow > -1:
+            sTmp = self.tblMapList.item(iRow, 0).text()
+            self.lblCurrentMap.setText(sTmp)
+            self.updateOpacities()
+    
+            if len(self.mapDict) > 0:
+                for k, v in self.mapDict.items():
+                    if k == sTmp:
+                        self.spnOpacity.setValue(v)
 
     def spnOpacityChanged(self, iInt):
         iRow = self.tblMapList.currentRow()
@@ -813,8 +836,8 @@ class MyApp(FORM_1, BASE_1):
             self.spnExportNormMax.setValue(self.spnHeight.value())
 
     def onMapBtnUpdate(self, inStr):
-        self.gvSceneSm = QtGui.QGraphicsScene()
-        self.gvSceneLg = QtGui.QGraphicsScene()
+        self.gvSceneSm = QtWidgets.QGraphicsScene()
+        self.gvSceneLg = QtWidgets.QGraphicsScene()
 
         self.actionZoom_In.setEnabled(True)
         self.actionZoom_Out.setEnabled(True)
@@ -839,12 +862,12 @@ class MyApp(FORM_1, BASE_1):
                 sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, inStr)
 
         self.pixmap = QtGui.QPixmap(sTmp)
-        piPixItemLg = QtGui.QGraphicsPixmapItem()
+        piPixItemLg = QtWidgets.QGraphicsPixmapItem()
         piPixItemLg.setPixmap(self.pixmap)
-        piPixItemLg.setFlag(QtGui.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
-        piPixItemSm = QtGui.QGraphicsPixmapItem()
+        piPixItemLg.setFlag(QtWidgets.QGraphicsPixmapItem.ItemIgnoresParentOpacity)
+        piPixItemSm = QtWidgets.QGraphicsPixmapItem()
         piPixItemSm.setPixmap(self.pixmap)
-        piPixItemSm.setFlag(QtGui.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
+        piPixItemSm.setFlag(QtWidgets.QGraphicsPixmapItem.ItemIgnoresParentOpacity)
 
         piPixItemLg.setOpacity(1)
         piPixItemSm.setOpacity(1)
@@ -853,11 +876,13 @@ class MyApp(FORM_1, BASE_1):
         self.gvSceneSm.addItem(piPixItemSm)
 
         self.gvSmall.setScene(self.gvSceneSm)
-        self.gvSmall.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvSmall.setRenderHint(QtGui.QPainter.TextAntialiasing)
         self.gvLarge.setScene(self.gvSceneLg)
-        self.gvLarge.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvLarge.setRenderHint(QtGui.QPainter.TextAntialiasing)
 
         bounds = QtCore.QRectF(self.gvSceneLg.itemsBoundingRect())
         self.gvSmall.centerOn(0, 0)
@@ -886,8 +911,8 @@ class MyApp(FORM_1, BASE_1):
             self.updateOpacities()
 
     def btnUpdate_Clicked(self):
-        self.gvSceneSm = QtGui.QGraphicsScene()
-        self.gvSceneLg = QtGui.QGraphicsScene()
+        self.gvSceneSm = QtWidgets.QGraphicsScene()
+        self.gvSceneLg = QtWidgets.QGraphicsScene()
 
         bFirst = True
 
@@ -902,19 +927,19 @@ class MyApp(FORM_1, BASE_1):
         self.action_Print_Current_Map_View.setEnabled(True)
         self.actionSave_Current_Map_View.setEnabled(True)
 
-        for index in reversed(xrange(self.tblMapList.rowCount())):
+        for index in reversed(range(self.tblMapList.rowCount())):
             if self.sFormat == 'png' or self.sFormat == 'jpg' or self.sFormat == 'jpeg' or self.sFormat == 'bmp':
                 sTmp = '%s/Maps/seed_%s_%s.%s' % (self.sDefaultDirectory, self.iSeed, self.tblMapList.item(index, 0).text(), self.sFormat)
             else:
                 sTmp = '%s/Maps/seed_%s_%s.png' % (self.sDefaultDirectory, self.iSeed, self.tblMapList.item(index, 0).text())
 
             self.pixmap = QtGui.QPixmap(sTmp)
-            piPixItemLg = QtGui.QGraphicsPixmapItem()
+            piPixItemLg = QtWidgets.QGraphicsPixmapItem()
             piPixItemLg.setPixmap(self.pixmap)
-            piPixItemLg.setFlag(QtGui.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
-            piPixItemSm = QtGui.QGraphicsPixmapItem()
+            piPixItemLg.setFlag(QtWidgets.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
+            piPixItemSm = QtWidgets.QGraphicsPixmapItem()
             piPixItemSm.setPixmap(self.pixmap)
-            piPixItemSm.setFlag(QtGui.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
+            piPixItemSm.setFlag(QtWidgets.QGraphicsPixmapItem.ItemIgnoresParentOpacity, True)
 
             sTemp = self.tblMapList.item(index, 0).text()
 
@@ -931,11 +956,13 @@ class MyApp(FORM_1, BASE_1):
             self.gvSceneSm.addItem(piPixItemSm)
 
         self.gvSmall.setScene(self.gvSceneSm)
-        self.gvSmall.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvSmall.setRenderHint(QtGui.QPainter.TextAntialiasing)
         self.gvLarge.setScene(self.gvSceneLg)
-        self.gvLarge.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvLarge.setRenderHint(QtGui.QPainter.TextAntialiasing)
 
         bounds = QtCore.QRectF(self.gvSceneLg.itemsBoundingRect())
         self.gvSmall.centerOn(0, 0)
@@ -1009,15 +1036,15 @@ class MyApp(FORM_1, BASE_1):
         self.setDefaultMapOptions()
 
     def addRedBox(self, x1, y1, x2, y2):
-        items = [i for i in self.gvSceneSm.items() if issubclass(i.__class__, QtGui.QGraphicsLineItem)]
+        items = [i for i in self.gvSceneSm.items() if issubclass(i.__class__, QtWidgets.QGraphicsLineItem)]
 
         for x in items:
             self.gvSceneSm.removeItem(x)
 
-        lin1 = QtGui.QGraphicsLineItem(x1, y1, x2, y1)
-        lin2 = QtGui.QGraphicsLineItem(x2, y1, x2, y2)
-        lin3 = QtGui.QGraphicsLineItem(x2, y2, x1, y2)
-        lin4 = QtGui.QGraphicsLineItem(x1, y2, x1, y1)
+        lin1 = QtWidgets.QGraphicsLineItem(x1, y1, x2, y1)
+        lin2 = QtWidgets.QGraphicsLineItem(x2, y1, x2, y2)
+        lin3 = QtWidgets.QGraphicsLineItem(x2, y2, x1, y2)
+        lin4 = QtWidgets.QGraphicsLineItem(x1, y2, x1, y1)
 
         pen = QtGui.QPen()
         pen.setWidth(4)
@@ -1044,11 +1071,11 @@ class MyApp(FORM_1, BASE_1):
         self.showDialog('Are you sure you want to reset all the Data?', 'Yes', 'No', True, 1, ':Images\question.png')
 
     def onActionOpen(self):
-        tDialog = QtGui.QFileDialog()
+        tDialog = QtWidgets.QFileDialog()
         tDialog.setDirectory(self.sDefaultDirectory)
 
-        sTmp = tDialog.getOpenFileName(self, 'Open World File', '.', 'World Files (*.world)', '', QtGui.QFileDialog.DontUseNativeDialog)
-        fi = QtCore.QFileInfo(sTmp)
+        sTmp = tDialog.getOpenFileName(self, 'Open World File', '.', 'World Files (*.world)', '', QtWidgets.QFileDialog.DontUseNativeDialog)
+        fi = QtCore.QFileInfo(sTmp[0])
         self.sWorld = "%s.world" % fi.baseName()
 
         if fi.baseName():
@@ -1056,7 +1083,7 @@ class MyApp(FORM_1, BASE_1):
             self.popup.textBrowser.setText('')
             self.popup.label.setText('Please wait while the World is being loaded...')
 
-            self.updatePopup('World Loading....\n\nPlease Wait! This will take a while!')
+            self.updatePopup('World Loading....\n\nPlease Wait! This may take a while!')
 
             start_time = time.time()
 
@@ -1075,11 +1102,11 @@ class MyApp(FORM_1, BASE_1):
             self.clearLists()
 
             sTmp = os.path.basename(str(self.sWorld)).split('.')
-            self.sSeed = QtCore.QString(sTmp[0])
-            self.sSeed = self.sSeed.right(5)
+            self.sSeed = sTmp[0]
+            self.sSeed = self.sSeed[-5:]
 
             if self.sSeed[:1] == "_":
-                self.sSeed = self.sSeed.right(4)
+                self.sSeed = self.sSeed[-4:]
 
             self.iSeed = long(self.sSeed)
 
@@ -1148,7 +1175,7 @@ class MyApp(FORM_1, BASE_1):
                                                 self.tblAvailable.insertRow(curRowCount)
                                                 sTmp = sFile.split('_')
                                                 sTmp = sTmp[2].split('.')
-                                                iTemp = QtGui.QTableWidgetItem(sTmp[0])
+                                                iTemp = QtWidgets.QTableWidgetItem(sTmp[0])
                                                 self.tblAvailable.setItem(curRowCount, 0, iTemp)
 
                                                 iCount += 1
@@ -1158,7 +1185,7 @@ class MyApp(FORM_1, BASE_1):
                                             self.tblAvailable.insertRow(curRowCount)
                                             sTmp = sFile.split('_')
                                             sTmp = sTmp[2].split('.')
-                                            iTemp = QtGui.QTableWidgetItem(sTmp[0])
+                                            iTemp = QtWidgets.QTableWidgetItem(sTmp[0])
                                             self.tblAvailable.setItem(curRowCount, 0, iTemp)
 
                                             iCount += 1
@@ -1178,19 +1205,21 @@ class MyApp(FORM_1, BASE_1):
         return iCount
 
     def changeScene(self, inTxt):
-        self.gvSceneSm = QtGui.QGraphicsScene()
-        self.gvSceneLg = QtGui.QGraphicsScene()
+        self.gvSceneSm = QtWidgets.QGraphicsScene()
+        self.gvSceneLg = QtWidgets.QGraphicsScene()
 
         font = QtGui.QFont('Open Sans', 32)
         self.gvSceneSm.addText(inTxt, font)
         self.gvSceneLg.addText(inTxt, font)
 
         self.gvSmall.setScene(self.gvSceneSm)
-        self.gvSmall.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvSmall.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvSmall.setRenderHint(QtGui.QPainter.TextAntialiasing)
         self.gvLarge.setScene(self.gvSceneLg)
-        self.gvLarge.setRenderHint(
-            QtGui.QPainter.Antialiasing or QtGui.QPainter.SmoothPixmapTransform or QtGui.QPainter.TextAntialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.Antialiasing)
+        self.gvLarge.setRenderHint(QtGui.QPainter.SmoothPixmapTransform)
+        self.gvLarge.setRenderHint(QtGui.QPainter.TextAntialiasing)
 
         bounds = QtCore.QRectF(self.gvSceneSm.itemsBoundingRect())
         self.gvSmall.centerOn(0, 0)
@@ -1257,7 +1286,7 @@ class MyApp(FORM_1, BASE_1):
         tResize = str(self.spnResize.value())
 
         tSea = self.rdoSeaBrown_3.isChecked()
-        tLandCol = self.rdoLandBrown.isChecked()
+        tLandCol = self.rdoLandGreen.isChecked()
         tBiomes = self.rdoBiomesYes_3.isChecked()
         tMount = self.rdoMountYes_3.isChecked()
         tRivers = self.rdoRiverYes_3.isChecked()
@@ -1403,10 +1432,10 @@ class MyApp(FORM_1, BASE_1):
         self.copyMapsFrom()
 
     def onActionPrint(self):
-        printerobject = QtGui.QPrinter(0)
-        printdialog = QtGui.QPrintDialog(printerobject)
+        printerobject = QtPrintSupport.QPrinter(0)
+        printdialog = QtPrintSupport.QPrintDialog(printerobject)
 
-        if printdialog.exec_() == QtGui.QDialog.Accepted:
+        if printdialog.exec_() == QtWidgets.QDialog.Accepted:
             pixmapImage = QtGui.QPixmap.grabWidget(self.gvSceneLg)
             painter = QtGui.QPainter(printerobject)
             painter.drawPixmap(0, 0, pixmapImage)
@@ -1437,6 +1466,7 @@ class MyApp(FORM_1, BASE_1):
     #            json.dumps(byte_array.toBase64(), outfile)
     # TODO: Implement imageManipulation?
     # Test code to see if I can extract Colours from Pixmap (WORKS!!)
+
     def imageManipulation(self, pTmp, iWidth, iHeight):
         tImage = pTmp.toImage()
 
@@ -1753,7 +1783,7 @@ class MyApp(FORM_1, BASE_1):
 
         self.dAncResize = self.spnResize.value()
         self.bAncSeaColour = self.rdoSeaBrown_3.isChecked()
-        self.bAncLandColour = self.rdoLandBrown.isChecked()
+        self.bAncLandColour = self.rdoLandGreen.isChecked()
         self.bAncBiomes = self.rdoBiomesYes_3.isChecked()
         self.bAncRivers = self.rdoRiverYes_3.isChecked()
         self.bAncMountains = self.rdoMountYes_3.isChecked()
@@ -1790,7 +1820,7 @@ class MyApp(FORM_1, BASE_1):
         self.popup.label.setText('Please wait while the World is being created...')
 
         self.updatePopup('WorldEngine - a world generator (v. %s)' % VERSION)
-        self.updatePopup('------------------------------------------------------------------------------------')
+        self.updatePopup('---------------------------------------------------')
         self.updatePopup(' seed                 : %i' % self.iSeed)
         self.updatePopup(' name                 : %s' % self.sWorld)
         self.updatePopup(' width                : %i' % self.iWidth)
@@ -1811,10 +1841,14 @@ class MyApp(FORM_1, BASE_1):
 
         self.updatePopup('')  # empty line
         self.updatePopup('starting ... ')
-        self.updatePopup('NB: This could take a long time (10+ minutes) and the UI will become unresponsive.')
-        self.updatePopup('    For example, on a Core i7-4700MQ @ 2.4GHz, Plates Simulation takes more than')
-        self.updatePopup('    a minute, Ocean Initialisation about 4 minutes and the Watermap Simulation')
-        self.updatePopup('    about 3 minutes. So, approximately 8 minutes for these three parts alone!')
+        self.updatePopup('NB: This may take a long time and the UI will become ')
+        self.updatePopup('    unresponsive. ')
+        self.updatePopup(' ')
+        self.updatePopup('    For example, on a modern R7 laptop, a map using ')
+        self.updatePopup('    default values took about 5.5 minutes, including: ')
+        self.updatePopup('          Plates Simulation taking about 30 seconds, ')
+        self.updatePopup('          Ocean Initialisation about 2 minutes and ')
+        self.updatePopup('          the Watermap Simulation about 2 minutes.')
 
         self.generateWorld(step)
 
@@ -2261,7 +2295,7 @@ class MyApp(FORM_1, BASE_1):
             self.updatePopup(' verbose messages       : no')
 
         self.updatePopup('')  # empty line
-        self.updatePopup('starting (this will take a few minutes and the UI will become unresponsive) ...')
+        self.updatePopup('starting (this may take a few minutes and the UI will become unresponsive) ...')
 
         self.sAncFormat = self.cboAncFormat.currentText()
         self.sAncFormat = self.sAncFormat[-5:]
@@ -2319,13 +2353,15 @@ class MyApp(FORM_1, BASE_1):
 
         diff = maxHght - minHght
         multHght = diff / 255.0
+        seaLevel = self.world.sea_level()
 
         hm = '%s/Maps/seed_%s_grayscale.png' % (self.sDefaultDirectory, self.iSeed)
         tm = '%s/Maps/seed_%s_elevation.png' % (self.sDefaultDirectory, self.iSeed)
         bm = '%s/Maps/seed_%s_normal.png' % (self.sDefaultDirectory, self.iSeed)
 
-        # pi_3d(hm, self.world.width, self.world.height, multHght, tm, bm)
-        world3dA(hm, self.world.width, self.world.height, multHght, tm, bm)
+        info = self.world3D.DISPLAY.opengl.window
+        win32gui.SetWindowPos(info, win32con.HWND_TOPMOST, 0, 0, self.world.width, self.world.height, 0)
+        self.world3D.startWorld(hm, self.world.width, self.world.height, 200, tm, bm, 100)
 
     def __get_last_byte__(self, filename):
         with open(filename, 'rb') as input_file:
@@ -2386,7 +2422,7 @@ class MyApp(FORM_1, BASE_1):
             raise Exception('The given worldfile does not seem to be a protobuf file')
 
     def onActionSetOutputDirectory(self):
-        self.sOutputDirectory = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory', '.', QtGui.QFileDialog.DontUseNativeDialog)
+        self.sOutputDirectory = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Directory', '.', QtWidgets.QFileDialog.DontUseNativeDialog)
 
         if not self.sOutputDirectory:
             self.sOutputDirectory, _ = os.path.split(sys.argv[0])
@@ -2396,35 +2432,34 @@ class MyApp(FORM_1, BASE_1):
         self.popup.textBrowser.setText('')
         self.popup.label.setText('WorldEngine Version Information')
 
-        self.updatePopup('------------------------------------------------------------------------------------')
+        self.updatePopup('---------------------------------------------------')
+        self.updatePopup('WorldEngine - a world generator (v. %s)' % VERSION)
         self.updatePopup('')
-        self.updatePopup(' WorldEngine - a world generator (v. %s)' % VERSION)
+        self.updatePopup('    WorldEngine itself is (c) Federico Tomassetti and ')
+        self.updatePopup('    Bret Curtis, 2011-2016')
         self.updatePopup('')
+        self.updatePopup('    This WorldEngine GUI is (c) SpinalSoft (AU) 2016-2022')
+        self.updatePopup('    and was created using PyDev (https://www.pydev.org/) ')
+        self.updatePopup('    and Qt Creator (https://www.qt.io/product/development-tools)')
         self.updatePopup('')
-        self.updatePopup(' WorldEngine itself is (c) Federico Tomassetti and Bret Curtis, 2011-2016')
+        self.updatePopup('    Pi3D is (c) Tim Skillman, Paddy Gaunt & Tom Ritchford')
+        self.updatePopup('    2012 - 2022')
         self.updatePopup('')
+        self.updatePopup('    Icons are from "cc mono icon set" by Gentleface.com:')
+        self.updatePopup('    https://www.iconfinder.com/iconsets/cc_mono_icon_set')
+        self.updatePopup('    except 3D & WINDOW which are attributable as follows:')
+        self.updatePopup('    "Icon made by Freepik from www.flaticon.com"')
         self.updatePopup('')
-        self.updatePopup(' This WorldEngine GUI is (c) SpinalSoft (AU) 2016-2017')
-        self.updatePopup('')
-        self.updatePopup('')
-        self.updatePopup(' Pi3D is (c) Tim Skillman, Paddy Gaunt, Tom Ritchford  2012 - 2017')
-        self.updatePopup('')
-        self.updatePopup('')
-        self.updatePopup(' Icons are from "cc mono icon set" by Gentleface.com:')
-        self.updatePopup(' https://www.iconfinder.com/iconsets/cc_mono_icon_set')
-        self.updatePopup('')
-        self.updatePopup(' except 3D & WINDOW which are attributable as follows:')
-        self.updatePopup(' "Icon made by Freepik from www.flaticon.com"')
-        self.updatePopup('')
-        self.updatePopup('')
-        self.updatePopup(' Stylesheet is a modified version of "Qt Dark Orange" from')
+        self.updatePopup('    Dark Orange Stylesheet is a modified version from')
         self.updatePopup(' http://tech-artists.org/forum/showthread.php?2359-Release-Qt-dark-orange-stylesheet')
-        self.updatePopup(' by LoneWolf')
+        self.updatePopup('    by LoneWolf')
         self.updatePopup('')
+        self.updatePopup('    Aqua, MacOS and Ubuntu Stylesheets are MIT License ')
+        self.updatePopup('    and Copyright (c) 2018 Jaime Quiroga')
         self.updatePopup('')
         self.updatePopup(' Please close this Window to return to the main UI')
-        self.updatePopup('')
-        self.updatePopup('------------------------------------------------------------------------------------')
+        self.updatePopup('---------------------------------------------------')
+
 
     # 0 = No Action, 1 = New, 2 = Quit, 3 = not in Ascending Order
     def btnCentre_Clicked(self):
@@ -2433,6 +2468,8 @@ class MyApp(FORM_1, BASE_1):
         if self.iMsg == 1:
             self.setDefaults()
         elif self.iMsg == 2:
+            self.timer.stop()
+            self.world3D.close()
             self.deleteMaps('maps')
             self.deleteMaps('world')
             sys.exit(APP.exec_())
@@ -2444,75 +2481,52 @@ class MyApp(FORM_1, BASE_1):
         self.dialog.close()
         self.iMsg = 0
 
-    @pyqtSlot('QString')
+    @pyqtSlot(str)
     def updatePopup(self, sText):
         self.popup.textBrowser.append(sText)
         APP.processEvents()
 
     def onActionWindows(self):
         if self.sshFile != '':
-            self.setBlankStylesheet()
+            self.sshFile = './stylesheets/blank.stylesheet'
+            self.setStyle()
             self.sshFile = ''
 
-        APP.setStyle('windows')
-
-    def onActionWindowsXP(self):
-        if self.sshFile != '':
-            self.setBlankStylesheet()
-            self.sshFile = ''
-
-        APP.setStyle('windowsxp')
+        APP.setStyle('Windows')
 
     def onActionWindowsVista(self):
         if self.sshFile != '':
-            self.setBlankStylesheet()
+            self.sshFile = './stylesheets/blank.stylesheet'
+            self.setStyle()
             self.sshFile = ''
 
         APP.setStyle('windowsvista')
 
-    def onActionMotif(self):
+    def onActionFusion(self):
         if self.sshFile != '':
-            self.setBlankStylesheet()
+            self.sshFile = './stylesheets/blank.stylesheet'
+            self.setStyle()
             self.sshFile = ''
 
-        APP.setStyle('motif')
-
-    def onActionCDE(self):
-        if self.sshFile != '':
-            self.setBlankStylesheet()
-            self.sshFile = ''
-
-        APP.setStyle('cde')
-
-    def onActionPlastique(self):
-        if self.sshFile != '':
-            self.setBlankStylesheet()
-            self.sshFile = ''
-
-        APP.setStyle('plastique')
-
-    def onActionCleanLooks(self):
-        if self.sshFile != '':
-            self.setBlankStylesheet()
-            self.sshFile = ''
-
-        APP.setStyle('cleanlooks')
-
-    def setBlankStylesheet(self):
-        self.sshFile = 'blank.stylesheet'
-
-        with open(self.sshFile, "r") as fh:
-            self.setStyleSheet(fh.read())
-        with open(self.sshFile, "r") as fh:
-            self.dialog.setStyleSheet(fh.read())
-        with open(self.sshFile, "r") as fh:
-            self.popup.setStyleSheet(fh.read())
-        with open(self.sshFile, "r") as fh:
-            self._3d.setStyleSheet(fh.read())
+        APP.setStyle('Fusion')
 
     def onActionDarkOrange(self):
-        self.sshFile = 'darkorange.stylesheet'
+        self.sshFile = './stylesheets/darkorange.stylesheet'
+        self.setStyle()
 
+    def onActionAqua(self):
+        self.sshFile = './stylesheets/Aqua.qss'
+        self.setStyle()
+
+    def onActionMacOS(self):
+        self.sshFile = './stylesheets/MacOS.qss'
+        self.setStyle()
+
+    def onActionUbuntu(self):
+        self.sshFile = './stylesheets/Ubuntu.qss'
+        self.setStyle()
+
+    def setStyle(self):
         with open(self.sshFile, "r") as fh:
             self.setStyleSheet(fh.read())
         with open(self.sshFile, "r") as fh:
@@ -2522,10 +2536,18 @@ class MyApp(FORM_1, BASE_1):
         with open(self.sshFile, "r") as fh:
             self._3d.setStyleSheet(fh.read())
 
+    def checkRunning(self):
+        while self.world3D.loop_running():
+            if self.world3D.read_key_and_move() == 48:
+                self.world3D.stop_looping()
+                info = self.world3D.DISPLAY.opengl.window
+                win32gui.SetWindowPos(info, win32con.HWND_BOTTOM, 0, 0, self.world.width, self.world.height, 0)
+
+
 if __name__ == '__main__':
-    APP = QtGui.QApplication(sys.argv)
+    APP = QtWidgets.QApplication(sys.argv)
     FORM = MyApp()
     APP.setWindowIcon(QtGui.QIcon(':/Images/icon.png'))
-    APP.setStyle('plastique')
+    APP.setStyle('Fusion')
     FORM.show()
     APP.exec_()

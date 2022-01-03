@@ -27,7 +27,6 @@ import png
 # Documentation PurePNG: http://purepng.readthedocs.org/en/latest/
 # The latter one is a fork of the former one. It is yet to be seen which one is better.
 
-
 class PNGWriter(object):
     """
     From https://pythonhosted.org/pypng/png.html#module-png :
@@ -223,7 +222,6 @@ class PNGWriter(object):
 
     def __setitem__(self, item, value):
         self.array[item] = value
-
 
 class PNGReader(object):
     def __init__(self, filename):
